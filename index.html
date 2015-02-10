@@ -1,0 +1,161 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Vitess by youtube</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Vitess</h1>
+        <p>vitess provides servers and tools which facilitate scaling of MySQL databases for large scale web services.</p>
+
+        <p class="view"><a href="https://github.com/youtube/vitess">View the Project on GitHub <small>youtube/vitess</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/youtube/vitess/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/youtube/vitess/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/youtube/vitess">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
+<a id="vitess-" class="anchor" href="#vitess-" aria-hidden="true"><span class="octicon octicon-link"></span></a>Vitess </h1><p align="right"><a href="https://travis-ci.org/youtube/vitess/builds"><img src="https://travis-ci.org/youtube/vitess.svg?branch=master" alt="Build Status"></a> <a href="https://coveralls.io/r/youtube/vitess"><img src="https://coveralls.io/repos/youtube/vitess/badge.png" alt="Coverage Status"></a></p>
+
+<p>Vitess is a set of servers and tools meant to facilitate scaling of MySQL
+databases for the web. It's been developed since 2011, and is currently used as
+a fundamental component of YouTube's MySQL infrastructure, serving thousands of
+QPS (per server). If you want to find out whether Vitess is a good fit for your
+project, please read our <a href="https://github.com/youtube/vitess/blob/master/doc/HelicopterOverview.md">helicopter
+overview</a>.</p>
+
+<p>There are a couple of videos from <a href="https://github.com/sougou">sougou</a> that you can watch:
+a <a href="http://youtu.be/midJ6b1LkA0">short intro</a> prepared for Google I/O 2014
+and a more <a href="http://youtu.be/5yDO-tmIoXY">detailed presentation from @Scale '14</a>.</p>
+
+<h2>
+<a id="overview" class="anchor" href="#overview" aria-hidden="true"><span class="octicon octicon-link"></span></a>Overview</h2>
+
+<p><img src="https://raw.githubusercontent.com/youtube/vitess/master/doc/VitessOverview.png" alt="Overview"></p>
+
+<p>Vitess consists of a number servers, command line utilities, and a consistent
+metadata store. Taken together, they allow you to serve more database traffic,
+and add features like sharding, which normally you would have to implement in your
+application.</p>
+
+<p><strong>vttablet</strong> is a server that sits in front of a MySQL database, making it more
+robust and available in the face of high traffic. Among other things, it adds a
+connection pool, has a row based cache, and it rewrites SQL queries to be safer
+and nicer to the underlying database.</p>
+
+<p><strong>vtgate</strong> is a very light proxy that routes database traffic from your app to the
+right vttablet, basing on the sharding scheme, latency required, and health of
+the vttablets. This allows the client to be very simple, as all it needs to be
+concerned about is finding the closest vtgate.</p>
+
+<p>The <strong>topology</strong> is a metadata store that contains information about running
+servers, the sharding scheme, and replication graph. It is backed by a
+consistent data store, like <a href="http://zookeeper.apache.org/">Apache ZooKeeper</a>.
+The topology backends are plugin based, allowing you to write your own if
+ZooKeeper doesn't fit your needs. You can explore the topology through
+<strong>vtctld</strong>, a webserver (not shown in the diagram).</p>
+
+<p><strong>vtctl</strong> is a command line utility that allows a human or a script to easily
+interact with the system.</p>
+
+<p>All components communicate using a lightweight RPC system based on
+<a href="http://bsonspec.org/">BSON</a>. The RPC system is plugin based, so you can easily
+write your own backend (at Google we use a Protocol Buffers based protocol). We
+provide a client implementation for three languages: Python, Go, and Java.
+Writing a client for your language should not be difficult, as it's a matter of
+implementing only a few API calls (please send us a pull request if you do!).</p>
+
+<h2>
+<a id="trying-it-out" class="anchor" href="#trying-it-out" aria-hidden="true"><span class="octicon octicon-link"></span></a>Trying it out</h2>
+
+<p>Vitess is not entirely ready for unsupervised use yet. Some functionality is
+still under development, APIs may change, and parts of the code are
+undocumented. However, if you feel adventurous, you're more than welcome to try
+it. We know that there are some rough edges, so please don't hesitate to reach out
+to us through <a href="https://groups.google.com/forum/#!forum/vitess">our mailing list</a>
+if you run into any issues. Warnings aside, please take a look at our <a href="https://github.com/youtube/vitess/blob/master/doc/GettingStarted.md">Getting
+Started</a>
+guide.</p>
+
+<h2>
+<a id="documentation" class="anchor" href="#documentation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Documentation</h2>
+
+<h3>
+<a id="intro" class="anchor" href="#intro" aria-hidden="true"><span class="octicon octicon-link"></span></a>Intro</h3>
+
+<ul>
+<li>
+<a href="https://github.com/youtube/vitess/blob/master/doc/HelicopterOverview.md">Helicopter overview</a>:
+ high level overview of Vitess that should tell you whether Vitess is for you.</li>
+<li>
+<a href="https://github.com/youtube/vitess/blob/master/doc/FAQ.md">Frequently Asked Questions</a>.</li>
+<li>
+<a href="https://github.com/youtube/vitess/blob/master/doc/Vision.md">Vision</a>:
+ principles guiding the design of Vitess.</li>
+</ul>
+
+<h3>
+<a id="using-vitess" class="anchor" href="#using-vitess" aria-hidden="true"><span class="octicon octicon-link"></span></a>Using Vitess</h3>
+
+<ul>
+<li>
+<a href="https://github.com/youtube/vitess/blob/master/doc/GettingStarted.md">Getting Started</a>:
+ how to set your environment to work with Vitess.</li>
+<li>
+<a href="https://github.com/youtube/vitess/blob/master/doc/Tools.md">Tools</a>:
+ all Vitess tools and servers.</li>
+<li>
+<a href="https://github.com/youtube/vitess/blob/master/doc/vtocc.md">vttablet/vtocc</a>:
+ information about the most important Vitess server.</li>
+<li>
+<a href="https://github.com/youtube/vitess/blob/master/doc/Reparenting.md">Reparenting</a>:
+ performing master failover.</li>
+<li>
+<a href="https://github.com/youtube/vitess/blob/master/doc/Resharding.md">Resharding</a>:
+ adding more shards to your cluster.</li>
+<li>
+<a href="https://github.com/youtube/vitess/blob/master/doc/Production.md">Preparing for production</a> (wip).</li>
+<li>
+<a href="https://github.com/youtube/vitess/blob/master/doc/SchemaManagement.md">Schema management</a>:
+ managing your database schema using Vitess.</li>
+</ul>
+
+<h3>
+<a id="reference" class="anchor" href="#reference" aria-hidden="true"><span class="octicon octicon-link"></span></a>Reference</h3>
+
+<ul>
+<li><a href="https://github.com/youtube/vitess/blob/master/doc/Concepts.md">General Concepts</a></li>
+<li><a href="https://github.com/youtube/vitess/blob/master/doc/ZookeeperData.md">Zookeeper data</a></li>
+<li><a href="https://github.com/youtube/vitess/blob/master/doc/ServingGraph.md">Serving graph</a></li>
+<li><a href="https://github.com/youtube/vitess/blob/master/doc/ReplicationGraph.md">Replication Graph</a></li>
+</ul>
+
+<h2>
+<a id="license" class="anchor" href="#license" aria-hidden="true"><span class="octicon octicon-link"></span></a>License</h2>
+
+<p>Unless otherwise noted, the vitess source files are distributed
+under the BSD-style license found in the LICENSE file.</p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/youtube">youtube</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
