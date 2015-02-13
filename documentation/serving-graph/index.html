@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Serving Graph • Vitess</title>
+    <meta name="description" content="Serving Graph
+
+The Serving Graph is a roll-up view of the state of the system in a consistent state. It is used by clients to know
+the general topology of the system, and find servers to connect to (EndPoints).
+
+The serving Graph is maintained independently in every cell, and only usually contains information about the servers
+in that cell.
+
+SrvKeyspace
+
+The toplevel object of the serving graph is the SrvKeyspace object. It exists in each cell that is serving data for
+that keyspace. It contains:
+- a shard map, for each serving type.
+- (optional) information about the sharding key for that keyspace.
+- (optional) a redirection map, in case some keyspaces are served by another keyspace (this feature is used during
+vrtical splits).
+
+It is rebuilt by running &#39;vtctl RebuildKeyspaceGraph&#39;. It is not automatically rebuilt when adding new tablets in a cell.
+It may also be changed during horizontal and vertical splits.
+
+SrvShard
+
+This object has information about a given shard in a cell. Clients usually skip reading that object, as SrvKeyspace + EndPoints
+is usually enough.
+
+It is rebuilt:
+- using &#39;vtctl RebuildShardGraph&#39;
+- when a SrvKeyspace is rebuilt
+- automatically after Reparenting and other similar actions that may affect the graph.
+
+EndPoints
+
+This is just a list of possible servers to connect (host, port map) for a given cell, keyspace, shard and server type
+(master, replica, ...). It is rebuilt at the same time as SrvShard objects.
+
+Rebuilding the Serving Graph
+
+We mentioned the commands to rebuild the serving graph earlier.
+
+For a given tablet, before adding it to the Serving Graph, we will check its master is the Shard&#39;s master. So some hosts
+may be missing when they were expected. The rebuild process will echo a warning in that case.
+">
+    <meta name="keywords" content="">
+    
+    
+    	<!-- Twitter Cards -->
+	<meta name="twitter:title" content="Serving Graph">
+	<meta name="twitter:description" content="Serving Graph
+
+The Serving Graph is a roll-up view of the state of the system in a consistent state. It is used by clients to know
+the general topology of the system, and find servers to connect to (EndPoints).
+
+The serving Graph is maintained independently in every cell, and only usually contains information about the servers
+in that cell.
+
+SrvKeyspace
+
+The toplevel object of the serving graph is the SrvKeyspace object. It exists in each cell that is serving data for
+that keyspace. It contains:
+- a shard map, for each serving type.
+- (optional) information about the sharding key for that keyspace.
+- (optional) a redirection map, in case some keyspaces are served by another keyspace (this feature is used during
+vrtical splits).
+
+It is rebuilt by running &#39;vtctl RebuildKeyspaceGraph&#39;. It is not automatically rebuilt when adding new tablets in a cell.
+It may also be changed during horizontal and vertical splits.
+
+SrvShard
+
+This object has information about a given shard in a cell. Clients usually skip reading that object, as SrvKeyspace + EndPoints
+is usually enough.
+
+It is rebuilt:
+- using &#39;vtctl RebuildShardGraph&#39;
+- when a SrvKeyspace is rebuilt
+- automatically after Reparenting and other similar actions that may affect the graph.
+
+EndPoints
+
+This is just a list of possible servers to connect (host, port map) for a given cell, keyspace, shard and server type
+(master, replica, ...). It is rebuilt at the same time as SrvShard objects.
+
+Rebuilding the Serving Graph
+
+We mentioned the commands to rebuild the serving graph earlier.
+
+For a given tablet, before adding it to the Serving Graph, we will check its master is the Shard&#39;s master. So some hosts
+may be missing when they were expected. The rebuild process will echo a warning in that case.
+">
+	
+	
+	
+	<meta name="twitter:card" content="summary">
+	<meta name="twitter:image" content="http://youtube.github.io/vitess/images/120x120.gif">
+	
+	<!-- Open Graph -->
+	<meta property="og:locale" content="en_US">
+	<meta property="og:type" content="article">
+	<meta property="og:title" content="Serving Graph">
+	<meta property="og:description" content="Serving Graph
+
+The Serving Graph is a roll-up view of the state of the system in a consistent state. It is used by clients to know
+the general topology of the system, and find servers to connect to (EndPoints).
+
+The serving Graph is maintained independently in every cell, and only usually contains information about the servers
+in that cell.
+
+SrvKeyspace
+
+The toplevel object of the serving graph is the SrvKeyspace object. It exists in each cell that is serving data for
+that keyspace. It contains:
+- a shard map, for each serving type.
+- (optional) information about the sharding key for that keyspace.
+- (optional) a redirection map, in case some keyspaces are served by another keyspace (this feature is used during
+vrtical splits).
+
+It is rebuilt by running &#39;vtctl RebuildKeyspaceGraph&#39;. It is not automatically rebuilt when adding new tablets in a cell.
+It may also be changed during horizontal and vertical splits.
+
+SrvShard
+
+This object has information about a given shard in a cell. Clients usually skip reading that object, as SrvKeyspace + EndPoints
+is usually enough.
+
+It is rebuilt:
+- using &#39;vtctl RebuildShardGraph&#39;
+- when a SrvKeyspace is rebuilt
+- automatically after Reparenting and other similar actions that may affect the graph.
+
+EndPoints
+
+This is just a list of possible servers to connect (host, port map) for a given cell, keyspace, shard and server type
+(master, replica, ...). It is rebuilt at the same time as SrvShard objects.
+
+Rebuilding the Serving Graph
+
+We mentioned the commands to rebuild the serving graph earlier.
+
+For a given tablet, before adding it to the Serving Graph, we will check its master is the Shard&#39;s master. So some hosts
+may be missing when they were expected. The rebuild process will echo a warning in that case.
+">
+	<meta property="og:url" content="http://youtube.github.io/vitess/documentation/serving-graph/">
+	<meta property="og:site_name" content="Vitess">
+
+    <link rel="canonical" href="http://youtube.github.io/vitess/documentation/serving-graph/">
+
+    <link href="http://youtube.github.io/vitess/sitemap.xml" type="application/xml" rel="sitemap" title="Sitemap">
+
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="cleartype" content="on">
+
+    <style>
+    .sliding-menu-content {
+      top: 0;
+      right: 0;
+      text-align: center;
+      visibility: hidden;
+      height: 100%;
+      width: 100%;
+      -webkit-transform: translateX(100%);
+      -moz-transform: translateX(100%);
+      -ms-transform: translateX(100%);
+      -o-transform: translateX(100%);
+      transform: translateX(100%);
+    }
+    </style>
+
+    <link rel="stylesheet" href="http://youtube.github.io/vitess/css/main.css">
+    <!-- HTML5 Shiv and Media Query Support for IE -->
+    <!--[if lt IE 9]>
+      <script src="http://youtube.github.io/vitess/js/vendor/html5shiv.min.js"></script>
+      <script src="http://youtube.github.io/vitess/js/vendor/respond.min.js"></script>
+    <![endif]-->
+
+  </head>
+
+  <body>
+    <header id="masthead">
+  <div class="inner-wrap">
+    <a href="http://youtube.github.io/vitess/" class="site-title">Vitess</a>
+    <nav role="navigation" class="menu top-menu">
+        <ul class="menu-item">
+	<li class="home"><a href="/">Vitess</a></li>
+	
+    
+        
+    
+    <li><a href="http://youtube.github.io/vitess/getting-started/" >Getting Started</a></li>
+  
+    
+        
+    
+    <li><a href="http://youtube.github.io/vitess/documentation/" >Documentation</a></li>
+  
+    
+        
+    
+    <li><a href="http://youtube.github.io/vitess/about/" >About</a></li>
+  
+    
+        
+    
+    <li><a href="http://youtube.github.io/vitess/faq/" >FAQ</a></li>
+  
+</ul>
+    </nav>
+  </div>
+</header>
+
+    <nav role="navigation" class="js-menu sliding-menu-content">
+	<ul class="menu-item">
+		<li>
+      
+        
+      
+			<a href="http://youtube.github.io/vitess/getting-started/"><img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" class="teaser"></a>
+			<a href="http://youtube.github.io/vitess/getting-started/" class="title">Getting Started</a>
+			<p class="excerpt">Everything you need to know to get started with Vitess.</p>
+		</li><li>
+      
+        
+      
+			<a href="http://youtube.github.io/vitess/documentation/"><img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" class="teaser"></a>
+			<a href="http://youtube.github.io/vitess/documentation/" class="title">Documentation</a>
+			<p class="excerpt">Vitess Docs.</p>
+		</li><li>
+      
+        
+      
+			<a href="http://youtube.github.io/vitess/about/"><img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" class="teaser"></a>
+			<a href="http://youtube.github.io/vitess/about/" class="title">About</a>
+			<p class="excerpt">All about Vitess.</p>
+		</li><li>
+      
+        
+      
+			<a href="http://youtube.github.io/vitess/faq/"><img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" class="teaser"></a>
+			<a href="http://youtube.github.io/vitess/faq/" class="title">FAQ</a>
+			<p class="excerpt">Vitess Faq.</p>
+		</li>
+	</ul>
+</nav>
+<button type="button" class="js-menu-trigger sliding-menu-button menulines-button x2" role="button" aria-label="Toggle Navigation">
+	<span class="menulines"></span>
+</button>
+
+<div class="js-menu-screen menu-screen"></div>
+
+    <div id="page-wrapper">
+      <!--[if lt IE 9]><div class="upgrade notice-danger"><strong>Your browser is quite old!</strong> Why not <a href="http://whatbrowser.org/">upgrade to a newer one</a> to better enjoy this site?</div><![endif]-->
+
+      <div id="main" role="main">
+  <article class="wrap" itemscope itemtype="http://schema.org/Article">
+    
+    
+  <nav class="breadcrumbs">
+    <span itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+      <a href="http://youtube.github.io/vitess" itemprop="url">
+        <span itemprop="title">Home</span>
+      </a> › 
+    <span itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+      <a href="http://youtube.github.io/vitess/documentation/" itemprop="url">
+        <span itemprop="title">Documentation</span>
+      </a>
+    </span>
+  </nav>
+
+
+    <div class="inner-wrap">
+      <nav class="toc"></nav>
+      <div id="content" class="page-content" itemprop="articleBody">
+	<h1 id="serving-graph">Serving Graph</h1>
+
+<p>The Serving Graph is a roll-up view of the state of the system in a consistent state. It is used by clients to know
+the general topology of the system, and find servers to connect to (EndPoints).</p>
+
+<p>The serving Graph is maintained independently in every cell, and only usually contains information about the servers
+in that cell.</p>
+
+<h2 id="srvkeyspace">SrvKeyspace</h2>
+
+<p>The toplevel object of the serving graph is the SrvKeyspace object. It exists in each cell that is serving data for
+that keyspace. It contains:
+- a shard map, for each serving type.
+- (optional) information about the sharding key for that keyspace.
+- (optional) a redirection map, in case some keyspaces are served by another keyspace (this feature is used during
+vrtical splits).</p>
+
+<p>It is rebuilt by running &#39;vtctl RebuildKeyspaceGraph&#39;. It is not automatically rebuilt when adding new tablets in a cell.
+It may also be changed during horizontal and vertical splits.</p>
+
+<h2 id="srvshard">SrvShard</h2>
+
+<p>This object has information about a given shard in a cell. Clients usually skip reading that object, as SrvKeyspace + EndPoints
+is usually enough.</p>
+
+<p>It is rebuilt:
+- using &#39;vtctl RebuildShardGraph&#39;
+- when a SrvKeyspace is rebuilt
+- automatically after Reparenting and other similar actions that may affect the graph.</p>
+
+<h2 id="endpoints">EndPoints</h2>
+
+<p>This is just a list of possible servers to connect (host, port map) for a given cell, keyspace, shard and server type
+(master, replica, ...). It is rebuilt at the same time as SrvShard objects.</p>
+
+<h2 id="rebuilding-the-serving-graph">Rebuilding the Serving Graph</h2>
+
+<p>We mentioned the commands to rebuild the serving graph earlier.</p>
+
+<p>For a given tablet, before adding it to the Serving Graph, we will check its master is the Shard&#39;s master. So some hosts
+may be missing when they were expected. The rebuild process will echo a warning in that case.</p>
+
+	<hr />
+	<footer class="page-footer">
+	  
+
+
+<div class="author-image">
+	<img src="http://youtube.github.io/vitess/images/" alt="Vitess Team">
+</div>
+<div class="author-content">
+	<h3 class="author-name" >Written by <a href="https://github.com/youtube/vitess" itemprop="author">Vitess Team</a></h3>
+	<p class="author-bio"></p>
+</div>
+
+	  <div class="inline-btn">
+	<a class="btn-social twitter" href="https://twitter.com/intent/tweet?text=Serving%20Graph&amp;url=http://youtube.github.io/vitess/documentation/serving-graph/&amp;via=" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i> Share on Twitter</a>
+	<a class="btn-social facebook" href="https://www.facebook.com/sharer/sharer.php?u=http://youtube.github.io/vitess/documentation/serving-graph/" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i> Share on Facebook</a>
+	<a class="btn-social google-plus"  href="https://plus.google.com/share?url=http://youtube.github.io/vitess/documentation/serving-graph/" target="_blank"><i class="fa fa-google-plus" aria-hidden="true"></i> Share on Google+</a>
+</div>
+
+	  <div class="page-meta">
+	<p>Updated <time datetime="2015-01-01T00:00:00Z" itemprop="datePublished">January 01, 2015</time></p>
+</div>
+
+	</footer>
+	<aside>
+	  
+	</aside>
+      </div>
+    </div>
+  </article>
+</div>
+
+
+      <footer role="contentinfo" id="site-footer">
+  <nav role="navigation" class="menu bottom-menu">
+    <ul class="menu-item">
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/" >Home</a></li>
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/getting-started/" >Getting Started</a></li>
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/about/" >About</a></li>
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/faq/" >FAQ</a></li>
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/terms/" >Terms</a></li>
+      
+    </ul>
+  </nav>
+  <p class="copyright">&#169; 2015 <a href="http://youtube.github.io/vitess">Vitess</a> powered by <a href="http://www.google.com">Google Inc</a>.</p>
+</footer>
+
+    </div>
+
+    <script src="http://youtube.github.io/vitess/js/vendor/jquery-1.9.1.min.js"></script>
+    <script src="http://youtube.github.io/vitess/js/main.js"></script>
+    
+    
+    <script type="text/javascript">
+      $('.toc').toc({
+        'selectors': 'h2', //elements to use as headings
+        'container': '.page-content', //element to find all selectors in
+        'smoothScrolling': true, //enable or disable smooth scrolling on click
+        'prefix': 'toc', //prefix for anchor tags and class names
+        'onHighlight': function(el) {}, //called when a new section is highlighted 
+        'highlightOnScroll': true, //add class to heading that is currently in focus
+        'highlightOffset': 100, //offset to trigger the next headline
+        'anchorName': function(i, heading, prefix) { //custom function for anchor name
+          return prefix+i;
+        },
+        'headerText': function(i, heading, $heading) { //custom function building the header-item text
+          return $heading.text();
+        },
+        'itemClass': function(i, heading, $heading, prefix) { //custom function for item class
+          return $heading[0].tagName.toLowerCase();
+        }
+      });
+    </script>
+    
+
+  </body>
+
+</html>

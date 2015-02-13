@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Vitess Documentation • Vitess</title>
+    
+    <meta name="keywords" content="">
+    
+    
+    	<!-- Twitter Cards -->
+	<meta name="twitter:title" content="Vitess Documentation">
+	
+	
+	
+	
+	<meta name="twitter:card" content="summary">
+	<meta name="twitter:image" content="http://youtube.github.io/vitess/images/120x120.gif">
+	
+	<!-- Open Graph -->
+	<meta property="og:locale" content="en_US">
+	<meta property="og:type" content="article">
+	<meta property="og:title" content="Vitess Documentation">
+	
+	<meta property="og:url" content="http://youtube.github.io/vitess/documentation/">
+	<meta property="og:site_name" content="Vitess">
+
+    <link rel="canonical" href="http://youtube.github.io/vitess/documentation/">
+
+    <link href="http://youtube.github.io/vitess/sitemap.xml" type="application/xml" rel="sitemap" title="Sitemap">
+
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="cleartype" content="on">
+
+    <style>
+    .sliding-menu-content {
+      top: 0;
+      right: 0;
+      text-align: center;
+      visibility: hidden;
+      height: 100%;
+      width: 100%;
+      -webkit-transform: translateX(100%);
+      -moz-transform: translateX(100%);
+      -ms-transform: translateX(100%);
+      -o-transform: translateX(100%);
+      transform: translateX(100%);
+    }
+    </style>
+
+    <link rel="stylesheet" href="http://youtube.github.io/vitess/css/main.css">
+    <!-- HTML5 Shiv and Media Query Support for IE -->
+    <!--[if lt IE 9]>
+      <script src="http://youtube.github.io/vitess/js/vendor/html5shiv.min.js"></script>
+      <script src="http://youtube.github.io/vitess/js/vendor/respond.min.js"></script>
+    <![endif]-->
+
+  </head>
+
+  <body>
+    <header id="masthead">
+  <div class="inner-wrap">
+    <a href="http://youtube.github.io/vitess/" class="site-title">Vitess</a>
+    <nav role="navigation" class="menu top-menu">
+        <ul class="menu-item">
+	<li class="home"><a href="/">Vitess</a></li>
+	
+    
+        
+    
+    <li><a href="http://youtube.github.io/vitess/getting-started/" >Getting Started</a></li>
+  
+    
+        
+    
+    <li><a href="http://youtube.github.io/vitess/documentation/" >Documentation</a></li>
+  
+    
+        
+    
+    <li><a href="http://youtube.github.io/vitess/about/" >About</a></li>
+  
+    
+        
+    
+    <li><a href="http://youtube.github.io/vitess/faq/" >FAQ</a></li>
+  
+</ul>
+    </nav>
+  </div>
+</header>
+
+    <nav role="navigation" class="js-menu sliding-menu-content">
+	<ul class="menu-item">
+		<li>
+      
+        
+      
+			<a href="http://youtube.github.io/vitess/getting-started/"><img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" class="teaser"></a>
+			<a href="http://youtube.github.io/vitess/getting-started/" class="title">Getting Started</a>
+			<p class="excerpt">Everything you need to know to get started with Vitess.</p>
+		</li><li>
+      
+        
+      
+			<a href="http://youtube.github.io/vitess/documentation/"><img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" class="teaser"></a>
+			<a href="http://youtube.github.io/vitess/documentation/" class="title">Documentation</a>
+			<p class="excerpt">Vitess Docs.</p>
+		</li><li>
+      
+        
+      
+			<a href="http://youtube.github.io/vitess/about/"><img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" class="teaser"></a>
+			<a href="http://youtube.github.io/vitess/about/" class="title">About</a>
+			<p class="excerpt">All about Vitess.</p>
+		</li><li>
+      
+        
+      
+			<a href="http://youtube.github.io/vitess/faq/"><img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" class="teaser"></a>
+			<a href="http://youtube.github.io/vitess/faq/" class="title">FAQ</a>
+			<p class="excerpt">Vitess Faq.</p>
+		</li>
+	</ul>
+</nav>
+<button type="button" class="js-menu-trigger sliding-menu-button menulines-button x2" role="button" aria-label="Toggle Navigation">
+	<span class="menulines"></span>
+</button>
+
+<div class="js-menu-screen menu-screen"></div>
+
+    <div id="page-wrapper">
+      <!--[if lt IE 9]><div class="upgrade notice-danger"><strong>Your browser is quite old!</strong> Why not <a href="http://whatbrowser.org/">upgrade to a newer one</a> to better enjoy this site?</div><![endif]-->
+
+      <div id="main" role="main">
+  <div class="wrap">
+		
+		<div class="page-title">
+			<h1>Vitess Documentation</h1>
+			
+		</div>
+		<div class="archive-wrap">
+			<div class="page-content">
+				<div class="tiles">
+
+  <article class="tile" itemscope itemtype="http://schema.org/Article">
+  <a href="http://youtube.github.io/vitess/documentation/vtocc/" title="Vtocc" class="post-teaser">
+    <img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" itemprop="image">
+  </a>
+<!--  <p class="entry-date date published"><time datetime="2015-01-01" itemprop="datePublished">January 01, 2015</time></p> -->
+  <h2 class="post-title" itemprop="name"><a href="http://youtube.github.io/vitess/documentation/vtocc/">Vtocc</a></h2>
+  <p class="post-excerpt" itemprop="description">vtocc
+
+vtocc is a smart proxy to mysql/mariadb. It&#39;s basically a subset of
+vttablet that concerns itself with just serving queries for a
+single database....</p>
+</article>
+
+
+  <article class="tile" itemscope itemtype="http://schema.org/Article">
+  <a href="http://youtube.github.io/vitess/documentation/vision/" title="Vision" class="post-teaser">
+    <img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" itemprop="image">
+  </a>
+<!--  <p class="entry-date date published"><time datetime="2015-01-01" itemprop="datePublished">January 01, 2015</time></p> -->
+  <h2 class="post-title" itemprop="name"><a href="http://youtube.github.io/vitess/documentation/vision/">Vision</a></h2>
+  <p class="post-excerpt" itemprop="description">Motivation and Vision
+
+MySQL is an easy relational database to get started with.
+It&#39;s easy to setup and has a short learning curve.
+However, as your syst...</p>
+</article>
+
+
+  <article class="tile" itemscope itemtype="http://schema.org/Article">
+  <a href="http://youtube.github.io/vitess/documentation/tools/" title="Tools" class="post-teaser">
+    <img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" itemprop="image">
+  </a>
+<!--  <p class="entry-date date published"><time datetime="2015-01-01" itemprop="datePublished">January 01, 2015</time></p> -->
+  <h2 class="post-title" itemprop="name"><a href="http://youtube.github.io/vitess/documentation/tools/">Tools</a></h2>
+  <p class="post-excerpt" itemprop="description">Tools and servers
+
+The vitess tools and servers are designed to help you even
+if you start small, and scale all the way to a complete fleet
+of databases.
+
+In...</p>
+</article>
+
+
+  <article class="tile" itemscope itemtype="http://schema.org/Article">
+  <a href="http://youtube.github.io/vitess/documentation/testing-on-a-ramdisk/" title="Testing on A Ram Disk" class="post-teaser">
+    <img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" itemprop="image">
+  </a>
+<!--  <p class="entry-date date published"><time datetime="2015-01-01" itemprop="datePublished">January 01, 2015</time></p> -->
+  <h2 class="post-title" itemprop="name"><a href="http://youtube.github.io/vitess/documentation/testing-on-a-ramdisk/">Testing on A Ram Disk</a></h2>
+  <p class="post-excerpt" itemprop="description">Testing On A Ramdisk
+
+The integration_test testsuite contains tests that may time-out if run against a slow disk. If your workspace lives on hard disk (as op...</p>
+</article>
+
+
+  <article class="tile" itemscope itemtype="http://schema.org/Article">
+  <a href="http://youtube.github.io/vitess/documentation/serving-graph/" title="Serving Graph" class="post-teaser">
+    <img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" itemprop="image">
+  </a>
+<!--  <p class="entry-date date published"><time datetime="2015-01-01" itemprop="datePublished">January 01, 2015</time></p> -->
+  <h2 class="post-title" itemprop="name"><a href="http://youtube.github.io/vitess/documentation/serving-graph/">Serving Graph</a></h2>
+  <p class="post-excerpt" itemprop="description">Serving Graph
+
+The Serving Graph is a roll-up view of the state of the system in a consistent state. It is used by clients to know
+the general topology of th...</p>
+</article>
+
+
+  <article class="tile" itemscope itemtype="http://schema.org/Article">
+  <a href="http://youtube.github.io/vitess/documentation/schema-management/" title="Schema Management" class="post-teaser">
+    <img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" itemprop="image">
+  </a>
+<!--  <p class="entry-date date published"><time datetime="2015-01-01" itemprop="datePublished">January 01, 2015</time></p> -->
+  <h2 class="post-title" itemprop="name"><a href="http://youtube.github.io/vitess/documentation/schema-management/">Schema Management</a></h2>
+  <p class="post-excerpt" itemprop="description">Schema Management
+
+The schema is the list of tables and how to create them. It is managed by vtctl.
+
+Looking at the Schema
+
+The following vtctl commands exis...</p>
+</article>
+
+
+  <article class="tile" itemscope itemtype="http://schema.org/Article">
+  <a href="http://youtube.github.io/vitess/documentation/resharding/" title="Resharding" class="post-teaser">
+    <img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" itemprop="image">
+  </a>
+<!--  <p class="entry-date date published"><time datetime="2015-01-01" itemprop="datePublished">January 01, 2015</time></p> -->
+  <h2 class="post-title" itemprop="name"><a href="http://youtube.github.io/vitess/documentation/resharding/">Resharding</a></h2>
+  <p class="post-excerpt" itemprop="description">Resharding
+
+In Vitess, resharding describes the process of re-organizing data dynamically, with very minimal downtime (we manage to
+completely perform most d...</p>
+</article>
+
+
+  <article class="tile" itemscope itemtype="http://schema.org/Article">
+  <a href="http://youtube.github.io/vitess/documentation/replication-graph/" title="Replication Graph" class="post-teaser">
+    <img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" itemprop="image">
+  </a>
+<!--  <p class="entry-date date published"><time datetime="2015-01-01" itemprop="datePublished">January 01, 2015</time></p> -->
+  <h2 class="post-title" itemprop="name"><a href="http://youtube.github.io/vitess/documentation/replication-graph/">Replication Graph</a></h2>
+  <p class="post-excerpt" itemprop="description">Replication Graph
+
+The replication graph contains the mysql replication information for a shard. Currently, we only support one layer
+of replication (a singl...</p>
+</article>
+
+
+  <article class="tile" itemscope itemtype="http://schema.org/Article">
+  <a href="http://youtube.github.io/vitess/documentation/reparenting/" title="Reparenting" class="post-teaser">
+    <img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" itemprop="image">
+  </a>
+<!--  <p class="entry-date date published"><time datetime="2015-01-01" itemprop="datePublished">January 01, 2015</time></p> -->
+  <h2 class="post-title" itemprop="name"><a href="http://youtube.github.io/vitess/documentation/reparenting/">Reparenting</a></h2>
+  <p class="post-excerpt" itemprop="description">Reparenting
+
+This document describes the reparenting features of Vitess. Reparenting is used when the master for a Shard is
+changing from one host to another...</p>
+</article>
+
+
+  <article class="tile" itemscope itemtype="http://schema.org/Article">
+  <a href="http://youtube.github.io/vitess/documentation/production/" title="Production" class="post-teaser">
+    <img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" itemprop="image">
+  </a>
+<!--  <p class="entry-date date published"><time datetime="2015-01-01" itemprop="datePublished">January 01, 2015</time></p> -->
+  <h2 class="post-title" itemprop="name"><a href="http://youtube.github.io/vitess/documentation/production/">Production</a></h2>
+  <p class="post-excerpt" itemprop="description">Production setup
+
+Setting up vitess in production will depend on many factors.
+Here are some initial considerations:
+* Global Transaction IDs: Vitess require...</p>
+</article>
+
+
+  <article class="tile" itemscope itemtype="http://schema.org/Article">
+  <a href="http://youtube.github.io/vitess/documentation/life-of-a-query/" title="Life of A Query" class="post-teaser">
+    <img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" itemprop="image">
+  </a>
+<!--  <p class="entry-date date published"><time datetime="2015-01-01" itemprop="datePublished">January 01, 2015</time></p> -->
+  <h2 class="post-title" itemprop="name"><a href="http://youtube.github.io/vitess/documentation/life-of-a-query/">Life of A Query</a></h2>
+  <p class="post-excerpt" itemprop="description">Life of A Query
+
+
+From Client to VtGate
+From VtGate to VtTablet
+From VtTablet to MySQL
+Put it all together
+TopoServer
+Streaming Query
+Scatter Query
+Misc
+
+
+Rp...</p>
+</article>
+
+
+  <article class="tile" itemscope itemtype="http://schema.org/Article">
+  <a href="http://youtube.github.io/vitess/documentation/helicopter-overview/" title="Helicopter Overview" class="post-teaser">
+    <img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" itemprop="image">
+  </a>
+<!--  <p class="entry-date date published"><time datetime="2015-01-01" itemprop="datePublished">January 01, 2015</time></p> -->
+  <h2 class="post-title" itemprop="name"><a href="http://youtube.github.io/vitess/documentation/helicopter-overview/">Helicopter Overview</a></h2>
+  <p class="post-excerpt" itemprop="description">Helicopter overview
+
+This is a very high level overview of Vitess. It doesn’t get into the technical
+details – it’s goal is to help you understand if Vitess ...</p>
+</article>
+
+
+  <article class="tile" itemscope itemtype="http://schema.org/Article">
+  <a href="http://youtube.github.io/vitess/documentation/concepts/" title="Concepts" class="post-teaser">
+    <img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" itemprop="image">
+  </a>
+<!--  <p class="entry-date date published"><time datetime="2015-01-01" itemprop="datePublished">January 01, 2015</time></p> -->
+  <h2 class="post-title" itemprop="name"><a href="http://youtube.github.io/vitess/documentation/concepts/">Concepts</a></h2>
+  <p class="post-excerpt" itemprop="description">Concepts
+
+We need to introduce some common terminologies that are used in Vitess:
+
+Keyspace
+
+A keyspace is a logical database.
+In its simplest form, it direc...</p>
+</article>
+
+
+</div>
+
+			</div><!-- /.page-content -->
+		</div class="archive-wrap"><!-- /.archive-wrap -->
+	</div><!-- /.wrap -->
+</div><!-- /#main -->
+
+
+      <footer role="contentinfo" id="site-footer">
+  <nav role="navigation" class="menu bottom-menu">
+    <ul class="menu-item">
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/" >Home</a></li>
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/getting-started/" >Getting Started</a></li>
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/about/" >About</a></li>
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/faq/" >FAQ</a></li>
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/terms/" >Terms</a></li>
+      
+    </ul>
+  </nav>
+  <p class="copyright">&#169; 2015 <a href="http://youtube.github.io/vitess">Vitess</a> powered by <a href="http://www.google.com">Google Inc</a>.</p>
+</footer>
+
+    </div>
+
+    <script src="http://youtube.github.io/vitess/js/vendor/jquery-1.9.1.min.js"></script>
+    <script src="http://youtube.github.io/vitess/js/main.js"></script>
+    
+    
+
+  </body>
+
+</html>

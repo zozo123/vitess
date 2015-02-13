@@ -2,30 +2,31 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Vitess</title>
+    <title>Getting Started with Vitess  • Vitess</title>
     
-    
+    <meta name="keywords" content="">
     
     
     	<!-- Twitter Cards -->
-	<meta name="twitter:title" content="Vitess">
+	<meta name="twitter:title" content="Getting Started with Vitess ">
 	
 	
 	
 	
-	<meta name="twitter:card" content="summary_large_image">
-	<meta name="twitter:image" content="http://youtube.github.io/vitess/images/wood-texture-1600x800.jpg">
+	<meta name="twitter:card" content="summary">
+	<meta name="twitter:image" content="http://youtube.github.io/vitess/images/120x120.gif">
 	
 	<!-- Open Graph -->
 	<meta property="og:locale" content="en_US">
 	<meta property="og:type" content="article">
-	<meta property="og:title" content="Vitess">
+	<meta property="og:title" content="Getting Started with Vitess ">
 	
-	<meta property="og:url" content="http://youtube.github.io/vitess/">
+	<meta property="og:url" content="http://youtube.github.io/vitess/getting-started/">
 	<meta property="og:site_name" content="Vitess">
-    
 
-    <link rel="canonical" href="http://youtube.github.io/vitess/">
+    <link rel="canonical" href="http://youtube.github.io/vitess/getting-started/">
+
+    <link href="http://youtube.github.io/vitess/sitemap.xml" type="application/xml" rel="sitemap" title="Sitemap">
 
     <meta name="HandheldFriendly" content="True">
     <meta name="MobileOptimized" content="320">
@@ -129,28 +130,21 @@
 
 <div class="js-menu-screen menu-screen"></div>
 
-    
-    <div class="page-lead" style="background-image:url(http://youtube.github.io/vitess/images/wood-texture-1600x800.jpg)">
-      <div class="wrap page-lead-content">
-        <h1>Vitess</h1>
-        <h2>A set of servers and tools meant to facilitate scaling of MySQL databases for the web.</h2>
-        <a href="http://youtube.github.io/vitess/getting-started/" class="btn-inverse">Start Using Vitess</a> &nbsp; or &nbsp; <a href="https://github.com/youtube/vitess" class="btn-inverse">View on GitHub</a>
-      </div><!-- /.page-lead-content -->
-    </div><!-- /.page-lead -->
-    
-
     <div id="page-wrapper">
       <!--[if lt IE 9]><div class="upgrade notice-danger"><strong>Your browser is quite old!</strong> Why not <a href="http://whatbrowser.org/">upgrade to a newer one</a> to better enjoy this site?</div><![endif]-->
 
-      <div id="main" role="main">     
-        <div class="wrap">
-          <div class="page-title">
-            <h1></h1>
-            
-          </div>
-          <div class="archive-wrap">
-            <div class="page-content">
-              <h1 id="vitess--">Vitess <p align="right"><a href="https://travis-ci.org/youtube/vitess/builds"><img src="https://travis-ci.org/youtube/vitess.svg?branch=master" alt="Build Status"></a> <a href="https://coveralls.io/r/youtube/vitess"><img src="https://coveralls.io/repos/youtube/vitess/badge.png" alt="Coverage Status"></a></p></h1>
+      <div id="main" role="main">
+	<article class="wrap" itemscope itemtype="http://schema.org/Article">
+		
+		
+
+		<div class="page-title">
+			<h1>Getting Started with Vitess </h1>
+		</div>
+		<div class="inner-wrap">
+			<nav class="toc"></nav>
+			<div id="content" class="page-content" itemprop="articleBody">
+				<h1 id="vitess--">Vitess <p align="right"><a href="https://travis-ci.org/youtube/vitess/builds"><img src="https://travis-ci.org/youtube/vitess.svg?branch=master" alt="Build Status"></a> <a href="https://coveralls.io/r/youtube/vitess"><img src="https://coveralls.io/repos/youtube/vitess/badge.png" alt="Coverage Status"></a></p></h1>
 
 <h2 id="introduction">Introduction</h2>
 
@@ -256,10 +250,21 @@ guide.</p>
 <p>Unless otherwise noted, the vitess source files are distributed
 under the BSD-style license found in the LICENSE file.</p>
 
-            </div><!-- /.page-content -->
-          </div class="archive-wrap"><!-- /.archive-wrap -->
-        </div><!-- /.wrap -->
-      </div><!-- /#main -->
+				<hr />
+				<footer class="page-footer">
+					
+					
+					
+
+				</footer>
+				<aside>
+					
+				</aside>
+			</div>
+		</div>
+	</article>
+</div>
+
 
       <footer role="contentinfo" id="site-footer">
   <nav role="navigation" class="menu bottom-menu">
@@ -299,6 +304,29 @@ under the BSD-style license found in the LICENSE file.</p>
 
     <script src="http://youtube.github.io/vitess/js/vendor/jquery-1.9.1.min.js"></script>
     <script src="http://youtube.github.io/vitess/js/main.js"></script>
+    
+    
+    <script type="text/javascript">
+      $('.toc').toc({
+        'selectors': 'h2', //elements to use as headings
+        'container': '.page-content', //element to find all selectors in
+        'smoothScrolling': true, //enable or disable smooth scrolling on click
+        'prefix': 'toc', //prefix for anchor tags and class names
+        'onHighlight': function(el) {}, //called when a new section is highlighted 
+        'highlightOnScroll': true, //add class to heading that is currently in focus
+        'highlightOffset': 100, //offset to trigger the next headline
+        'anchorName': function(i, heading, prefix) { //custom function for anchor name
+          return prefix+i;
+        },
+        'headerText': function(i, heading, $heading) { //custom function building the header-item text
+          return $heading.text();
+        },
+        'itemClass': function(i, heading, $heading, prefix) { //custom function for item class
+          return $heading[0].tagName.toLowerCase();
+        }
+      });
+    </script>
+    
 
   </body>
 

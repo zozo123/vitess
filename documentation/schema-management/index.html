@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Schema Management • Vitess</title>
+    <meta name="description" content="Schema Management
+
+The schema is the list of tables and how to create them. It is managed by vtctl.
+
+Looking at the Schema
+
+The following vtctl commands exist to look at the schema, and validate it&#39;s the same on all databases.
+GetSchema &lt;tablet alias&gt;
+
+where &lt;tablet alias&gt; is in the format of &quot;&lt;cell name&gt;-&lt;uid&gt;&quot;
+
+Example:
+
+$ vtctl -wait-time=30s GetSchema cell01-01234567
+
+displays the full schema for a tablet
+ValidateSchemaShard &lt;keyspace/shard&gt;
+
+where &lt;keyspace/shard&gt; is the format of &quot;&lt;keyspace&gt;/&lt;shard&gt;&quot;
+
+Example:
+
+$ vtctl -wait-time=30s ValidateSchemaShard keyspace01/10-20
+
+validate the master schema matches all the slaves.
+ValidateSchemaKeyspace &lt;keyspace&gt;
+
+validate the master schema from shard 0 matches all the other tablets in the keyspace.
+
+Example:
+$ vtctl -wait-time=30s ValidateSchemaKeyspace user
+
+Changing the Schema
+
+Goals:
+- simplify schema updates on the fleet
+- minimize human actions / errors
+- guarantee no or very little downtime for most schema updates
+- do not store any permanent schema data in Topology Server, just use it for actions.
+- only look at tables for now (not stored procedures or grants for instance, although they both could be added fairly easily in the same manner)
+
+We’re trying to get reasonable confidence that a schema update is going to work before applying it. Since we cannot really apply a change to live tables without potentially causing trouble, we have implemented a Preflight operation: it copies the current schema into a temporary database, applies the change there to validate it, and gathers the resulting schema. After this Preflight, we have a good idea of what to expect, and we can apply the change to any database and make sure it worked.
+
+The Preflight operation takes a sql string, and returns a SchemaChangeResult:
+go
+type SchemaChangeResult struct {
+ Error        string
+ BeforeSchema *SchemaDefinition
+ AfterSchema  *SchemaDefinition
+}
+
+
+The ApplySchema action applies a schema change. It is described by the following structure (also returns a SchemaChangeResult):
+go
+type SchemaChange struct {
+ Sql              string
+ Force            bool
+ AllowReplication bool
+ BeforeSchema     *SchemaDefinition
+ AfterSchema      *SchemaDefinition
+}
+
+
+And the associated ApplySchema remote action for a tablet. Then the performed steps are:
+- The database to use is either derived from the tablet dbName if UseVt is false, or is the _vt database. A ‘use dbname’ is prepended to the Sql.
+- (if BeforeSchema is not nil) read the schema, make sure it is equal to BeforeSchema. If not equal: if Force is not set, we will abort, if Force is set, we’ll issue a warning and keep going.
+- if AllowReplication is false, we’ll disable replication (adding SET sql_log_bin=0 before the Sql).
+- We will then apply the Sql command.
+- (if AfterSchema is not nil) read the schema again, make sure it is equal to AfterSchema. If not equal: if Force is not set, we will issue an error, if Force is set, we’ll issue a warning.
+We will return the following information:
+- whether it worked or not (doh!)
+- BeforeSchema
+- AfterSchema
+
+Use case 1: Single tablet update:
+
+
+we first do a Preflight (to know what BeforeSchema and AfterSchema will be). This can be disabled, but is not recommended.
+we then do the schema upgrade. We will check BeforeSchema before the upgrade, and AfterSchema after the upgrade.
+
+
+Use case 2: Single Shard update:
+
+
+need to figure out (or be told) if it’s a simple or complex schema update (does it require the shell game?). For now we&#39;ll use a command line flag.
+in any case, do a Preflight on the master, to get the BeforeSchema and AfterSchema values.
+in any case, gather the schema on all databases, to see which ones have been upgraded already or not. This guarantees we can interrupt and restart a schema change. Also, this makes sure no action is currently running on the databases we&#39;re about to change.
+if simple:
+
+
+nobody has it: apply to master, very similar to a single tablet update.
+some tablets have it but not others: error out
+
+if complex: do the shell game while disabling replication. Skip the tablets that already have it. Have an option to re-parent a the end.
+
+
+Note the Backup, and Lag servers won&#39;t apply a complex schema change. Only the servers actively in the replication graph will.
+the process can be interrupted at any time, restarting it as a complex schema upgrade should just work.
+
+
+
+Use case 3: Keyspace update:
+
+
+Similar to Single Shard, but the BeforeSchema and AfterSchema values are taken from the first shard, and used in all shards after that.
+We don&#39;t know the new masters to use on each shard, so just skip re-parenting all together.
+
+
+This translates into the following vtctl commands:
+PreflightSchema {-sql=&lt;sql&gt; || -sql_file=&lt;filename&gt;} &lt;tablet alias&gt;
+
+apply the schema change to a temporary database to gather before and after schema and validate the change. The sql can be inlined or read from a file.
+This will create a temporary database, copy the existing keyspace schema into it, apply the schema change, and re-read the resulting schema.
+$ echo &quot;create table test_table(id int);&quot; &gt; change.sql
+$ vtctl PreflightSchema -sql_file=change.sql nyc-0002009001
+ApplySchema {-sql=&lt;sql&gt; || -sql_file=&lt;filename&gt;} [-skip_preflight] [-stop_replication] &lt;tablet alias&gt;
+
+apply the schema change to the specific tablet (allowing replication by default). The sql can be inlined or read from a file.
+a PreflightSchema operation will first be used to make sure the schema is OK (unless skip_preflight is specified).
+ApplySchemaShard {-sql=&lt;sql&gt; || -sql_file=&lt;filename&gt;} [-simple] [-new_parent=&lt;tablet alias&gt;] &lt;keyspace/shard&gt;
+
+apply the schema change to the specific shard. If simple is specified, we just apply on the live master. Otherwise we do the shell game and will optionally re-parent.
+if new_parent is set, we will also reparent (otherwise the master won&#39;t be touched at all). Using the force flag will cause a bunch of checks to be ignored, use with care.
+$ vtctl ApplySchemaShard --sql-file=change.sql -simple vtx/0
+$ vtctl ApplySchemaShard --sql-file=change.sql -new_parent=nyc-0002009002 vtx/0
+ApplySchemaKeyspace {-sql=&lt;sql&gt; || -sql_file=&lt;filename&gt;} [-simple] &lt;keyspace&gt;
+
+apply the schema change to the specified shard. If simple is specified, we just apply on the live master. Otherwise we will need to do the shell game. So we will apply the schema change to every single slave.
+">
+    <meta name="keywords" content="">
+    
+    
+    	<!-- Twitter Cards -->
+	<meta name="twitter:title" content="Schema Management">
+	<meta name="twitter:description" content="Schema Management
+
+The schema is the list of tables and how to create them. It is managed by vtctl.
+
+Looking at the Schema
+
+The following vtctl commands exist to look at the schema, and validate it&#39;s the same on all databases.
+GetSchema &lt;tablet alias&gt;
+
+where &lt;tablet alias&gt; is in the format of &quot;&lt;cell name&gt;-&lt;uid&gt;&quot;
+
+Example:
+
+$ vtctl -wait-time=30s GetSchema cell01-01234567
+
+displays the full schema for a tablet
+ValidateSchemaShard &lt;keyspace/shard&gt;
+
+where &lt;keyspace/shard&gt; is the format of &quot;&lt;keyspace&gt;/&lt;shard&gt;&quot;
+
+Example:
+
+$ vtctl -wait-time=30s ValidateSchemaShard keyspace01/10-20
+
+validate the master schema matches all the slaves.
+ValidateSchemaKeyspace &lt;keyspace&gt;
+
+validate the master schema from shard 0 matches all the other tablets in the keyspace.
+
+Example:
+$ vtctl -wait-time=30s ValidateSchemaKeyspace user
+
+Changing the Schema
+
+Goals:
+- simplify schema updates on the fleet
+- minimize human actions / errors
+- guarantee no or very little downtime for most schema updates
+- do not store any permanent schema data in Topology Server, just use it for actions.
+- only look at tables for now (not stored procedures or grants for instance, although they both could be added fairly easily in the same manner)
+
+We’re trying to get reasonable confidence that a schema update is going to work before applying it. Since we cannot really apply a change to live tables without potentially causing trouble, we have implemented a Preflight operation: it copies the current schema into a temporary database, applies the change there to validate it, and gathers the resulting schema. After this Preflight, we have a good idea of what to expect, and we can apply the change to any database and make sure it worked.
+
+The Preflight operation takes a sql string, and returns a SchemaChangeResult:
+go
+type SchemaChangeResult struct {
+ Error        string
+ BeforeSchema *SchemaDefinition
+ AfterSchema  *SchemaDefinition
+}
+
+
+The ApplySchema action applies a schema change. It is described by the following structure (also returns a SchemaChangeResult):
+go
+type SchemaChange struct {
+ Sql              string
+ Force            bool
+ AllowReplication bool
+ BeforeSchema     *SchemaDefinition
+ AfterSchema      *SchemaDefinition
+}
+
+
+And the associated ApplySchema remote action for a tablet. Then the performed steps are:
+- The database to use is either derived from the tablet dbName if UseVt is false, or is the _vt database. A ‘use dbname’ is prepended to the Sql.
+- (if BeforeSchema is not nil) read the schema, make sure it is equal to BeforeSchema. If not equal: if Force is not set, we will abort, if Force is set, we’ll issue a warning and keep going.
+- if AllowReplication is false, we’ll disable replication (adding SET sql_log_bin=0 before the Sql).
+- We will then apply the Sql command.
+- (if AfterSchema is not nil) read the schema again, make sure it is equal to AfterSchema. If not equal: if Force is not set, we will issue an error, if Force is set, we’ll issue a warning.
+We will return the following information:
+- whether it worked or not (doh!)
+- BeforeSchema
+- AfterSchema
+
+Use case 1: Single tablet update:
+
+
+we first do a Preflight (to know what BeforeSchema and AfterSchema will be). This can be disabled, but is not recommended.
+we then do the schema upgrade. We will check BeforeSchema before the upgrade, and AfterSchema after the upgrade.
+
+
+Use case 2: Single Shard update:
+
+
+need to figure out (or be told) if it’s a simple or complex schema update (does it require the shell game?). For now we&#39;ll use a command line flag.
+in any case, do a Preflight on the master, to get the BeforeSchema and AfterSchema values.
+in any case, gather the schema on all databases, to see which ones have been upgraded already or not. This guarantees we can interrupt and restart a schema change. Also, this makes sure no action is currently running on the databases we&#39;re about to change.
+if simple:
+
+
+nobody has it: apply to master, very similar to a single tablet update.
+some tablets have it but not others: error out
+
+if complex: do the shell game while disabling replication. Skip the tablets that already have it. Have an option to re-parent a the end.
+
+
+Note the Backup, and Lag servers won&#39;t apply a complex schema change. Only the servers actively in the replication graph will.
+the process can be interrupted at any time, restarting it as a complex schema upgrade should just work.
+
+
+
+Use case 3: Keyspace update:
+
+
+Similar to Single Shard, but the BeforeSchema and AfterSchema values are taken from the first shard, and used in all shards after that.
+We don&#39;t know the new masters to use on each shard, so just skip re-parenting all together.
+
+
+This translates into the following vtctl commands:
+PreflightSchema {-sql=&lt;sql&gt; || -sql_file=&lt;filename&gt;} &lt;tablet alias&gt;
+
+apply the schema change to a temporary database to gather before and after schema and validate the change. The sql can be inlined or read from a file.
+This will create a temporary database, copy the existing keyspace schema into it, apply the schema change, and re-read the resulting schema.
+$ echo &quot;create table test_table(id int);&quot; &gt; change.sql
+$ vtctl PreflightSchema -sql_file=change.sql nyc-0002009001
+ApplySchema {-sql=&lt;sql&gt; || -sql_file=&lt;filename&gt;} [-skip_preflight] [-stop_replication] &lt;tablet alias&gt;
+
+apply the schema change to the specific tablet (allowing replication by default). The sql can be inlined or read from a file.
+a PreflightSchema operation will first be used to make sure the schema is OK (unless skip_preflight is specified).
+ApplySchemaShard {-sql=&lt;sql&gt; || -sql_file=&lt;filename&gt;} [-simple] [-new_parent=&lt;tablet alias&gt;] &lt;keyspace/shard&gt;
+
+apply the schema change to the specific shard. If simple is specified, we just apply on the live master. Otherwise we do the shell game and will optionally re-parent.
+if new_parent is set, we will also reparent (otherwise the master won&#39;t be touched at all). Using the force flag will cause a bunch of checks to be ignored, use with care.
+$ vtctl ApplySchemaShard --sql-file=change.sql -simple vtx/0
+$ vtctl ApplySchemaShard --sql-file=change.sql -new_parent=nyc-0002009002 vtx/0
+ApplySchemaKeyspace {-sql=&lt;sql&gt; || -sql_file=&lt;filename&gt;} [-simple] &lt;keyspace&gt;
+
+apply the schema change to the specified shard. If simple is specified, we just apply on the live master. Otherwise we will need to do the shell game. So we will apply the schema change to every single slave.
+">
+	
+	
+	
+	<meta name="twitter:card" content="summary">
+	<meta name="twitter:image" content="http://youtube.github.io/vitess/images/120x120.gif">
+	
+	<!-- Open Graph -->
+	<meta property="og:locale" content="en_US">
+	<meta property="og:type" content="article">
+	<meta property="og:title" content="Schema Management">
+	<meta property="og:description" content="Schema Management
+
+The schema is the list of tables and how to create them. It is managed by vtctl.
+
+Looking at the Schema
+
+The following vtctl commands exist to look at the schema, and validate it&#39;s the same on all databases.
+GetSchema &lt;tablet alias&gt;
+
+where &lt;tablet alias&gt; is in the format of &quot;&lt;cell name&gt;-&lt;uid&gt;&quot;
+
+Example:
+
+$ vtctl -wait-time=30s GetSchema cell01-01234567
+
+displays the full schema for a tablet
+ValidateSchemaShard &lt;keyspace/shard&gt;
+
+where &lt;keyspace/shard&gt; is the format of &quot;&lt;keyspace&gt;/&lt;shard&gt;&quot;
+
+Example:
+
+$ vtctl -wait-time=30s ValidateSchemaShard keyspace01/10-20
+
+validate the master schema matches all the slaves.
+ValidateSchemaKeyspace &lt;keyspace&gt;
+
+validate the master schema from shard 0 matches all the other tablets in the keyspace.
+
+Example:
+$ vtctl -wait-time=30s ValidateSchemaKeyspace user
+
+Changing the Schema
+
+Goals:
+- simplify schema updates on the fleet
+- minimize human actions / errors
+- guarantee no or very little downtime for most schema updates
+- do not store any permanent schema data in Topology Server, just use it for actions.
+- only look at tables for now (not stored procedures or grants for instance, although they both could be added fairly easily in the same manner)
+
+We’re trying to get reasonable confidence that a schema update is going to work before applying it. Since we cannot really apply a change to live tables without potentially causing trouble, we have implemented a Preflight operation: it copies the current schema into a temporary database, applies the change there to validate it, and gathers the resulting schema. After this Preflight, we have a good idea of what to expect, and we can apply the change to any database and make sure it worked.
+
+The Preflight operation takes a sql string, and returns a SchemaChangeResult:
+go
+type SchemaChangeResult struct {
+ Error        string
+ BeforeSchema *SchemaDefinition
+ AfterSchema  *SchemaDefinition
+}
+
+
+The ApplySchema action applies a schema change. It is described by the following structure (also returns a SchemaChangeResult):
+go
+type SchemaChange struct {
+ Sql              string
+ Force            bool
+ AllowReplication bool
+ BeforeSchema     *SchemaDefinition
+ AfterSchema      *SchemaDefinition
+}
+
+
+And the associated ApplySchema remote action for a tablet. Then the performed steps are:
+- The database to use is either derived from the tablet dbName if UseVt is false, or is the _vt database. A ‘use dbname’ is prepended to the Sql.
+- (if BeforeSchema is not nil) read the schema, make sure it is equal to BeforeSchema. If not equal: if Force is not set, we will abort, if Force is set, we’ll issue a warning and keep going.
+- if AllowReplication is false, we’ll disable replication (adding SET sql_log_bin=0 before the Sql).
+- We will then apply the Sql command.
+- (if AfterSchema is not nil) read the schema again, make sure it is equal to AfterSchema. If not equal: if Force is not set, we will issue an error, if Force is set, we’ll issue a warning.
+We will return the following information:
+- whether it worked or not (doh!)
+- BeforeSchema
+- AfterSchema
+
+Use case 1: Single tablet update:
+
+
+we first do a Preflight (to know what BeforeSchema and AfterSchema will be). This can be disabled, but is not recommended.
+we then do the schema upgrade. We will check BeforeSchema before the upgrade, and AfterSchema after the upgrade.
+
+
+Use case 2: Single Shard update:
+
+
+need to figure out (or be told) if it’s a simple or complex schema update (does it require the shell game?). For now we&#39;ll use a command line flag.
+in any case, do a Preflight on the master, to get the BeforeSchema and AfterSchema values.
+in any case, gather the schema on all databases, to see which ones have been upgraded already or not. This guarantees we can interrupt and restart a schema change. Also, this makes sure no action is currently running on the databases we&#39;re about to change.
+if simple:
+
+
+nobody has it: apply to master, very similar to a single tablet update.
+some tablets have it but not others: error out
+
+if complex: do the shell game while disabling replication. Skip the tablets that already have it. Have an option to re-parent a the end.
+
+
+Note the Backup, and Lag servers won&#39;t apply a complex schema change. Only the servers actively in the replication graph will.
+the process can be interrupted at any time, restarting it as a complex schema upgrade should just work.
+
+
+
+Use case 3: Keyspace update:
+
+
+Similar to Single Shard, but the BeforeSchema and AfterSchema values are taken from the first shard, and used in all shards after that.
+We don&#39;t know the new masters to use on each shard, so just skip re-parenting all together.
+
+
+This translates into the following vtctl commands:
+PreflightSchema {-sql=&lt;sql&gt; || -sql_file=&lt;filename&gt;} &lt;tablet alias&gt;
+
+apply the schema change to a temporary database to gather before and after schema and validate the change. The sql can be inlined or read from a file.
+This will create a temporary database, copy the existing keyspace schema into it, apply the schema change, and re-read the resulting schema.
+$ echo &quot;create table test_table(id int);&quot; &gt; change.sql
+$ vtctl PreflightSchema -sql_file=change.sql nyc-0002009001
+ApplySchema {-sql=&lt;sql&gt; || -sql_file=&lt;filename&gt;} [-skip_preflight] [-stop_replication] &lt;tablet alias&gt;
+
+apply the schema change to the specific tablet (allowing replication by default). The sql can be inlined or read from a file.
+a PreflightSchema operation will first be used to make sure the schema is OK (unless skip_preflight is specified).
+ApplySchemaShard {-sql=&lt;sql&gt; || -sql_file=&lt;filename&gt;} [-simple] [-new_parent=&lt;tablet alias&gt;] &lt;keyspace/shard&gt;
+
+apply the schema change to the specific shard. If simple is specified, we just apply on the live master. Otherwise we do the shell game and will optionally re-parent.
+if new_parent is set, we will also reparent (otherwise the master won&#39;t be touched at all). Using the force flag will cause a bunch of checks to be ignored, use with care.
+$ vtctl ApplySchemaShard --sql-file=change.sql -simple vtx/0
+$ vtctl ApplySchemaShard --sql-file=change.sql -new_parent=nyc-0002009002 vtx/0
+ApplySchemaKeyspace {-sql=&lt;sql&gt; || -sql_file=&lt;filename&gt;} [-simple] &lt;keyspace&gt;
+
+apply the schema change to the specified shard. If simple is specified, we just apply on the live master. Otherwise we will need to do the shell game. So we will apply the schema change to every single slave.
+">
+	<meta property="og:url" content="http://youtube.github.io/vitess/documentation/schema-management/">
+	<meta property="og:site_name" content="Vitess">
+
+    <link rel="canonical" href="http://youtube.github.io/vitess/documentation/schema-management/">
+
+    <link href="http://youtube.github.io/vitess/sitemap.xml" type="application/xml" rel="sitemap" title="Sitemap">
+
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="cleartype" content="on">
+
+    <style>
+    .sliding-menu-content {
+      top: 0;
+      right: 0;
+      text-align: center;
+      visibility: hidden;
+      height: 100%;
+      width: 100%;
+      -webkit-transform: translateX(100%);
+      -moz-transform: translateX(100%);
+      -ms-transform: translateX(100%);
+      -o-transform: translateX(100%);
+      transform: translateX(100%);
+    }
+    </style>
+
+    <link rel="stylesheet" href="http://youtube.github.io/vitess/css/main.css">
+    <!-- HTML5 Shiv and Media Query Support for IE -->
+    <!--[if lt IE 9]>
+      <script src="http://youtube.github.io/vitess/js/vendor/html5shiv.min.js"></script>
+      <script src="http://youtube.github.io/vitess/js/vendor/respond.min.js"></script>
+    <![endif]-->
+
+  </head>
+
+  <body>
+    <header id="masthead">
+  <div class="inner-wrap">
+    <a href="http://youtube.github.io/vitess/" class="site-title">Vitess</a>
+    <nav role="navigation" class="menu top-menu">
+        <ul class="menu-item">
+	<li class="home"><a href="/">Vitess</a></li>
+	
+    
+        
+    
+    <li><a href="http://youtube.github.io/vitess/getting-started/" >Getting Started</a></li>
+  
+    
+        
+    
+    <li><a href="http://youtube.github.io/vitess/documentation/" >Documentation</a></li>
+  
+    
+        
+    
+    <li><a href="http://youtube.github.io/vitess/about/" >About</a></li>
+  
+    
+        
+    
+    <li><a href="http://youtube.github.io/vitess/faq/" >FAQ</a></li>
+  
+</ul>
+    </nav>
+  </div>
+</header>
+
+    <nav role="navigation" class="js-menu sliding-menu-content">
+	<ul class="menu-item">
+		<li>
+      
+        
+      
+			<a href="http://youtube.github.io/vitess/getting-started/"><img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" class="teaser"></a>
+			<a href="http://youtube.github.io/vitess/getting-started/" class="title">Getting Started</a>
+			<p class="excerpt">Everything you need to know to get started with Vitess.</p>
+		</li><li>
+      
+        
+      
+			<a href="http://youtube.github.io/vitess/documentation/"><img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" class="teaser"></a>
+			<a href="http://youtube.github.io/vitess/documentation/" class="title">Documentation</a>
+			<p class="excerpt">Vitess Docs.</p>
+		</li><li>
+      
+        
+      
+			<a href="http://youtube.github.io/vitess/about/"><img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" class="teaser"></a>
+			<a href="http://youtube.github.io/vitess/about/" class="title">About</a>
+			<p class="excerpt">All about Vitess.</p>
+		</li><li>
+      
+        
+      
+			<a href="http://youtube.github.io/vitess/faq/"><img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" class="teaser"></a>
+			<a href="http://youtube.github.io/vitess/faq/" class="title">FAQ</a>
+			<p class="excerpt">Vitess Faq.</p>
+		</li>
+	</ul>
+</nav>
+<button type="button" class="js-menu-trigger sliding-menu-button menulines-button x2" role="button" aria-label="Toggle Navigation">
+	<span class="menulines"></span>
+</button>
+
+<div class="js-menu-screen menu-screen"></div>
+
+    <div id="page-wrapper">
+      <!--[if lt IE 9]><div class="upgrade notice-danger"><strong>Your browser is quite old!</strong> Why not <a href="http://whatbrowser.org/">upgrade to a newer one</a> to better enjoy this site?</div><![endif]-->
+
+      <div id="main" role="main">
+  <article class="wrap" itemscope itemtype="http://schema.org/Article">
+    
+    
+  <nav class="breadcrumbs">
+    <span itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+      <a href="http://youtube.github.io/vitess" itemprop="url">
+        <span itemprop="title">Home</span>
+      </a> › 
+    <span itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+      <a href="http://youtube.github.io/vitess/documentation/" itemprop="url">
+        <span itemprop="title">Documentation</span>
+      </a>
+    </span>
+  </nav>
+
+
+    <div class="inner-wrap">
+      <nav class="toc"></nav>
+      <div id="content" class="page-content" itemprop="articleBody">
+	<h1 id="schema-management">Schema Management</h1>
+
+<p>The schema is the list of tables and how to create them. It is managed by vtctl.</p>
+
+<h2 id="looking-at-the-schema">Looking at the Schema</h2>
+
+<p>The following vtctl commands exist to look at the schema, and validate it&#39;s the same on all databases.</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">GetSchema &lt;tablet alias&gt;
+</code></pre></div>
+<p>where &lt;tablet alias&gt; is in the format of &quot;&lt;cell name&gt;-&lt;uid&gt;&quot;</p>
+
+<p>Example:
+<code>
+$ vtctl -wait-time=30s GetSchema cell01-01234567
+</code>
+displays the full schema for a tablet</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">ValidateSchemaShard &lt;keyspace/shard&gt;
+</code></pre></div>
+<p>where &lt;keyspace/shard&gt; is the format of &quot;&lt;keyspace&gt;/&lt;shard&gt;&quot;</p>
+
+<p>Example:
+<code>
+$ vtctl -wait-time=30s ValidateSchemaShard keyspace01/10-20
+</code>
+validate the master schema matches all the slaves.</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">ValidateSchemaKeyspace &lt;keyspace&gt;
+</code></pre></div>
+<p>validate the master schema from shard 0 matches all the other tablets in the keyspace.</p>
+
+<p>Example:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">$ vtctl -wait-time=30s ValidateSchemaKeyspace user
+</code></pre></div>
+<h2 id="changing-the-schema">Changing the Schema</h2>
+
+<p>Goals:
+- simplify schema updates on the fleet
+- minimize human actions / errors
+- guarantee no or very little downtime for most schema updates
+- do not store any permanent schema data in Topology Server, just use it for actions.
+- only look at tables for now (not stored procedures or grants for instance, although they both could be added fairly easily in the same manner)</p>
+
+<p>We’re trying to get reasonable confidence that a schema update is going to work before applying it. Since we cannot really apply a change to live tables without potentially causing trouble, we have implemented a Preflight operation: it copies the current schema into a temporary database, applies the change there to validate it, and gathers the resulting schema. After this Preflight, we have a good idea of what to expect, and we can apply the change to any database and make sure it worked.</p>
+
+<p>The Preflight operation takes a sql string, and returns a SchemaChangeResult:
+<code>go
+type SchemaChangeResult struct {
+ Error        string
+ BeforeSchema *SchemaDefinition
+ AfterSchema  *SchemaDefinition
+}
+</code></p>
+
+<p>The ApplySchema action applies a schema change. It is described by the following structure (also returns a SchemaChangeResult):
+<code>go
+type SchemaChange struct {
+ Sql              string
+ Force            bool
+ AllowReplication bool
+ BeforeSchema     *SchemaDefinition
+ AfterSchema      *SchemaDefinition
+}
+</code></p>
+
+<p>And the associated ApplySchema remote action for a tablet. Then the performed steps are:
+- The database to use is either derived from the tablet dbName if UseVt is false, or is the _vt database. A ‘use dbname’ is prepended to the Sql.
+- (if BeforeSchema is not nil) read the schema, make sure it is equal to BeforeSchema. If not equal: if Force is not set, we will abort, if Force is set, we’ll issue a warning and keep going.
+- if AllowReplication is false, we’ll disable replication (adding SET sql_log_bin=0 before the Sql).
+- We will then apply the Sql command.
+- (if AfterSchema is not nil) read the schema again, make sure it is equal to AfterSchema. If not equal: if Force is not set, we will issue an error, if Force is set, we’ll issue a warning.
+We will return the following information:
+- whether it worked or not (doh!)
+- BeforeSchema
+- AfterSchema</p>
+
+<h3 id="use-case-1:-single-tablet-update:">Use case 1: Single tablet update:</h3>
+
+<ul>
+<li>we first do a Preflight (to know what BeforeSchema and AfterSchema will be). This can be disabled, but is not recommended.</li>
+<li>we then do the schema upgrade. We will check BeforeSchema before the upgrade, and AfterSchema after the upgrade.</li>
+</ul>
+
+<h3 id="use-case-2:-single-shard-update:">Use case 2: Single Shard update:</h3>
+
+<ul>
+<li>need to figure out (or be told) if it’s a simple or complex schema update (does it require the shell game?). For now we&#39;ll use a command line flag.</li>
+<li>in any case, do a Preflight on the master, to get the BeforeSchema and AfterSchema values.</li>
+<li>in any case, gather the schema on all databases, to see which ones have been upgraded already or not. This guarantees we can interrupt and restart a schema change. Also, this makes sure no action is currently running on the databases we&#39;re about to change.</li>
+<li>if simple:
+
+<ul>
+<li>nobody has it: apply to master, very similar to a single tablet update.</li>
+<li>some tablets have it but not others: error out</li>
+</ul></li>
+<li>if complex: do the shell game while disabling replication. Skip the tablets that already have it. Have an option to re-parent a the end.
+
+<ul>
+<li>Note the Backup, and Lag servers won&#39;t apply a complex schema change. Only the servers actively in the replication graph will.</li>
+<li>the process can be interrupted at any time, restarting it as a complex schema upgrade should just work.</li>
+</ul></li>
+</ul>
+
+<h3 id="use-case-3:-keyspace-update:">Use case 3: Keyspace update:</h3>
+
+<ul>
+<li>Similar to Single Shard, but the BeforeSchema and AfterSchema values are taken from the first shard, and used in all shards after that.</li>
+<li>We don&#39;t know the new masters to use on each shard, so just skip re-parenting all together.</li>
+</ul>
+
+<p>This translates into the following vtctl commands:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">PreflightSchema {-sql=&lt;sql&gt; || -sql_file=&lt;filename&gt;} &lt;tablet alias&gt;
+</code></pre></div>
+<p>apply the schema change to a temporary database to gather before and after schema and validate the change. The sql can be inlined or read from a file.
+This will create a temporary database, copy the existing keyspace schema into it, apply the schema change, and re-read the resulting schema.</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">$ echo &quot;create table test_table(id int);&quot; &gt; change.sql
+$ vtctl PreflightSchema -sql_file=change.sql nyc-0002009001
+</code></pre></div><div class="highlight"><pre><code class="language-text" data-lang="text">ApplySchema {-sql=&lt;sql&gt; || -sql_file=&lt;filename&gt;} [-skip_preflight] [-stop_replication] &lt;tablet alias&gt;
+</code></pre></div>
+<p>apply the schema change to the specific tablet (allowing replication by default). The sql can be inlined or read from a file.
+a PreflightSchema operation will first be used to make sure the schema is OK (unless skip_preflight is specified).</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">ApplySchemaShard {-sql=&lt;sql&gt; || -sql_file=&lt;filename&gt;} [-simple] [-new_parent=&lt;tablet alias&gt;] &lt;keyspace/shard&gt;
+</code></pre></div>
+<p>apply the schema change to the specific shard. If simple is specified, we just apply on the live master. Otherwise we do the shell game and will optionally re-parent.
+if new_parent is set, we will also reparent (otherwise the master won&#39;t be touched at all). Using the force flag will cause a bunch of checks to be ignored, use with care.</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">$ vtctl ApplySchemaShard --sql-file=change.sql -simple vtx/0
+$ vtctl ApplySchemaShard --sql-file=change.sql -new_parent=nyc-0002009002 vtx/0
+</code></pre></div><div class="highlight"><pre><code class="language-text" data-lang="text">ApplySchemaKeyspace {-sql=&lt;sql&gt; || -sql_file=&lt;filename&gt;} [-simple] &lt;keyspace&gt;
+</code></pre></div>
+<p>apply the schema change to the specified shard. If simple is specified, we just apply on the live master. Otherwise we will need to do the shell game. So we will apply the schema change to every single slave.</p>
+
+	<hr />
+	<footer class="page-footer">
+	  
+
+
+<div class="author-image">
+	<img src="http://youtube.github.io/vitess/images/" alt="Vitess Team">
+</div>
+<div class="author-content">
+	<h3 class="author-name" >Written by <a href="https://github.com/youtube/vitess" itemprop="author">Vitess Team</a></h3>
+	<p class="author-bio"></p>
+</div>
+
+	  <div class="inline-btn">
+	<a class="btn-social twitter" href="https://twitter.com/intent/tweet?text=Schema%20Management&amp;url=http://youtube.github.io/vitess/documentation/schema-management/&amp;via=" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i> Share on Twitter</a>
+	<a class="btn-social facebook" href="https://www.facebook.com/sharer/sharer.php?u=http://youtube.github.io/vitess/documentation/schema-management/" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i> Share on Facebook</a>
+	<a class="btn-social google-plus"  href="https://plus.google.com/share?url=http://youtube.github.io/vitess/documentation/schema-management/" target="_blank"><i class="fa fa-google-plus" aria-hidden="true"></i> Share on Google+</a>
+</div>
+
+	  <div class="page-meta">
+	<p>Updated <time datetime="2015-01-01T00:00:00Z" itemprop="datePublished">January 01, 2015</time></p>
+</div>
+
+	</footer>
+	<aside>
+	  
+	</aside>
+      </div>
+    </div>
+  </article>
+</div>
+
+
+      <footer role="contentinfo" id="site-footer">
+  <nav role="navigation" class="menu bottom-menu">
+    <ul class="menu-item">
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/" >Home</a></li>
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/getting-started/" >Getting Started</a></li>
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/about/" >About</a></li>
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/faq/" >FAQ</a></li>
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/terms/" >Terms</a></li>
+      
+    </ul>
+  </nav>
+  <p class="copyright">&#169; 2015 <a href="http://youtube.github.io/vitess">Vitess</a> powered by <a href="http://www.google.com">Google Inc</a>.</p>
+</footer>
+
+    </div>
+
+    <script src="http://youtube.github.io/vitess/js/vendor/jquery-1.9.1.min.js"></script>
+    <script src="http://youtube.github.io/vitess/js/main.js"></script>
+    
+    
+    <script type="text/javascript">
+      $('.toc').toc({
+        'selectors': 'h2', //elements to use as headings
+        'container': '.page-content', //element to find all selectors in
+        'smoothScrolling': true, //enable or disable smooth scrolling on click
+        'prefix': 'toc', //prefix for anchor tags and class names
+        'onHighlight': function(el) {}, //called when a new section is highlighted 
+        'highlightOnScroll': true, //add class to heading that is currently in focus
+        'highlightOffset': 100, //offset to trigger the next headline
+        'anchorName': function(i, heading, prefix) { //custom function for anchor name
+          return prefix+i;
+        },
+        'headerText': function(i, heading, $heading) { //custom function building the header-item text
+          return $heading.text();
+        },
+        'itemClass': function(i, heading, $heading, prefix) { //custom function for item class
+          return $heading[0].tagName.toLowerCase();
+        }
+      });
+    </script>
+    
+
+  </body>
+
+</html>

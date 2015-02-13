@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Vtocc • Vitess</title>
+    <meta name="description" content="vtocc
+
+vtocc is a smart proxy to mysql/mariadb. It&#39;s basically a subset of
+vttablet that concerns itself with just serving queries for a
+single database. It&#39;s a standalone program/server that can be
+launched without the need of the rest of the vitess ecosystem.
+It can be pointed to an existing database, and you should be able
+to send queries through it.
+
+vtocc features
+
+
+Connection pooling.
+SQL parser: Although very close, the vtocc SQL parser is not SQL-92
+compliant. It has left out constructs that are deemed uncommon or
+OLTP-unfriendly. It should, however, allow most queries used by a
+typical web application.
+Query rewrite and sanitation (adding limits, avoiding non-deterministic updates).
+Query de-duping: reuse the results of an in-flight query to any
+subsequent requests that were received while the query was still
+executing.
+Rowcache: the mysql buffer cache is optimized for range scans over
+indices and tables. Unfortunately, it’s not good for random access
+by primary key. The rowcache will instead maintain a row based cache
+(using memcached as its backend) and keep it
+consistent by fielding all DMLs that could potentially affect them.
+Query blacklisting: You can specify a set of rules to blacklist queries
+that are potentially problematic.
+Table ACLs: Allow you to specify ACLs for tables based on the connected
+user.
+Update stream: A server that streams the list of rows that are changing
+in the database, which can be used as a mechanism to continuously export
+the data to another data store.
+Query killer for queries that take too long to return data.
+Transaction management: Ability to limit the number of concurrent
+transactions and manage deadlines.
+Streaming queries to serve OLAP workloads.
+A rich set of monitoring features to watch over, diagnose or analyze performance.
+
+
+Protocol
+
+vtocc uses the bsonrpc protocol. This means that it uses bson encoding
+to receive and send messages. There is currently a python client. A java client is
+also getting implemented.
+
+If you are familiar with go, you can actually plug in any protocol you desire, like json,
+thrift or protobufs.
+
+Data types
+
+vtocc has not been well tested with exotic data types. Specifically, we don&#39;t know how it
+will handle boolean and timestamp columns. Otherwise, we have tests for
+the commonly used data types.
+
+vtocc can work with latin-1 or utf-8 encoded databases. It&#39;s highly recommended that you match
+client and server side encoding. vtocc does not try to do any character set conversions.
+
+vtocc will enable rowcache only for tables that have numbers or binary data types as primary
+key columns. This is because other column types are not bitwise comparable. For example,
+varchar comparison in MySQL is collation dependent. So, those types are not supported.
+
+Bind variables
+
+One major differentiator with vtocc is its use of bind variables. When you send a query,
+you build it like this:
+query = &quot;select a, b, c from t where id1 = :id1 and id2 = :id2&quot;
+bindVars = {&quot;id1&quot;: 1, &quot;id2&quot;: 2}
+
+vtocc parses the query string and caches it against an execution plan. Subsequent requests
+with the same query string will cause vtocc to reuse the cached query plan to efficiently
+handle the request.
+
+vtocc also accepts old-style positional variables. In such cases the bind vars are to be
+named as v1, v2, etc:
+query = &quot;select a, b, c from t where id1 = ? and id2 = ?&quot;
+bindVars = {&quot;v1&quot;: 1, &quot;v2&quot;: 2}
+
+vtocc also accepts list bind variables (TO BE IMPLEMENTED):
+query = &quot;select a, b, c from t where id1 in ::list&quot;
+bindVars = {&quot;list&quot;: [1, 2, 3]}
+
+Additionally, vtocc tracks statistics grouped by these query strings, which are
+useful for analysis and trouble-shooting.
+
+Execute functions
+
+There are three Execute functions:
+* Execute: This is an OLTP execute function that is expected to return a limited set
+  of rows. If the number of rows exceeds the max allowed limit, an error is returned.
+* BatchExecute executes a set of OLTP statements as a single round-trip request. If you
+  are affected by network latency, this function can be used to group your requests.
+  You can call this function from within a transaction, or you can begin and commit a
+  transaction from within a batch.
+* StreamExecute: This function is used for returning large result sets that could
+  potentially require full table scans.
+
+Command line arguments
+
+&#39;vtocc -h&#39; should print the full set of command line arguments. Here is an explanation
+of what they mean:
+
+DB connection parameters
+
+There are four types of db-config parameters. db-config-app-* specify the connection parameters
+that will be used to serve the app. The &#39;repl&#39; parameters will be used by the rowcache to connect
+to the server as a replica to fetch binlog events for invalidation. The &#39;dba&#39; and &#39;filtered&#39;
+parameters are only used when running as vttablet.
+* db-config-app-charset=&quot;utf8&quot;: Only utf8 or latin1 are currently supported.
+* db-config-app-dbname=&quot;&quot;: Name of the MySQL database to serve queries for.
+* db-config-app-keyspace=&quot;&quot;: It’s recommended that this value be set to the same as dbname. Clients connecting to vtocc will need to specify the keyspace name, which will be used as sanity check.
+* db-config-app-uname=&quot;vt_app&quot;: Set this to the username vtocc should connect as.
+* db-config-app-unixsocket=&quot;&quot;: Socket file name. This is the recommended mode of connection (vs host-port).
+* db-credentials-server=&quot;file&quot;: db credentials server type (use &#39;file&#39; for the file implementation).
+* db-credentials-file: Specifies the file where db credentials are stored.
+
+TODO: Document the rest of the flags.
+
+Query server parameters
+
+All timeout related parameters below are specified in seconds. A value of zero means never.
+* port=0: Server port.
+* queryserver-config-idle-timeout=1800: vtocc has many connection pools to connect to mysql. If any connection in the pool has been idle for longer than the specified time, then vtocc discards the connection and creates a new one instead. This value should be less than the MySQL idle timeout.
+* queryserver-config-max-result-size=10000: vtocc adds a limit clause to all unbounded queries. If the result returned exceeds this number, it returns an error instead.
+* queryserver-config-pool-size=16: This is the generic read pool. This pool gets used if you issue read queries outside of transactions.
+* queryserver-config-query-cache-size=5000: This is the number of unique query strings that vtocc caches. You can start off with the default value and adjust up or down based on what you see.
+* queryserver-config-query-timeout=0: This timeout specifies how long a query is allowed to run before it’s killed.
+* queryserver-config-schema-reload-time=1800: This specifies how often the schema is reloaded by vtocc. If you rollout schema changes to a live serving database, you can be sure that it has been read by vtocc after the reload time has elapsed. If needed, there are ways to make vtocc reload the schema immediately.
+* queryserver-config-stream-buffer-size=32768: This is the buffer size for streaming queries.
+* queryserver-config-stream-pool-size=750: Connection pool size for streaming queries.
+* queryserver-config-strict-mode=true: If this is turned off, vtocc allows all DMLs and does not enforce MySQL&#39;s STRICT_TRANS_TABLES. This setting can be tuned off for migration purposes if the database is not already configured with these settings.
+* queryserver-config-transaction-cap=20: This value limits the number of allowed concurrent transactions.
+* queryserver-config-transaction-timeout=30: The amount of time to allow a transaction to complete before killing it.
+
+Logging parameters
+
+
+alsologtostderr=false: log to standard error as well as files.
+keep_logs=0: keep logs for this long (zero to keep forever).
+log_backtrace_at=:0: when logging hits line file:N, emit a stack trace.
+log_dir=&quot;&quot;: If non-empty, write log files in this directory.
+logtostderr=false: log to standard error instead of files.
+stderrthreshold=WARNING: logs at or above this threshold go to stderr.
+purge_logs_interval=1h0m0s: how often try to remove old logs.
+
+">
+    <meta name="keywords" content="">
+    
+    
+    	<!-- Twitter Cards -->
+	<meta name="twitter:title" content="Vtocc">
+	<meta name="twitter:description" content="vtocc
+
+vtocc is a smart proxy to mysql/mariadb. It&#39;s basically a subset of
+vttablet that concerns itself with just serving queries for a
+single database. It&#39;s a standalone program/server that can be
+launched without the need of the rest of the vitess ecosystem.
+It can be pointed to an existing database, and you should be able
+to send queries through it.
+
+vtocc features
+
+
+Connection pooling.
+SQL parser: Although very close, the vtocc SQL parser is not SQL-92
+compliant. It has left out constructs that are deemed uncommon or
+OLTP-unfriendly. It should, however, allow most queries used by a
+typical web application.
+Query rewrite and sanitation (adding limits, avoiding non-deterministic updates).
+Query de-duping: reuse the results of an in-flight query to any
+subsequent requests that were received while the query was still
+executing.
+Rowcache: the mysql buffer cache is optimized for range scans over
+indices and tables. Unfortunately, it’s not good for random access
+by primary key. The rowcache will instead maintain a row based cache
+(using memcached as its backend) and keep it
+consistent by fielding all DMLs that could potentially affect them.
+Query blacklisting: You can specify a set of rules to blacklist queries
+that are potentially problematic.
+Table ACLs: Allow you to specify ACLs for tables based on the connected
+user.
+Update stream: A server that streams the list of rows that are changing
+in the database, which can be used as a mechanism to continuously export
+the data to another data store.
+Query killer for queries that take too long to return data.
+Transaction management: Ability to limit the number of concurrent
+transactions and manage deadlines.
+Streaming queries to serve OLAP workloads.
+A rich set of monitoring features to watch over, diagnose or analyze performance.
+
+
+Protocol
+
+vtocc uses the bsonrpc protocol. This means that it uses bson encoding
+to receive and send messages. There is currently a python client. A java client is
+also getting implemented.
+
+If you are familiar with go, you can actually plug in any protocol you desire, like json,
+thrift or protobufs.
+
+Data types
+
+vtocc has not been well tested with exotic data types. Specifically, we don&#39;t know how it
+will handle boolean and timestamp columns. Otherwise, we have tests for
+the commonly used data types.
+
+vtocc can work with latin-1 or utf-8 encoded databases. It&#39;s highly recommended that you match
+client and server side encoding. vtocc does not try to do any character set conversions.
+
+vtocc will enable rowcache only for tables that have numbers or binary data types as primary
+key columns. This is because other column types are not bitwise comparable. For example,
+varchar comparison in MySQL is collation dependent. So, those types are not supported.
+
+Bind variables
+
+One major differentiator with vtocc is its use of bind variables. When you send a query,
+you build it like this:
+query = &quot;select a, b, c from t where id1 = :id1 and id2 = :id2&quot;
+bindVars = {&quot;id1&quot;: 1, &quot;id2&quot;: 2}
+
+vtocc parses the query string and caches it against an execution plan. Subsequent requests
+with the same query string will cause vtocc to reuse the cached query plan to efficiently
+handle the request.
+
+vtocc also accepts old-style positional variables. In such cases the bind vars are to be
+named as v1, v2, etc:
+query = &quot;select a, b, c from t where id1 = ? and id2 = ?&quot;
+bindVars = {&quot;v1&quot;: 1, &quot;v2&quot;: 2}
+
+vtocc also accepts list bind variables (TO BE IMPLEMENTED):
+query = &quot;select a, b, c from t where id1 in ::list&quot;
+bindVars = {&quot;list&quot;: [1, 2, 3]}
+
+Additionally, vtocc tracks statistics grouped by these query strings, which are
+useful for analysis and trouble-shooting.
+
+Execute functions
+
+There are three Execute functions:
+* Execute: This is an OLTP execute function that is expected to return a limited set
+  of rows. If the number of rows exceeds the max allowed limit, an error is returned.
+* BatchExecute executes a set of OLTP statements as a single round-trip request. If you
+  are affected by network latency, this function can be used to group your requests.
+  You can call this function from within a transaction, or you can begin and commit a
+  transaction from within a batch.
+* StreamExecute: This function is used for returning large result sets that could
+  potentially require full table scans.
+
+Command line arguments
+
+&#39;vtocc -h&#39; should print the full set of command line arguments. Here is an explanation
+of what they mean:
+
+DB connection parameters
+
+There are four types of db-config parameters. db-config-app-* specify the connection parameters
+that will be used to serve the app. The &#39;repl&#39; parameters will be used by the rowcache to connect
+to the server as a replica to fetch binlog events for invalidation. The &#39;dba&#39; and &#39;filtered&#39;
+parameters are only used when running as vttablet.
+* db-config-app-charset=&quot;utf8&quot;: Only utf8 or latin1 are currently supported.
+* db-config-app-dbname=&quot;&quot;: Name of the MySQL database to serve queries for.
+* db-config-app-keyspace=&quot;&quot;: It’s recommended that this value be set to the same as dbname. Clients connecting to vtocc will need to specify the keyspace name, which will be used as sanity check.
+* db-config-app-uname=&quot;vt_app&quot;: Set this to the username vtocc should connect as.
+* db-config-app-unixsocket=&quot;&quot;: Socket file name. This is the recommended mode of connection (vs host-port).
+* db-credentials-server=&quot;file&quot;: db credentials server type (use &#39;file&#39; for the file implementation).
+* db-credentials-file: Specifies the file where db credentials are stored.
+
+TODO: Document the rest of the flags.
+
+Query server parameters
+
+All timeout related parameters below are specified in seconds. A value of zero means never.
+* port=0: Server port.
+* queryserver-config-idle-timeout=1800: vtocc has many connection pools to connect to mysql. If any connection in the pool has been idle for longer than the specified time, then vtocc discards the connection and creates a new one instead. This value should be less than the MySQL idle timeout.
+* queryserver-config-max-result-size=10000: vtocc adds a limit clause to all unbounded queries. If the result returned exceeds this number, it returns an error instead.
+* queryserver-config-pool-size=16: This is the generic read pool. This pool gets used if you issue read queries outside of transactions.
+* queryserver-config-query-cache-size=5000: This is the number of unique query strings that vtocc caches. You can start off with the default value and adjust up or down based on what you see.
+* queryserver-config-query-timeout=0: This timeout specifies how long a query is allowed to run before it’s killed.
+* queryserver-config-schema-reload-time=1800: This specifies how often the schema is reloaded by vtocc. If you rollout schema changes to a live serving database, you can be sure that it has been read by vtocc after the reload time has elapsed. If needed, there are ways to make vtocc reload the schema immediately.
+* queryserver-config-stream-buffer-size=32768: This is the buffer size for streaming queries.
+* queryserver-config-stream-pool-size=750: Connection pool size for streaming queries.
+* queryserver-config-strict-mode=true: If this is turned off, vtocc allows all DMLs and does not enforce MySQL&#39;s STRICT_TRANS_TABLES. This setting can be tuned off for migration purposes if the database is not already configured with these settings.
+* queryserver-config-transaction-cap=20: This value limits the number of allowed concurrent transactions.
+* queryserver-config-transaction-timeout=30: The amount of time to allow a transaction to complete before killing it.
+
+Logging parameters
+
+
+alsologtostderr=false: log to standard error as well as files.
+keep_logs=0: keep logs for this long (zero to keep forever).
+log_backtrace_at=:0: when logging hits line file:N, emit a stack trace.
+log_dir=&quot;&quot;: If non-empty, write log files in this directory.
+logtostderr=false: log to standard error instead of files.
+stderrthreshold=WARNING: logs at or above this threshold go to stderr.
+purge_logs_interval=1h0m0s: how often try to remove old logs.
+
+">
+	
+	
+	
+	<meta name="twitter:card" content="summary">
+	<meta name="twitter:image" content="http://youtube.github.io/vitess/images/120x120.gif">
+	
+	<!-- Open Graph -->
+	<meta property="og:locale" content="en_US">
+	<meta property="og:type" content="article">
+	<meta property="og:title" content="Vtocc">
+	<meta property="og:description" content="vtocc
+
+vtocc is a smart proxy to mysql/mariadb. It&#39;s basically a subset of
+vttablet that concerns itself with just serving queries for a
+single database. It&#39;s a standalone program/server that can be
+launched without the need of the rest of the vitess ecosystem.
+It can be pointed to an existing database, and you should be able
+to send queries through it.
+
+vtocc features
+
+
+Connection pooling.
+SQL parser: Although very close, the vtocc SQL parser is not SQL-92
+compliant. It has left out constructs that are deemed uncommon or
+OLTP-unfriendly. It should, however, allow most queries used by a
+typical web application.
+Query rewrite and sanitation (adding limits, avoiding non-deterministic updates).
+Query de-duping: reuse the results of an in-flight query to any
+subsequent requests that were received while the query was still
+executing.
+Rowcache: the mysql buffer cache is optimized for range scans over
+indices and tables. Unfortunately, it’s not good for random access
+by primary key. The rowcache will instead maintain a row based cache
+(using memcached as its backend) and keep it
+consistent by fielding all DMLs that could potentially affect them.
+Query blacklisting: You can specify a set of rules to blacklist queries
+that are potentially problematic.
+Table ACLs: Allow you to specify ACLs for tables based on the connected
+user.
+Update stream: A server that streams the list of rows that are changing
+in the database, which can be used as a mechanism to continuously export
+the data to another data store.
+Query killer for queries that take too long to return data.
+Transaction management: Ability to limit the number of concurrent
+transactions and manage deadlines.
+Streaming queries to serve OLAP workloads.
+A rich set of monitoring features to watch over, diagnose or analyze performance.
+
+
+Protocol
+
+vtocc uses the bsonrpc protocol. This means that it uses bson encoding
+to receive and send messages. There is currently a python client. A java client is
+also getting implemented.
+
+If you are familiar with go, you can actually plug in any protocol you desire, like json,
+thrift or protobufs.
+
+Data types
+
+vtocc has not been well tested with exotic data types. Specifically, we don&#39;t know how it
+will handle boolean and timestamp columns. Otherwise, we have tests for
+the commonly used data types.
+
+vtocc can work with latin-1 or utf-8 encoded databases. It&#39;s highly recommended that you match
+client and server side encoding. vtocc does not try to do any character set conversions.
+
+vtocc will enable rowcache only for tables that have numbers or binary data types as primary
+key columns. This is because other column types are not bitwise comparable. For example,
+varchar comparison in MySQL is collation dependent. So, those types are not supported.
+
+Bind variables
+
+One major differentiator with vtocc is its use of bind variables. When you send a query,
+you build it like this:
+query = &quot;select a, b, c from t where id1 = :id1 and id2 = :id2&quot;
+bindVars = {&quot;id1&quot;: 1, &quot;id2&quot;: 2}
+
+vtocc parses the query string and caches it against an execution plan. Subsequent requests
+with the same query string will cause vtocc to reuse the cached query plan to efficiently
+handle the request.
+
+vtocc also accepts old-style positional variables. In such cases the bind vars are to be
+named as v1, v2, etc:
+query = &quot;select a, b, c from t where id1 = ? and id2 = ?&quot;
+bindVars = {&quot;v1&quot;: 1, &quot;v2&quot;: 2}
+
+vtocc also accepts list bind variables (TO BE IMPLEMENTED):
+query = &quot;select a, b, c from t where id1 in ::list&quot;
+bindVars = {&quot;list&quot;: [1, 2, 3]}
+
+Additionally, vtocc tracks statistics grouped by these query strings, which are
+useful for analysis and trouble-shooting.
+
+Execute functions
+
+There are three Execute functions:
+* Execute: This is an OLTP execute function that is expected to return a limited set
+  of rows. If the number of rows exceeds the max allowed limit, an error is returned.
+* BatchExecute executes a set of OLTP statements as a single round-trip request. If you
+  are affected by network latency, this function can be used to group your requests.
+  You can call this function from within a transaction, or you can begin and commit a
+  transaction from within a batch.
+* StreamExecute: This function is used for returning large result sets that could
+  potentially require full table scans.
+
+Command line arguments
+
+&#39;vtocc -h&#39; should print the full set of command line arguments. Here is an explanation
+of what they mean:
+
+DB connection parameters
+
+There are four types of db-config parameters. db-config-app-* specify the connection parameters
+that will be used to serve the app. The &#39;repl&#39; parameters will be used by the rowcache to connect
+to the server as a replica to fetch binlog events for invalidation. The &#39;dba&#39; and &#39;filtered&#39;
+parameters are only used when running as vttablet.
+* db-config-app-charset=&quot;utf8&quot;: Only utf8 or latin1 are currently supported.
+* db-config-app-dbname=&quot;&quot;: Name of the MySQL database to serve queries for.
+* db-config-app-keyspace=&quot;&quot;: It’s recommended that this value be set to the same as dbname. Clients connecting to vtocc will need to specify the keyspace name, which will be used as sanity check.
+* db-config-app-uname=&quot;vt_app&quot;: Set this to the username vtocc should connect as.
+* db-config-app-unixsocket=&quot;&quot;: Socket file name. This is the recommended mode of connection (vs host-port).
+* db-credentials-server=&quot;file&quot;: db credentials server type (use &#39;file&#39; for the file implementation).
+* db-credentials-file: Specifies the file where db credentials are stored.
+
+TODO: Document the rest of the flags.
+
+Query server parameters
+
+All timeout related parameters below are specified in seconds. A value of zero means never.
+* port=0: Server port.
+* queryserver-config-idle-timeout=1800: vtocc has many connection pools to connect to mysql. If any connection in the pool has been idle for longer than the specified time, then vtocc discards the connection and creates a new one instead. This value should be less than the MySQL idle timeout.
+* queryserver-config-max-result-size=10000: vtocc adds a limit clause to all unbounded queries. If the result returned exceeds this number, it returns an error instead.
+* queryserver-config-pool-size=16: This is the generic read pool. This pool gets used if you issue read queries outside of transactions.
+* queryserver-config-query-cache-size=5000: This is the number of unique query strings that vtocc caches. You can start off with the default value and adjust up or down based on what you see.
+* queryserver-config-query-timeout=0: This timeout specifies how long a query is allowed to run before it’s killed.
+* queryserver-config-schema-reload-time=1800: This specifies how often the schema is reloaded by vtocc. If you rollout schema changes to a live serving database, you can be sure that it has been read by vtocc after the reload time has elapsed. If needed, there are ways to make vtocc reload the schema immediately.
+* queryserver-config-stream-buffer-size=32768: This is the buffer size for streaming queries.
+* queryserver-config-stream-pool-size=750: Connection pool size for streaming queries.
+* queryserver-config-strict-mode=true: If this is turned off, vtocc allows all DMLs and does not enforce MySQL&#39;s STRICT_TRANS_TABLES. This setting can be tuned off for migration purposes if the database is not already configured with these settings.
+* queryserver-config-transaction-cap=20: This value limits the number of allowed concurrent transactions.
+* queryserver-config-transaction-timeout=30: The amount of time to allow a transaction to complete before killing it.
+
+Logging parameters
+
+
+alsologtostderr=false: log to standard error as well as files.
+keep_logs=0: keep logs for this long (zero to keep forever).
+log_backtrace_at=:0: when logging hits line file:N, emit a stack trace.
+log_dir=&quot;&quot;: If non-empty, write log files in this directory.
+logtostderr=false: log to standard error instead of files.
+stderrthreshold=WARNING: logs at or above this threshold go to stderr.
+purge_logs_interval=1h0m0s: how often try to remove old logs.
+
+">
+	<meta property="og:url" content="http://youtube.github.io/vitess/documentation/vtocc/">
+	<meta property="og:site_name" content="Vitess">
+
+    <link rel="canonical" href="http://youtube.github.io/vitess/documentation/vtocc/">
+
+    <link href="http://youtube.github.io/vitess/sitemap.xml" type="application/xml" rel="sitemap" title="Sitemap">
+
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="cleartype" content="on">
+
+    <style>
+    .sliding-menu-content {
+      top: 0;
+      right: 0;
+      text-align: center;
+      visibility: hidden;
+      height: 100%;
+      width: 100%;
+      -webkit-transform: translateX(100%);
+      -moz-transform: translateX(100%);
+      -ms-transform: translateX(100%);
+      -o-transform: translateX(100%);
+      transform: translateX(100%);
+    }
+    </style>
+
+    <link rel="stylesheet" href="http://youtube.github.io/vitess/css/main.css">
+    <!-- HTML5 Shiv and Media Query Support for IE -->
+    <!--[if lt IE 9]>
+      <script src="http://youtube.github.io/vitess/js/vendor/html5shiv.min.js"></script>
+      <script src="http://youtube.github.io/vitess/js/vendor/respond.min.js"></script>
+    <![endif]-->
+
+  </head>
+
+  <body>
+    <header id="masthead">
+  <div class="inner-wrap">
+    <a href="http://youtube.github.io/vitess/" class="site-title">Vitess</a>
+    <nav role="navigation" class="menu top-menu">
+        <ul class="menu-item">
+	<li class="home"><a href="/">Vitess</a></li>
+	
+    
+        
+    
+    <li><a href="http://youtube.github.io/vitess/getting-started/" >Getting Started</a></li>
+  
+    
+        
+    
+    <li><a href="http://youtube.github.io/vitess/documentation/" >Documentation</a></li>
+  
+    
+        
+    
+    <li><a href="http://youtube.github.io/vitess/about/" >About</a></li>
+  
+    
+        
+    
+    <li><a href="http://youtube.github.io/vitess/faq/" >FAQ</a></li>
+  
+</ul>
+    </nav>
+  </div>
+</header>
+
+    <nav role="navigation" class="js-menu sliding-menu-content">
+	<ul class="menu-item">
+		<li>
+      
+        
+      
+			<a href="http://youtube.github.io/vitess/getting-started/"><img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" class="teaser"></a>
+			<a href="http://youtube.github.io/vitess/getting-started/" class="title">Getting Started</a>
+			<p class="excerpt">Everything you need to know to get started with Vitess.</p>
+		</li><li>
+      
+        
+      
+			<a href="http://youtube.github.io/vitess/documentation/"><img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" class="teaser"></a>
+			<a href="http://youtube.github.io/vitess/documentation/" class="title">Documentation</a>
+			<p class="excerpt">Vitess Docs.</p>
+		</li><li>
+      
+        
+      
+			<a href="http://youtube.github.io/vitess/about/"><img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" class="teaser"></a>
+			<a href="http://youtube.github.io/vitess/about/" class="title">About</a>
+			<p class="excerpt">All about Vitess.</p>
+		</li><li>
+      
+        
+      
+			<a href="http://youtube.github.io/vitess/faq/"><img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" class="teaser"></a>
+			<a href="http://youtube.github.io/vitess/faq/" class="title">FAQ</a>
+			<p class="excerpt">Vitess Faq.</p>
+		</li>
+	</ul>
+</nav>
+<button type="button" class="js-menu-trigger sliding-menu-button menulines-button x2" role="button" aria-label="Toggle Navigation">
+	<span class="menulines"></span>
+</button>
+
+<div class="js-menu-screen menu-screen"></div>
+
+    <div id="page-wrapper">
+      <!--[if lt IE 9]><div class="upgrade notice-danger"><strong>Your browser is quite old!</strong> Why not <a href="http://whatbrowser.org/">upgrade to a newer one</a> to better enjoy this site?</div><![endif]-->
+
+      <div id="main" role="main">
+  <article class="wrap" itemscope itemtype="http://schema.org/Article">
+    
+    
+  <nav class="breadcrumbs">
+    <span itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+      <a href="http://youtube.github.io/vitess" itemprop="url">
+        <span itemprop="title">Home</span>
+      </a> › 
+    <span itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+      <a href="http://youtube.github.io/vitess/documentation/" itemprop="url">
+        <span itemprop="title">Documentation</span>
+      </a>
+    </span>
+  </nav>
+
+
+    <div class="inner-wrap">
+      <nav class="toc"></nav>
+      <div id="content" class="page-content" itemprop="articleBody">
+	<h1 id="vtocc">vtocc</h1>
+
+<p>vtocc is a smart proxy to mysql/mariadb. It&#39;s basically a subset of
+vttablet that concerns itself with just serving queries for a
+single database. It&#39;s a standalone program/server that can be
+launched without the need of the rest of the vitess ecosystem.
+It can be pointed to an existing database, and you should be able
+to send queries through it.</p>
+
+<h2 id="vtocc-features">vtocc features</h2>
+
+<ul>
+<li>Connection pooling.</li>
+<li>SQL parser: Although very close, the vtocc SQL parser is not SQL-92
+compliant. It has left out constructs that are deemed uncommon or
+OLTP-unfriendly. It should, however, allow most queries used by a
+typical web application.</li>
+<li>Query rewrite and sanitation (adding limits, avoiding non-deterministic updates).</li>
+<li>Query de-duping: reuse the results of an in-flight query to any
+subsequent requests that were received while the query was still
+executing.</li>
+<li>Rowcache: the mysql buffer cache is optimized for range scans over
+indices and tables. Unfortunately, it’s not good for random access
+by primary key. The rowcache will instead maintain a row based cache
+(using <a href="http://memcached.org/">memcached</a> as its backend) and keep it
+consistent by fielding all DMLs that could potentially affect them.</li>
+<li>Query blacklisting: You can specify a set of rules to blacklist queries
+that are potentially problematic.</li>
+<li>Table ACLs: Allow you to specify ACLs for tables based on the connected
+user.</li>
+<li>Update stream: A server that streams the list of rows that are changing
+in the database, which can be used as a mechanism to continuously export
+the data to another data store.</li>
+<li>Query killer for queries that take too long to return data.</li>
+<li>Transaction management: Ability to limit the number of concurrent
+transactions and manage deadlines.</li>
+<li>Streaming queries to serve OLAP workloads.</li>
+<li>A rich set of monitoring features to watch over, diagnose or analyze performance.</li>
+</ul>
+
+<h2 id="protocol">Protocol</h2>
+
+<p>vtocc uses the bsonrpc protocol. This means that it uses <a href="http://bsonspec.org">bson encoding</a>
+to receive and send messages. There is currently a <a href="https://github.com/youtube/vitess/blob/master/py/vtdb/tablet.py">python client</a>. A java client is
+also getting implemented.</p>
+
+<p>If you are familiar with go, you can actually plug in any protocol you desire, like json,
+thrift or protobufs.</p>
+
+<h2 id="data-types">Data types</h2>
+
+<p>vtocc has not been well tested with exotic data types. Specifically, we don&#39;t know how it
+will handle boolean and timestamp columns. Otherwise, we have <a href="https://github.com/youtube/vitess/blob/master/test/test_data/test_schema.sql#L45">tests</a> for
+the commonly used data types.</p>
+
+<p>vtocc can work with latin-1 or utf-8 encoded databases. It&#39;s highly recommended that you match
+client and server side encoding. vtocc does not try to do any character set conversions.</p>
+
+<p>vtocc will enable rowcache only for tables that have numbers or binary data types as primary
+key columns. This is because other column types are not bitwise comparable. For example,
+varchar comparison in MySQL is collation dependent. So, those types are not supported.</p>
+
+<h2 id="bind-variables">Bind variables</h2>
+
+<p>One major differentiator with vtocc is its use of bind variables. When you send a query,
+you build it like this:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">query = &quot;select a, b, c from t where id1 = :id1 and id2 = :id2&quot;
+bindVars = {&quot;id1&quot;: 1, &quot;id2&quot;: 2}
+</code></pre></div>
+<p>vtocc parses the query string and caches it against an execution plan. Subsequent requests
+with the same query string will cause vtocc to reuse the cached query plan to efficiently
+handle the request.</p>
+
+<p>vtocc also accepts old-style positional variables. In such cases the bind vars are to be
+named as v1, v2, etc:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">query = &quot;select a, b, c from t where id1 = ? and id2 = ?&quot;
+bindVars = {&quot;v1&quot;: 1, &quot;v2&quot;: 2}
+</code></pre></div>
+<p>vtocc also accepts list bind variables (TO BE IMPLEMENTED):</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">query = &quot;select a, b, c from t where id1 in ::list&quot;
+bindVars = {&quot;list&quot;: [1, 2, 3]}
+</code></pre></div>
+<p>Additionally, vtocc tracks statistics grouped by these query strings, which are
+useful for analysis and trouble-shooting.</p>
+
+<h2 id="execute-functions">Execute functions</h2>
+
+<p>There are three Execute functions:
+* <strong>Execute</strong>: This is an OLTP execute function that is expected to return a limited set
+  of rows. If the number of rows exceeds the max allowed limit, an error is returned.
+* <strong>BatchExecute</strong> executes a set of OLTP statements as a single round-trip request. If you
+  are affected by network latency, this function can be used to group your requests.
+  You can call this function from within a transaction, or you can begin and commit a
+  transaction from within a batch.
+* <strong>StreamExecute</strong>: This function is used for returning large result sets that could
+  potentially require full table scans.</p>
+
+<h2 id="command-line-arguments">Command line arguments</h2>
+
+<p>&#39;vtocc -h&#39; should print the full set of command line arguments. Here is an explanation
+of what they mean:</p>
+
+<h4 id="db-connection-parameters">DB connection parameters</h4>
+
+<p>There are four types of db-config parameters. db-config-app-* specify the connection parameters
+that will be used to serve the app. The &#39;repl&#39; parameters will be used by the rowcache to connect
+to the server as a replica to fetch binlog events for invalidation. The &#39;dba&#39; and &#39;filtered&#39;
+parameters are only used when running as vttablet.
+* <strong>db-config-app-charset=&quot;utf8&quot;</strong>: Only utf8 or latin1 are currently supported.
+* <strong>db-config-app-dbname=&quot;&quot;</strong>: Name of the MySQL database to serve queries for.
+* <strong>db-config-app-keyspace=&quot;&quot;</strong>: It’s recommended that this value be set to the same as dbname. Clients connecting to vtocc will need to specify the keyspace name, which will be used as sanity check.
+* <strong>db-config-app-uname=&quot;vt_app&quot;</strong>: Set this to the username vtocc should connect as.
+* <strong>db-config-app-unixsocket=&quot;&quot;</strong>: Socket file name. This is the recommended mode of connection (vs host-port).
+* <strong>db-credentials-server=&quot;file&quot;</strong>: db credentials server type (use &#39;file&#39; for the file implementation).
+* <strong>db-credentials-file</strong>: Specifies the file where db credentials are stored.</p>
+
+<p>TODO: Document the rest of the flags.</p>
+
+<h4 id="query-server-parameters">Query server parameters</h4>
+
+<p>All timeout related parameters below are specified in seconds. A value of zero means never.
+* <strong>port=0</strong>: Server port.
+* <strong>queryserver-config-idle-timeout=1800</strong>: vtocc has many connection pools to connect to mysql. If any connection in the pool has been idle for longer than the specified time, then vtocc discards the connection and creates a new one instead. This value should be less than the MySQL idle timeout.
+* <strong>queryserver-config-max-result-size=10000</strong>: vtocc adds a limit clause to all unbounded queries. If the result returned exceeds this number, it returns an error instead.
+* <strong>queryserver-config-pool-size=16</strong>: This is the generic read pool. This pool gets used if you issue read queries outside of transactions.
+* <strong>queryserver-config-query-cache-size=5000</strong>: This is the number of unique query strings that vtocc caches. You can start off with the default value and adjust up or down based on what you see.
+* <strong>queryserver-config-query-timeout=0</strong>: This timeout specifies how long a query is allowed to run before it’s killed.
+* <strong>queryserver-config-schema-reload-time=1800</strong>: This specifies how often the schema is reloaded by vtocc. If you rollout schema changes to a live serving database, you can be sure that it has been read by vtocc after the reload time has elapsed. If needed, there are ways to make vtocc reload the schema immediately.
+* <strong>queryserver-config-stream-buffer-size=32768</strong>: This is the buffer size for streaming queries.
+* <strong>queryserver-config-stream-pool-size=750</strong>: Connection pool size for streaming queries.
+* <strong>queryserver-config-strict-mode=true</strong>: If this is turned off, vtocc allows all DMLs and does not enforce MySQL&#39;s <code>STRICT_TRANS_TABLES</code>. This setting can be tuned off for migration purposes if the database is not already configured with these settings.
+* <strong>queryserver-config-transaction-cap=20</strong>: This value limits the number of allowed concurrent transactions.
+* <strong>queryserver-config-transaction-timeout=30</strong>: The amount of time to allow a transaction to complete before killing it.</p>
+
+<h4 id="logging-parameters">Logging parameters</h4>
+
+<ul>
+<li><strong>alsologtostderr=false</strong>: log to standard error as well as files.</li>
+<li><strong>keep_logs=0</strong>: keep logs for this long (zero to keep forever).</li>
+<li><strong>log_backtrace_at=:0</strong>: when logging hits line file:N, emit a stack trace.</li>
+<li><strong>log_dir=&quot;&quot;</strong>: If non-empty, write log files in this directory.</li>
+<li><strong>logtostderr=false</strong>: log to standard error instead of files.</li>
+<li><strong>stderrthreshold=WARNING</strong>: logs at or above this threshold go to stderr.</li>
+<li><strong>purge_logs_interval=1h0m0s</strong>: how often try to remove old logs.</li>
+</ul>
+
+	<hr />
+	<footer class="page-footer">
+	  
+
+
+<div class="author-image">
+	<img src="http://youtube.github.io/vitess/images/" alt="Vitess Team">
+</div>
+<div class="author-content">
+	<h3 class="author-name" >Written by <a href="https://github.com/youtube/vitess" itemprop="author">Vitess Team</a></h3>
+	<p class="author-bio"></p>
+</div>
+
+	  <div class="inline-btn">
+	<a class="btn-social twitter" href="https://twitter.com/intent/tweet?text=Vtocc&amp;url=http://youtube.github.io/vitess/documentation/vtocc/&amp;via=" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i> Share on Twitter</a>
+	<a class="btn-social facebook" href="https://www.facebook.com/sharer/sharer.php?u=http://youtube.github.io/vitess/documentation/vtocc/" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i> Share on Facebook</a>
+	<a class="btn-social google-plus"  href="https://plus.google.com/share?url=http://youtube.github.io/vitess/documentation/vtocc/" target="_blank"><i class="fa fa-google-plus" aria-hidden="true"></i> Share on Google+</a>
+</div>
+
+	  <div class="page-meta">
+	<p>Updated <time datetime="2015-01-01T00:00:00Z" itemprop="datePublished">January 01, 2015</time></p>
+</div>
+
+	</footer>
+	<aside>
+	  
+	</aside>
+      </div>
+    </div>
+  </article>
+</div>
+
+
+      <footer role="contentinfo" id="site-footer">
+  <nav role="navigation" class="menu bottom-menu">
+    <ul class="menu-item">
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/" >Home</a></li>
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/getting-started/" >Getting Started</a></li>
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/about/" >About</a></li>
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/faq/" >FAQ</a></li>
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/terms/" >Terms</a></li>
+      
+    </ul>
+  </nav>
+  <p class="copyright">&#169; 2015 <a href="http://youtube.github.io/vitess">Vitess</a> powered by <a href="http://www.google.com">Google Inc</a>.</p>
+</footer>
+
+    </div>
+
+    <script src="http://youtube.github.io/vitess/js/vendor/jquery-1.9.1.min.js"></script>
+    <script src="http://youtube.github.io/vitess/js/main.js"></script>
+    
+    
+    <script type="text/javascript">
+      $('.toc').toc({
+        'selectors': 'h2', //elements to use as headings
+        'container': '.page-content', //element to find all selectors in
+        'smoothScrolling': true, //enable or disable smooth scrolling on click
+        'prefix': 'toc', //prefix for anchor tags and class names
+        'onHighlight': function(el) {}, //called when a new section is highlighted 
+        'highlightOnScroll': true, //add class to heading that is currently in focus
+        'highlightOffset': 100, //offset to trigger the next headline
+        'anchorName': function(i, heading, prefix) { //custom function for anchor name
+          return prefix+i;
+        },
+        'headerText': function(i, heading, $heading) { //custom function building the header-item text
+          return $heading.text();
+        },
+        'itemClass': function(i, heading, $heading, prefix) { //custom function for item class
+          return $heading[0].tagName.toLowerCase();
+        }
+      });
+    </script>
+    
+
+  </body>
+
+</html>

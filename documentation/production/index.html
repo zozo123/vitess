@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Production • Vitess</title>
+    <meta name="description" content="Production setup
+
+Setting up vitess in production will depend on many factors.
+Here are some initial considerations:
+* Global Transaction IDs: Vitess requires a version of MySQL
+that supports GTIDs, such as Google MySQL 5.1+, MariaDB 10.0+,
+or MySQL 5.6+. We currently support Google MySQL and MariaDB,
+with plans to add MySQL 5.6.
+* Firewalls: Vitess tools and servers assume that they
+can open direct TCP connection to each other. If you have
+firewalls between your servers, you may have to add exceptions
+to allow these communications.
+* Authentication: If you need authentication, you
+need to setup SASL, which is supported by Vitess.
+* Encryption: Vitess RPC servers support SSL.
+TODO: Document how to setup SSL.
+* MySQL permissions: Vitess currently assumes that all
+application clients have uniform permissions.
+The connection pooler opens a number of connections under
+the same user (vt_app), and rotates them for all requests.
+Vitess management tasks use a different user name (vt_dba),
+which is assumed to have all administrative privileges.
+* Client Language: We currently support
+Python and Go.
+It&#39;s not too hard to add support for more languages,
+and we are open to contributions in this area.
+
+Setting up Zookeeper
+
+Global zk setup
+
+TODO: Explain
+
+Local zk setup
+
+TODO: Explain
+
+Launch vttablets
+
+vttablet is designed to run on the same machine as mysql.
+You&#39;ll need to launch one instance of vttablet for every MySQL instance you want to track.
+
+TODO: Specify order and command-line arguments
+
+Launch vtgate(s)
+
+TODO: Explain
+">
+    <meta name="keywords" content="">
+    
+    
+    	<!-- Twitter Cards -->
+	<meta name="twitter:title" content="Production">
+	<meta name="twitter:description" content="Production setup
+
+Setting up vitess in production will depend on many factors.
+Here are some initial considerations:
+* Global Transaction IDs: Vitess requires a version of MySQL
+that supports GTIDs, such as Google MySQL 5.1+, MariaDB 10.0+,
+or MySQL 5.6+. We currently support Google MySQL and MariaDB,
+with plans to add MySQL 5.6.
+* Firewalls: Vitess tools and servers assume that they
+can open direct TCP connection to each other. If you have
+firewalls between your servers, you may have to add exceptions
+to allow these communications.
+* Authentication: If you need authentication, you
+need to setup SASL, which is supported by Vitess.
+* Encryption: Vitess RPC servers support SSL.
+TODO: Document how to setup SSL.
+* MySQL permissions: Vitess currently assumes that all
+application clients have uniform permissions.
+The connection pooler opens a number of connections under
+the same user (vt_app), and rotates them for all requests.
+Vitess management tasks use a different user name (vt_dba),
+which is assumed to have all administrative privileges.
+* Client Language: We currently support
+Python and Go.
+It&#39;s not too hard to add support for more languages,
+and we are open to contributions in this area.
+
+Setting up Zookeeper
+
+Global zk setup
+
+TODO: Explain
+
+Local zk setup
+
+TODO: Explain
+
+Launch vttablets
+
+vttablet is designed to run on the same machine as mysql.
+You&#39;ll need to launch one instance of vttablet for every MySQL instance you want to track.
+
+TODO: Specify order and command-line arguments
+
+Launch vtgate(s)
+
+TODO: Explain
+">
+	
+	
+	
+	<meta name="twitter:card" content="summary">
+	<meta name="twitter:image" content="http://youtube.github.io/vitess/images/120x120.gif">
+	
+	<!-- Open Graph -->
+	<meta property="og:locale" content="en_US">
+	<meta property="og:type" content="article">
+	<meta property="og:title" content="Production">
+	<meta property="og:description" content="Production setup
+
+Setting up vitess in production will depend on many factors.
+Here are some initial considerations:
+* Global Transaction IDs: Vitess requires a version of MySQL
+that supports GTIDs, such as Google MySQL 5.1+, MariaDB 10.0+,
+or MySQL 5.6+. We currently support Google MySQL and MariaDB,
+with plans to add MySQL 5.6.
+* Firewalls: Vitess tools and servers assume that they
+can open direct TCP connection to each other. If you have
+firewalls between your servers, you may have to add exceptions
+to allow these communications.
+* Authentication: If you need authentication, you
+need to setup SASL, which is supported by Vitess.
+* Encryption: Vitess RPC servers support SSL.
+TODO: Document how to setup SSL.
+* MySQL permissions: Vitess currently assumes that all
+application clients have uniform permissions.
+The connection pooler opens a number of connections under
+the same user (vt_app), and rotates them for all requests.
+Vitess management tasks use a different user name (vt_dba),
+which is assumed to have all administrative privileges.
+* Client Language: We currently support
+Python and Go.
+It&#39;s not too hard to add support for more languages,
+and we are open to contributions in this area.
+
+Setting up Zookeeper
+
+Global zk setup
+
+TODO: Explain
+
+Local zk setup
+
+TODO: Explain
+
+Launch vttablets
+
+vttablet is designed to run on the same machine as mysql.
+You&#39;ll need to launch one instance of vttablet for every MySQL instance you want to track.
+
+TODO: Specify order and command-line arguments
+
+Launch vtgate(s)
+
+TODO: Explain
+">
+	<meta property="og:url" content="http://youtube.github.io/vitess/documentation/production/">
+	<meta property="og:site_name" content="Vitess">
+
+    <link rel="canonical" href="http://youtube.github.io/vitess/documentation/production/">
+
+    <link href="http://youtube.github.io/vitess/sitemap.xml" type="application/xml" rel="sitemap" title="Sitemap">
+
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="cleartype" content="on">
+
+    <style>
+    .sliding-menu-content {
+      top: 0;
+      right: 0;
+      text-align: center;
+      visibility: hidden;
+      height: 100%;
+      width: 100%;
+      -webkit-transform: translateX(100%);
+      -moz-transform: translateX(100%);
+      -ms-transform: translateX(100%);
+      -o-transform: translateX(100%);
+      transform: translateX(100%);
+    }
+    </style>
+
+    <link rel="stylesheet" href="http://youtube.github.io/vitess/css/main.css">
+    <!-- HTML5 Shiv and Media Query Support for IE -->
+    <!--[if lt IE 9]>
+      <script src="http://youtube.github.io/vitess/js/vendor/html5shiv.min.js"></script>
+      <script src="http://youtube.github.io/vitess/js/vendor/respond.min.js"></script>
+    <![endif]-->
+
+  </head>
+
+  <body>
+    <header id="masthead">
+  <div class="inner-wrap">
+    <a href="http://youtube.github.io/vitess/" class="site-title">Vitess</a>
+    <nav role="navigation" class="menu top-menu">
+        <ul class="menu-item">
+	<li class="home"><a href="/">Vitess</a></li>
+	
+    
+        
+    
+    <li><a href="http://youtube.github.io/vitess/getting-started/" >Getting Started</a></li>
+  
+    
+        
+    
+    <li><a href="http://youtube.github.io/vitess/documentation/" >Documentation</a></li>
+  
+    
+        
+    
+    <li><a href="http://youtube.github.io/vitess/about/" >About</a></li>
+  
+    
+        
+    
+    <li><a href="http://youtube.github.io/vitess/faq/" >FAQ</a></li>
+  
+</ul>
+    </nav>
+  </div>
+</header>
+
+    <nav role="navigation" class="js-menu sliding-menu-content">
+	<ul class="menu-item">
+		<li>
+      
+        
+      
+			<a href="http://youtube.github.io/vitess/getting-started/"><img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" class="teaser"></a>
+			<a href="http://youtube.github.io/vitess/getting-started/" class="title">Getting Started</a>
+			<p class="excerpt">Everything you need to know to get started with Vitess.</p>
+		</li><li>
+      
+        
+      
+			<a href="http://youtube.github.io/vitess/documentation/"><img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" class="teaser"></a>
+			<a href="http://youtube.github.io/vitess/documentation/" class="title">Documentation</a>
+			<p class="excerpt">Vitess Docs.</p>
+		</li><li>
+      
+        
+      
+			<a href="http://youtube.github.io/vitess/about/"><img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" class="teaser"></a>
+			<a href="http://youtube.github.io/vitess/about/" class="title">About</a>
+			<p class="excerpt">All about Vitess.</p>
+		</li><li>
+      
+        
+      
+			<a href="http://youtube.github.io/vitess/faq/"><img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" class="teaser"></a>
+			<a href="http://youtube.github.io/vitess/faq/" class="title">FAQ</a>
+			<p class="excerpt">Vitess Faq.</p>
+		</li>
+	</ul>
+</nav>
+<button type="button" class="js-menu-trigger sliding-menu-button menulines-button x2" role="button" aria-label="Toggle Navigation">
+	<span class="menulines"></span>
+</button>
+
+<div class="js-menu-screen menu-screen"></div>
+
+    <div id="page-wrapper">
+      <!--[if lt IE 9]><div class="upgrade notice-danger"><strong>Your browser is quite old!</strong> Why not <a href="http://whatbrowser.org/">upgrade to a newer one</a> to better enjoy this site?</div><![endif]-->
+
+      <div id="main" role="main">
+  <article class="wrap" itemscope itemtype="http://schema.org/Article">
+    
+    
+  <nav class="breadcrumbs">
+    <span itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+      <a href="http://youtube.github.io/vitess" itemprop="url">
+        <span itemprop="title">Home</span>
+      </a> › 
+    <span itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+      <a href="http://youtube.github.io/vitess/documentation/" itemprop="url">
+        <span itemprop="title">Documentation</span>
+      </a>
+    </span>
+  </nav>
+
+
+    <div class="inner-wrap">
+      <nav class="toc"></nav>
+      <div id="content" class="page-content" itemprop="articleBody">
+	<h1 id="production-setup">Production setup</h1>
+
+<p>Setting up vitess in production will depend on many factors.
+Here are some initial considerations:
+* <em>Global Transaction IDs</em>: Vitess requires a version of MySQL
+that supports GTIDs, such as Google MySQL 5.1+, MariaDB 10.0+,
+or MySQL 5.6+. We currently support Google MySQL and MariaDB,
+with plans to add MySQL 5.6.
+* <em>Firewalls</em>: Vitess tools and servers assume that they
+can open direct TCP connection to each other. If you have
+firewalls between your servers, you may have to add exceptions
+to allow these communications.
+* <em>Authentication</em>: If you need authentication, you
+need to setup SASL, which is supported by Vitess.
+* <em>Encryption:</em> Vitess RPC servers support SSL.
+TODO: Document how to setup SSL.
+* <em>MySQL permissions</em>: Vitess currently assumes that all
+application clients have uniform permissions.
+The connection pooler opens a number of connections under
+the same user (vt_app), and rotates them for all requests.
+Vitess management tasks use a different user name (vt_dba),
+which is assumed to have all administrative privileges.
+* <em>Client Language</em>: We currently support
+Python and Go.
+It&#39;s not too hard to add support for more languages,
+and we are open to contributions in this area.</p>
+
+<h2 id="setting-up-zookeeper">Setting up Zookeeper</h2>
+
+<h3 id="global-zk-setup">Global zk setup</h3>
+
+<p>TODO: Explain</p>
+
+<h3 id="local-zk-setup">Local zk setup</h3>
+
+<p>TODO: Explain</p>
+
+<h2 id="launch-vttablets">Launch vttablets</h2>
+
+<p>vttablet is designed to run on the same machine as mysql.
+You&#39;ll need to launch one instance of vttablet for every MySQL instance you want to track.</p>
+
+<p>TODO: Specify order and command-line arguments</p>
+
+<h2 id="launch-vtgate(s)">Launch vtgate(s)</h2>
+
+<p>TODO: Explain</p>
+
+	<hr />
+	<footer class="page-footer">
+	  
+
+
+<div class="author-image">
+	<img src="http://youtube.github.io/vitess/images/" alt="Vitess Team">
+</div>
+<div class="author-content">
+	<h3 class="author-name" >Written by <a href="https://github.com/youtube/vitess" itemprop="author">Vitess Team</a></h3>
+	<p class="author-bio"></p>
+</div>
+
+	  <div class="inline-btn">
+	<a class="btn-social twitter" href="https://twitter.com/intent/tweet?text=Production&amp;url=http://youtube.github.io/vitess/documentation/production/&amp;via=" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i> Share on Twitter</a>
+	<a class="btn-social facebook" href="https://www.facebook.com/sharer/sharer.php?u=http://youtube.github.io/vitess/documentation/production/" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i> Share on Facebook</a>
+	<a class="btn-social google-plus"  href="https://plus.google.com/share?url=http://youtube.github.io/vitess/documentation/production/" target="_blank"><i class="fa fa-google-plus" aria-hidden="true"></i> Share on Google+</a>
+</div>
+
+	  <div class="page-meta">
+	<p>Updated <time datetime="2015-01-01T00:00:00Z" itemprop="datePublished">January 01, 2015</time></p>
+</div>
+
+	</footer>
+	<aside>
+	  
+	</aside>
+      </div>
+    </div>
+  </article>
+</div>
+
+
+      <footer role="contentinfo" id="site-footer">
+  <nav role="navigation" class="menu bottom-menu">
+    <ul class="menu-item">
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/" >Home</a></li>
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/getting-started/" >Getting Started</a></li>
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/about/" >About</a></li>
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/faq/" >FAQ</a></li>
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/terms/" >Terms</a></li>
+      
+    </ul>
+  </nav>
+  <p class="copyright">&#169; 2015 <a href="http://youtube.github.io/vitess">Vitess</a> powered by <a href="http://www.google.com">Google Inc</a>.</p>
+</footer>
+
+    </div>
+
+    <script src="http://youtube.github.io/vitess/js/vendor/jquery-1.9.1.min.js"></script>
+    <script src="http://youtube.github.io/vitess/js/main.js"></script>
+    
+    
+    <script type="text/javascript">
+      $('.toc').toc({
+        'selectors': 'h2', //elements to use as headings
+        'container': '.page-content', //element to find all selectors in
+        'smoothScrolling': true, //enable or disable smooth scrolling on click
+        'prefix': 'toc', //prefix for anchor tags and class names
+        'onHighlight': function(el) {}, //called when a new section is highlighted 
+        'highlightOnScroll': true, //add class to heading that is currently in focus
+        'highlightOffset': 100, //offset to trigger the next headline
+        'anchorName': function(i, heading, prefix) { //custom function for anchor name
+          return prefix+i;
+        },
+        'headerText': function(i, heading, $heading) { //custom function building the header-item text
+          return $heading.text();
+        },
+        'itemClass': function(i, heading, $heading, prefix) { //custom function for item class
+          return $heading[0].tagName.toLowerCase();
+        }
+      });
+    </script>
+    
+
+  </body>
+
+</html>
