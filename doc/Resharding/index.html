@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Resharding • Vitess</title>
+    <meta name="description" content="Resharding
+
+In Vitess, resharding describes the process of re-organizing data dynamically, with very minimal downtime (we manage to
+completely perform most data transitions with less than 5 seconds of read-only downtime - new data cannot be written,
+existing data can still be read).
+
+Process
+
+The process to achieve this goal is composed of the following steps:
+- pick the original shard(s)
+- pick the destination shard(s) coverage
+- create the destination shard(s) tablets (in a mode where they are not used to serve traffic yet)
+- bring up the destination shard(s) tablets, with read-only masters.
+- backup and split the data from the original shard(s)
+- merge and import the data on the destination shard(s)
+- start and run filtered replication from original to destination shard(s), catch up
+- move the read-only traffic to the destination shard(s), stop serving read-only traffic from original shard(s). This transition can take a few hours. We might want to move rdonly separately from replica traffic.
+- in quick succession:
+ - make original master(s) read-only
+ - flush filtered replication on all filtered replication source servers (after making sure they were caught up with their masters)
+ - wait until replication is caught up on all destination shard(s) masters
+ - move the write traffic to the destination shard(s)
+ - make destination master(s) read-write
+- scrap the original shard(s)
+
+Applications
+
+The main application we currently support:
+- in a sharded keyspace, split or merge shards (horizontal sharding)
+- in a non-sharded keyspace, break out some tables into a different keyspace (vertical sharding)
+
+With these supported features, it is very easy to start with a single keyspace containing all the data (multiple tables),
+and then as the data grows, move tables to different keyspaces, start sharding some keyspaces, ... without any real
+downtime for the application.
+
+Scaling Up and Down
+
+Here is a quick table of what to do with Vitess when a change is required:
+- uniformly increase read capacity: add replicas, or split shards
+- uniformly increase write capacity: split shards
+- reclaim free space: merge shards / keyspaces
+- increase geo-diversity: add new cells and new replicas
+- cool a hot tablet: if read access, add replicas or split shards, if write access, split shards.
+
+Filtered Replication
+
+The cornerstone of Resharding is being able to replicate the right data. Mysql doesn&#39;t support any filtering, so the
+Vitess project implements it entirely:
+- the tablet server tags transactions with comments that describe what the scope of the statements are (which keyspace_id,
+which table, ...). That way the MySQL binlogs contain all filtering data.
+- a server process can filter and stream the MySQL binlogs (using the comments).
+- a client process can apply the filtered logs locally (they are just regular SQL statements at this point).
+">
+    <meta name="keywords" content="">
+    
+    
+    	<!-- Twitter Cards -->
+	<meta name="twitter:title" content="Resharding">
+	<meta name="twitter:description" content="Resharding
+
+In Vitess, resharding describes the process of re-organizing data dynamically, with very minimal downtime (we manage to
+completely perform most data transitions with less than 5 seconds of read-only downtime - new data cannot be written,
+existing data can still be read).
+
+Process
+
+The process to achieve this goal is composed of the following steps:
+- pick the original shard(s)
+- pick the destination shard(s) coverage
+- create the destination shard(s) tablets (in a mode where they are not used to serve traffic yet)
+- bring up the destination shard(s) tablets, with read-only masters.
+- backup and split the data from the original shard(s)
+- merge and import the data on the destination shard(s)
+- start and run filtered replication from original to destination shard(s), catch up
+- move the read-only traffic to the destination shard(s), stop serving read-only traffic from original shard(s). This transition can take a few hours. We might want to move rdonly separately from replica traffic.
+- in quick succession:
+ - make original master(s) read-only
+ - flush filtered replication on all filtered replication source servers (after making sure they were caught up with their masters)
+ - wait until replication is caught up on all destination shard(s) masters
+ - move the write traffic to the destination shard(s)
+ - make destination master(s) read-write
+- scrap the original shard(s)
+
+Applications
+
+The main application we currently support:
+- in a sharded keyspace, split or merge shards (horizontal sharding)
+- in a non-sharded keyspace, break out some tables into a different keyspace (vertical sharding)
+
+With these supported features, it is very easy to start with a single keyspace containing all the data (multiple tables),
+and then as the data grows, move tables to different keyspaces, start sharding some keyspaces, ... without any real
+downtime for the application.
+
+Scaling Up and Down
+
+Here is a quick table of what to do with Vitess when a change is required:
+- uniformly increase read capacity: add replicas, or split shards
+- uniformly increase write capacity: split shards
+- reclaim free space: merge shards / keyspaces
+- increase geo-diversity: add new cells and new replicas
+- cool a hot tablet: if read access, add replicas or split shards, if write access, split shards.
+
+Filtered Replication
+
+The cornerstone of Resharding is being able to replicate the right data. Mysql doesn&#39;t support any filtering, so the
+Vitess project implements it entirely:
+- the tablet server tags transactions with comments that describe what the scope of the statements are (which keyspace_id,
+which table, ...). That way the MySQL binlogs contain all filtering data.
+- a server process can filter and stream the MySQL binlogs (using the comments).
+- a client process can apply the filtered logs locally (they are just regular SQL statements at this point).
+">
+	
+	
+	
+	<meta name="twitter:card" content="summary">
+	<meta name="twitter:image" content="http://youtube.github.io/vitess/images/120x120.gif">
+	
+	<!-- Open Graph -->
+	<meta property="og:locale" content="en_US">
+	<meta property="og:type" content="article">
+	<meta property="og:title" content="Resharding">
+	<meta property="og:description" content="Resharding
+
+In Vitess, resharding describes the process of re-organizing data dynamically, with very minimal downtime (we manage to
+completely perform most data transitions with less than 5 seconds of read-only downtime - new data cannot be written,
+existing data can still be read).
+
+Process
+
+The process to achieve this goal is composed of the following steps:
+- pick the original shard(s)
+- pick the destination shard(s) coverage
+- create the destination shard(s) tablets (in a mode where they are not used to serve traffic yet)
+- bring up the destination shard(s) tablets, with read-only masters.
+- backup and split the data from the original shard(s)
+- merge and import the data on the destination shard(s)
+- start and run filtered replication from original to destination shard(s), catch up
+- move the read-only traffic to the destination shard(s), stop serving read-only traffic from original shard(s). This transition can take a few hours. We might want to move rdonly separately from replica traffic.
+- in quick succession:
+ - make original master(s) read-only
+ - flush filtered replication on all filtered replication source servers (after making sure they were caught up with their masters)
+ - wait until replication is caught up on all destination shard(s) masters
+ - move the write traffic to the destination shard(s)
+ - make destination master(s) read-write
+- scrap the original shard(s)
+
+Applications
+
+The main application we currently support:
+- in a sharded keyspace, split or merge shards (horizontal sharding)
+- in a non-sharded keyspace, break out some tables into a different keyspace (vertical sharding)
+
+With these supported features, it is very easy to start with a single keyspace containing all the data (multiple tables),
+and then as the data grows, move tables to different keyspaces, start sharding some keyspaces, ... without any real
+downtime for the application.
+
+Scaling Up and Down
+
+Here is a quick table of what to do with Vitess when a change is required:
+- uniformly increase read capacity: add replicas, or split shards
+- uniformly increase write capacity: split shards
+- reclaim free space: merge shards / keyspaces
+- increase geo-diversity: add new cells and new replicas
+- cool a hot tablet: if read access, add replicas or split shards, if write access, split shards.
+
+Filtered Replication
+
+The cornerstone of Resharding is being able to replicate the right data. Mysql doesn&#39;t support any filtering, so the
+Vitess project implements it entirely:
+- the tablet server tags transactions with comments that describe what the scope of the statements are (which keyspace_id,
+which table, ...). That way the MySQL binlogs contain all filtering data.
+- a server process can filter and stream the MySQL binlogs (using the comments).
+- a client process can apply the filtered logs locally (they are just regular SQL statements at this point).
+">
+	<meta property="og:url" content="http://youtube.github.io/vitess/doc/Resharding/">
+	<meta property="og:site_name" content="Vitess">
+
+    <link rel="canonical" href="http://youtube.github.io/vitess/doc/Resharding/">
+
+    <link href="http://youtube.github.io/vitess/sitemap.xml" type="application/xml" rel="sitemap" title="Sitemap">
+
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="cleartype" content="on">
+
+    <style>
+    .sliding-menu-content {
+      top: 0;
+      right: 0;
+      text-align: center;
+      visibility: hidden;
+      height: 100%;
+      width: 100%;
+      -webkit-transform: translateX(100%);
+      -moz-transform: translateX(100%);
+      -ms-transform: translateX(100%);
+      -o-transform: translateX(100%);
+      transform: translateX(100%);
+    }
+    </style>
+
+    <link rel="stylesheet" href="http://youtube.github.io/vitess/css/main.css">
+    <!-- HTML5 Shiv and Media Query Support for IE -->
+    <!--[if lt IE 9]>
+      <script src="http://youtube.github.io/vitess/js/vendor/html5shiv.min.js"></script>
+      <script src="http://youtube.github.io/vitess/js/vendor/respond.min.js"></script>
+    <![endif]-->
+
+  </head>
+
+  <body>
+    <header id="masthead">
+  <div class="inner-wrap">
+    <a href="http://youtube.github.io/vitess/" class="site-title">Vitess</a>
+    <nav role="navigation" class="menu top-menu">
+        <ul class="menu-item">
+	<li class="home"><a href="/">Vitess</a></li>
+	
+    
+        
+    
+    <li><a href="http://youtube.github.io/vitess/getting-started/" >Getting Started</a></li>
+  
+    
+        
+    
+    <li><a href="http://youtube.github.io/vitess/doc/" >Documentation</a></li>
+  
+    
+        
+    
+    <li><a href="http://youtube.github.io/vitess/about/" >About</a></li>
+  
+    
+        
+    
+    <li><a href="http://youtube.github.io/vitess/faq/" >FAQ</a></li>
+  
+</ul>
+    </nav>
+  </div>
+</header>
+
+    <nav role="navigation" class="js-menu sliding-menu-content">
+	<ul class="menu-item">
+		<li>
+      
+        
+      
+			<a href="http://youtube.github.io/vitess/getting-started/"><img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" class="teaser"></a>
+			<a href="http://youtube.github.io/vitess/getting-started/" class="title">Getting Started</a>
+			<p class="excerpt">Everything you need to know to get started with Vitess.</p>
+		</li><li>
+      
+        
+      
+			<a href="http://youtube.github.io/vitess/doc/"><img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" class="teaser"></a>
+			<a href="http://youtube.github.io/vitess/doc/" class="title">Documentation</a>
+			<p class="excerpt">Vitess Docs.</p>
+		</li><li>
+      
+        
+      
+			<a href="http://youtube.github.io/vitess/about/"><img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" class="teaser"></a>
+			<a href="http://youtube.github.io/vitess/about/" class="title">About</a>
+			<p class="excerpt">All about Vitess.</p>
+		</li><li>
+      
+        
+      
+			<a href="http://youtube.github.io/vitess/faq/"><img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" class="teaser"></a>
+			<a href="http://youtube.github.io/vitess/faq/" class="title">FAQ</a>
+			<p class="excerpt">Vitess Faq.</p>
+		</li>
+	</ul>
+</nav>
+<button type="button" class="js-menu-trigger sliding-menu-button menulines-button x2" role="button" aria-label="Toggle Navigation">
+	<span class="menulines"></span>
+</button>
+
+<div class="js-menu-screen menu-screen"></div>
+
+    <div id="page-wrapper">
+      <!--[if lt IE 9]><div class="upgrade notice-danger"><strong>Your browser is quite old!</strong> Why not <a href="http://whatbrowser.org/">upgrade to a newer one</a> to better enjoy this site?</div><![endif]-->
+
+      <div id="main" role="main">
+  <article class="wrap" itemscope itemtype="http://schema.org/Article">
+    
+    
+  <nav class="breadcrumbs">
+    <span itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+      <a href="http://youtube.github.io/vitess" itemprop="url">
+        <span itemprop="title">Home</span>
+      </a> › 
+    <span itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+      <a href="http://youtube.github.io/vitess/doc/" itemprop="url">
+        <span itemprop="title">Doc</span>
+      </a>
+    </span>
+  </nav>
+
+
+    <div class="inner-wrap">
+      <nav class="toc"></nav>
+      <div id="content" class="page-content" itemprop="articleBody">
+	<h1 id="resharding">Resharding</h1>
+
+<p>In Vitess, resharding describes the process of re-organizing data dynamically, with very minimal downtime (we manage to
+completely perform most data transitions with less than 5 seconds of read-only downtime - new data cannot be written,
+existing data can still be read).</p>
+
+<h2 id="process">Process</h2>
+
+<p>The process to achieve this goal is composed of the following steps:
+- pick the original shard(s)
+- pick the destination shard(s) coverage
+- create the destination shard(s) tablets (in a mode where they are not used to serve traffic yet)
+- bring up the destination shard(s) tablets, with read-only masters.
+- backup and split the data from the original shard(s)
+- merge and import the data on the destination shard(s)
+- start and run filtered replication from original to destination shard(s), catch up
+- move the read-only traffic to the destination shard(s), stop serving read-only traffic from original shard(s). This transition can take a few hours. We might want to move rdonly separately from replica traffic.
+- in quick succession:
+ - make original master(s) read-only
+ - flush filtered replication on all filtered replication source servers (after making sure they were caught up with their masters)
+ - wait until replication is caught up on all destination shard(s) masters
+ - move the write traffic to the destination shard(s)
+ - make destination master(s) read-write
+- scrap the original shard(s)</p>
+
+<h2 id="applications">Applications</h2>
+
+<p>The main application we currently support:
+- in a sharded keyspace, split or merge shards (horizontal sharding)
+- in a non-sharded keyspace, break out some tables into a different keyspace (vertical sharding)</p>
+
+<p>With these supported features, it is very easy to start with a single keyspace containing all the data (multiple tables),
+and then as the data grows, move tables to different keyspaces, start sharding some keyspaces, ... without any real
+downtime for the application.</p>
+
+<h2 id="scaling-up-and-down">Scaling Up and Down</h2>
+
+<p>Here is a quick table of what to do with Vitess when a change is required:
+- uniformly increase read capacity: add replicas, or split shards
+- uniformly increase write capacity: split shards
+- reclaim free space: merge shards / keyspaces
+- increase geo-diversity: add new cells and new replicas
+- cool a hot tablet: if read access, add replicas or split shards, if write access, split shards.</p>
+
+<h2 id="filtered-replication">Filtered Replication</h2>
+
+<p>The cornerstone of Resharding is being able to replicate the right data. Mysql doesn&#39;t support any filtering, so the
+Vitess project implements it entirely:
+- the tablet server tags transactions with comments that describe what the scope of the statements are (which keyspace_id,
+which table, ...). That way the MySQL binlogs contain all filtering data.
+- a server process can filter and stream the MySQL binlogs (using the comments).
+- a client process can apply the filtered logs locally (they are just regular SQL statements at this point).</p>
+
+	<hr />
+	<footer class="page-footer">
+	  
+
+
+<div class="author-image">
+	<img src="http://youtube.github.io/vitess/images/" alt="Vitess Team">
+</div>
+<div class="author-content">
+	<h3 class="author-name" >Written by <a href="https://github.com/youtube/vitess" itemprop="author">Vitess Team</a></h3>
+	<p class="author-bio"></p>
+</div>
+
+	  <div class="inline-btn">
+	<a class="btn-social twitter" href="https://twitter.com/intent/tweet?text=Resharding&amp;url=http://youtube.github.io/vitess/doc/Resharding/&amp;via=" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i> Share on Twitter</a>
+	<a class="btn-social facebook" href="https://www.facebook.com/sharer/sharer.php?u=http://youtube.github.io/vitess/doc/Resharding/" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i> Share on Facebook</a>
+	<a class="btn-social google-plus"  href="https://plus.google.com/share?url=http://youtube.github.io/vitess/doc/Resharding/" target="_blank"><i class="fa fa-google-plus" aria-hidden="true"></i> Share on Google+</a>
+</div>
+
+	  <div class="page-meta">
+	<p>Updated <time datetime="2015-01-01T00:00:00Z" itemprop="datePublished">January 01, 2015</time></p>
+</div>
+
+	</footer>
+	<aside>
+	  
+	</aside>
+      </div>
+    </div>
+  </article>
+</div>
+
+
+      <footer role="contentinfo" id="site-footer">
+  <nav role="navigation" class="menu bottom-menu">
+    <ul class="menu-item">
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/" >Home</a></li>
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/getting-started/" >Getting Started</a></li>
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/about/" >About</a></li>
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/faq/" >FAQ</a></li>
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/terms/" >Terms</a></li>
+      
+    </ul>
+  </nav>
+  <p class="copyright">&#169; 2015 <a href="http://youtube.github.io/vitess">Vitess</a> powered by <a href="http://www.google.com">Google Inc</a>.</p>
+</footer>
+
+    </div>
+
+    <script src="http://youtube.github.io/vitess/js/vendor/jquery-1.9.1.min.js"></script>
+    <script src="http://youtube.github.io/vitess/js/main.js"></script>
+    
+    
+    <script type="text/javascript">
+      $('.toc').toc({
+        'selectors': 'h2', //elements to use as headings
+        'container': '.page-content', //element to find all selectors in
+        'smoothScrolling': true, //enable or disable smooth scrolling on click
+        'prefix': 'toc', //prefix for anchor tags and class names
+        'onHighlight': function(el) {}, //called when a new section is highlighted 
+        'highlightOnScroll': true, //add class to heading that is currently in focus
+        'highlightOffset': 100, //offset to trigger the next headline
+        'anchorName': function(i, heading, prefix) { //custom function for anchor name
+          return prefix+i;
+        },
+        'headerText': function(i, heading, $heading) { //custom function building the header-item text
+          return $heading.text();
+        },
+        'itemClass': function(i, heading, $heading, prefix) { //custom function for item class
+          return $heading[0].tagName.toLowerCase();
+        }
+      });
+    </script>
+    
+
+  </body>
+
+</html>

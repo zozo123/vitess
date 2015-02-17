@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Vision • Vitess</title>
+    <meta name="description" content="Motivation and Vision
+
+MySQL is an easy relational database to get started with.
+It&#39;s easy to setup and has a short learning curve.
+However, as your system starts to scale, it begins to run out of steam.
+This is mainly because it&#39;s non-trivial to shard a MySQL database after the fact.
+Among other problems, the growing number of connections also becomes an
+unbearable overhead.
+
+On the other end of the spectrum, there are NoSQL databases.
+However, they suffer from problems that mainly stem from the fact that they&#39;re new.
+Those who have adopted them have struggled with the lack of secondary indexes,
+table joins and transactions.
+
+Vitess tries to bring the best of both worlds by trading off
+some of MySQL&#39;s consistency features in order to achieve the
+kind of scalability that NoSQL databases provide.
+
+Priorities
+
+
+Scalability: This is achieved by replication and sharding.
+Efficiency: This is achieved by a proxy server (vttablet) that mediates
+all queries and connections.
+It also utilizes a more efficient rowcache to short-cut some of the queries.
+This effectively increases a typical MySQL&#39;s serving capacity.
+Manageability: As soon as you add replication and sharding that span
+across multiple data centers, the number of servers spirals out of control.
+Vitess provides a set of tools backed by a lockserver (zookeeper) to
+track and administer them.
+Simplicity: As the complexity grows, it&#39;s important to hide this
+from the application.
+The vtgate servers give you a unified view of the fleet that makes
+it feel like you&#39;re just interacting with one database.
+
+
+Trade-offs
+
+Scalability and availability require some trade-offs:
+* Consistency: In a typical web application, not all reads have to be
+fully consistent.
+Vitess lets you specify the kind of consistency you want on your read.
+It&#39;s generally recommended that you use replica reads as they&#39;re easier to scale.
+You can always request for master reads if you want up-to-date data.
+You can also additionally perform &#39;for update&#39; reads that ensure that
+a row will not change until you&#39;ve committed your changes.
+* Transactions: Relational transactions are prohibitively expensive
+across distributed systems.
+Vitess eases this constraint and guarantees transactional integrity
+&#39;per keyspace id&#39;, which is restricted to one shard.
+Heuristically, this tends to cover most of an application&#39;s transactions.
+For the few cases that don&#39;t, you can sequence your changes in such a way
+that the system looks consistent even if a distributed transaction fails
+in the middle.
+* Latency: There is some negligible latency introduced by the proxy servers.
+However, they make up for the fact that you can extract more throughput from
+MySQL than you would otherwise be able to without them.
+
+Preserved MySQL features
+
+Since the underlying storage layer is still MySQL, we still get to preserve
+its other important features:
+* Indexes: You can create secondary indexes on your tables. This allows you
+to efficiently query rows using more than one key.
+* Joins:  MySQL allows you to split one-to-many and many-to-many relational data
+into separate tables, and lets you join them on demand.
+This flexibility generally results in more efficient storage as each piece of
+data is stored only once, and fetched only if needed.
+
+The Vitess spectrum
+
+The following diagram illustrates where vitess fits in the spectrum of storage solutions:
+
+
+">
+    <meta name="keywords" content="">
+    
+    
+    	<!-- Twitter Cards -->
+	<meta name="twitter:title" content="Vision">
+	<meta name="twitter:description" content="Motivation and Vision
+
+MySQL is an easy relational database to get started with.
+It&#39;s easy to setup and has a short learning curve.
+However, as your system starts to scale, it begins to run out of steam.
+This is mainly because it&#39;s non-trivial to shard a MySQL database after the fact.
+Among other problems, the growing number of connections also becomes an
+unbearable overhead.
+
+On the other end of the spectrum, there are NoSQL databases.
+However, they suffer from problems that mainly stem from the fact that they&#39;re new.
+Those who have adopted them have struggled with the lack of secondary indexes,
+table joins and transactions.
+
+Vitess tries to bring the best of both worlds by trading off
+some of MySQL&#39;s consistency features in order to achieve the
+kind of scalability that NoSQL databases provide.
+
+Priorities
+
+
+Scalability: This is achieved by replication and sharding.
+Efficiency: This is achieved by a proxy server (vttablet) that mediates
+all queries and connections.
+It also utilizes a more efficient rowcache to short-cut some of the queries.
+This effectively increases a typical MySQL&#39;s serving capacity.
+Manageability: As soon as you add replication and sharding that span
+across multiple data centers, the number of servers spirals out of control.
+Vitess provides a set of tools backed by a lockserver (zookeeper) to
+track and administer them.
+Simplicity: As the complexity grows, it&#39;s important to hide this
+from the application.
+The vtgate servers give you a unified view of the fleet that makes
+it feel like you&#39;re just interacting with one database.
+
+
+Trade-offs
+
+Scalability and availability require some trade-offs:
+* Consistency: In a typical web application, not all reads have to be
+fully consistent.
+Vitess lets you specify the kind of consistency you want on your read.
+It&#39;s generally recommended that you use replica reads as they&#39;re easier to scale.
+You can always request for master reads if you want up-to-date data.
+You can also additionally perform &#39;for update&#39; reads that ensure that
+a row will not change until you&#39;ve committed your changes.
+* Transactions: Relational transactions are prohibitively expensive
+across distributed systems.
+Vitess eases this constraint and guarantees transactional integrity
+&#39;per keyspace id&#39;, which is restricted to one shard.
+Heuristically, this tends to cover most of an application&#39;s transactions.
+For the few cases that don&#39;t, you can sequence your changes in such a way
+that the system looks consistent even if a distributed transaction fails
+in the middle.
+* Latency: There is some negligible latency introduced by the proxy servers.
+However, they make up for the fact that you can extract more throughput from
+MySQL than you would otherwise be able to without them.
+
+Preserved MySQL features
+
+Since the underlying storage layer is still MySQL, we still get to preserve
+its other important features:
+* Indexes: You can create secondary indexes on your tables. This allows you
+to efficiently query rows using more than one key.
+* Joins:  MySQL allows you to split one-to-many and many-to-many relational data
+into separate tables, and lets you join them on demand.
+This flexibility generally results in more efficient storage as each piece of
+data is stored only once, and fetched only if needed.
+
+The Vitess spectrum
+
+The following diagram illustrates where vitess fits in the spectrum of storage solutions:
+
+
+">
+	
+	
+	
+	<meta name="twitter:card" content="summary">
+	<meta name="twitter:image" content="http://youtube.github.io/vitess/images/120x120.gif">
+	
+	<!-- Open Graph -->
+	<meta property="og:locale" content="en_US">
+	<meta property="og:type" content="article">
+	<meta property="og:title" content="Vision">
+	<meta property="og:description" content="Motivation and Vision
+
+MySQL is an easy relational database to get started with.
+It&#39;s easy to setup and has a short learning curve.
+However, as your system starts to scale, it begins to run out of steam.
+This is mainly because it&#39;s non-trivial to shard a MySQL database after the fact.
+Among other problems, the growing number of connections also becomes an
+unbearable overhead.
+
+On the other end of the spectrum, there are NoSQL databases.
+However, they suffer from problems that mainly stem from the fact that they&#39;re new.
+Those who have adopted them have struggled with the lack of secondary indexes,
+table joins and transactions.
+
+Vitess tries to bring the best of both worlds by trading off
+some of MySQL&#39;s consistency features in order to achieve the
+kind of scalability that NoSQL databases provide.
+
+Priorities
+
+
+Scalability: This is achieved by replication and sharding.
+Efficiency: This is achieved by a proxy server (vttablet) that mediates
+all queries and connections.
+It also utilizes a more efficient rowcache to short-cut some of the queries.
+This effectively increases a typical MySQL&#39;s serving capacity.
+Manageability: As soon as you add replication and sharding that span
+across multiple data centers, the number of servers spirals out of control.
+Vitess provides a set of tools backed by a lockserver (zookeeper) to
+track and administer them.
+Simplicity: As the complexity grows, it&#39;s important to hide this
+from the application.
+The vtgate servers give you a unified view of the fleet that makes
+it feel like you&#39;re just interacting with one database.
+
+
+Trade-offs
+
+Scalability and availability require some trade-offs:
+* Consistency: In a typical web application, not all reads have to be
+fully consistent.
+Vitess lets you specify the kind of consistency you want on your read.
+It&#39;s generally recommended that you use replica reads as they&#39;re easier to scale.
+You can always request for master reads if you want up-to-date data.
+You can also additionally perform &#39;for update&#39; reads that ensure that
+a row will not change until you&#39;ve committed your changes.
+* Transactions: Relational transactions are prohibitively expensive
+across distributed systems.
+Vitess eases this constraint and guarantees transactional integrity
+&#39;per keyspace id&#39;, which is restricted to one shard.
+Heuristically, this tends to cover most of an application&#39;s transactions.
+For the few cases that don&#39;t, you can sequence your changes in such a way
+that the system looks consistent even if a distributed transaction fails
+in the middle.
+* Latency: There is some negligible latency introduced by the proxy servers.
+However, they make up for the fact that you can extract more throughput from
+MySQL than you would otherwise be able to without them.
+
+Preserved MySQL features
+
+Since the underlying storage layer is still MySQL, we still get to preserve
+its other important features:
+* Indexes: You can create secondary indexes on your tables. This allows you
+to efficiently query rows using more than one key.
+* Joins:  MySQL allows you to split one-to-many and many-to-many relational data
+into separate tables, and lets you join them on demand.
+This flexibility generally results in more efficient storage as each piece of
+data is stored only once, and fetched only if needed.
+
+The Vitess spectrum
+
+The following diagram illustrates where vitess fits in the spectrum of storage solutions:
+
+
+">
+	<meta property="og:url" content="http://youtube.github.io/vitess/doc/Vision/">
+	<meta property="og:site_name" content="Vitess">
+
+    <link rel="canonical" href="http://youtube.github.io/vitess/doc/Vision/">
+
+    <link href="http://youtube.github.io/vitess/sitemap.xml" type="application/xml" rel="sitemap" title="Sitemap">
+
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="cleartype" content="on">
+
+    <style>
+    .sliding-menu-content {
+      top: 0;
+      right: 0;
+      text-align: center;
+      visibility: hidden;
+      height: 100%;
+      width: 100%;
+      -webkit-transform: translateX(100%);
+      -moz-transform: translateX(100%);
+      -ms-transform: translateX(100%);
+      -o-transform: translateX(100%);
+      transform: translateX(100%);
+    }
+    </style>
+
+    <link rel="stylesheet" href="http://youtube.github.io/vitess/css/main.css">
+    <!-- HTML5 Shiv and Media Query Support for IE -->
+    <!--[if lt IE 9]>
+      <script src="http://youtube.github.io/vitess/js/vendor/html5shiv.min.js"></script>
+      <script src="http://youtube.github.io/vitess/js/vendor/respond.min.js"></script>
+    <![endif]-->
+
+  </head>
+
+  <body>
+    <header id="masthead">
+  <div class="inner-wrap">
+    <a href="http://youtube.github.io/vitess/" class="site-title">Vitess</a>
+    <nav role="navigation" class="menu top-menu">
+        <ul class="menu-item">
+	<li class="home"><a href="/">Vitess</a></li>
+	
+    
+        
+    
+    <li><a href="http://youtube.github.io/vitess/getting-started/" >Getting Started</a></li>
+  
+    
+        
+    
+    <li><a href="http://youtube.github.io/vitess/doc/" >Documentation</a></li>
+  
+    
+        
+    
+    <li><a href="http://youtube.github.io/vitess/about/" >About</a></li>
+  
+    
+        
+    
+    <li><a href="http://youtube.github.io/vitess/faq/" >FAQ</a></li>
+  
+</ul>
+    </nav>
+  </div>
+</header>
+
+    <nav role="navigation" class="js-menu sliding-menu-content">
+	<ul class="menu-item">
+		<li>
+      
+        
+      
+			<a href="http://youtube.github.io/vitess/getting-started/"><img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" class="teaser"></a>
+			<a href="http://youtube.github.io/vitess/getting-started/" class="title">Getting Started</a>
+			<p class="excerpt">Everything you need to know to get started with Vitess.</p>
+		</li><li>
+      
+        
+      
+			<a href="http://youtube.github.io/vitess/doc/"><img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" class="teaser"></a>
+			<a href="http://youtube.github.io/vitess/doc/" class="title">Documentation</a>
+			<p class="excerpt">Vitess Docs.</p>
+		</li><li>
+      
+        
+      
+			<a href="http://youtube.github.io/vitess/about/"><img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" class="teaser"></a>
+			<a href="http://youtube.github.io/vitess/about/" class="title">About</a>
+			<p class="excerpt">All about Vitess.</p>
+		</li><li>
+      
+        
+      
+			<a href="http://youtube.github.io/vitess/faq/"><img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" class="teaser"></a>
+			<a href="http://youtube.github.io/vitess/faq/" class="title">FAQ</a>
+			<p class="excerpt">Vitess Faq.</p>
+		</li>
+	</ul>
+</nav>
+<button type="button" class="js-menu-trigger sliding-menu-button menulines-button x2" role="button" aria-label="Toggle Navigation">
+	<span class="menulines"></span>
+</button>
+
+<div class="js-menu-screen menu-screen"></div>
+
+    <div id="page-wrapper">
+      <!--[if lt IE 9]><div class="upgrade notice-danger"><strong>Your browser is quite old!</strong> Why not <a href="http://whatbrowser.org/">upgrade to a newer one</a> to better enjoy this site?</div><![endif]-->
+
+      <div id="main" role="main">
+  <article class="wrap" itemscope itemtype="http://schema.org/Article">
+    
+    
+  <nav class="breadcrumbs">
+    <span itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+      <a href="http://youtube.github.io/vitess" itemprop="url">
+        <span itemprop="title">Home</span>
+      </a> › 
+    <span itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+      <a href="http://youtube.github.io/vitess/doc/" itemprop="url">
+        <span itemprop="title">Doc</span>
+      </a>
+    </span>
+  </nav>
+
+
+    <div class="inner-wrap">
+      <nav class="toc"></nav>
+      <div id="content" class="page-content" itemprop="articleBody">
+	<h1 id="motivation-and-vision">Motivation and Vision</h1>
+
+<p>MySQL is an easy relational database to get started with.
+It&#39;s easy to setup and has a short learning curve.
+However, as your system starts to scale, it begins to run out of steam.
+This is mainly because it&#39;s non-trivial to shard a MySQL database after the fact.
+Among other problems, the growing number of connections also becomes an
+unbearable overhead.</p>
+
+<p>On the other end of the spectrum, there are NoSQL databases.
+However, they suffer from problems that mainly stem from the fact that they&#39;re new.
+Those who have adopted them have struggled with the lack of secondary indexes,
+table joins and transactions.</p>
+
+<p>Vitess tries to bring the best of both worlds by trading off
+some of MySQL&#39;s consistency features in order to achieve the
+kind of scalability that NoSQL databases provide.</p>
+
+<h3 id="priorities">Priorities</h3>
+
+<ul>
+<li><em>Scalability</em>: This is achieved by replication and sharding.</li>
+<li><em>Efficiency</em>: This is achieved by a proxy server (vttablet) that mediates
+all queries and connections.
+It also utilizes a more efficient rowcache to short-cut some of the queries.
+This effectively increases a typical MySQL&#39;s serving capacity.</li>
+<li><em>Manageability</em>: As soon as you add replication and sharding that span
+across multiple data centers, the number of servers spirals out of control.
+Vitess provides a set of tools backed by a lockserver (zookeeper) to
+track and administer them.</li>
+<li><em>Simplicity</em>: As the complexity grows, it&#39;s important to hide this
+from the application.
+The vtgate servers give you a unified view of the fleet that makes
+it feel like you&#39;re just interacting with one database.</li>
+</ul>
+
+<h3 id="trade-offs">Trade-offs</h3>
+
+<p>Scalability and availability require some trade-offs:
+* <em>Consistency</em>: In a typical web application, not all reads have to be
+fully consistent.
+Vitess lets you specify the kind of consistency you want on your read.
+It&#39;s generally recommended that you use replica reads as they&#39;re easier to scale.
+You can always request for master reads if you want up-to-date data.
+You can also additionally perform &#39;for update&#39; reads that ensure that
+a row will not change until you&#39;ve committed your changes.
+* <em>Transactions</em>: Relational transactions are prohibitively expensive
+across distributed systems.
+Vitess eases this constraint and guarantees transactional integrity
+&#39;per keyspace id&#39;, which is restricted to one shard.
+Heuristically, this tends to cover most of an application&#39;s transactions.
+For the few cases that don&#39;t, you can sequence your changes in such a way
+that the system looks consistent even if a distributed transaction fails
+in the middle.
+* <em>Latency</em>: There is some negligible latency introduced by the proxy servers.
+However, they make up for the fact that you can extract more throughput from
+MySQL than you would otherwise be able to without them.</p>
+
+<h3 id="preserved-mysql-features">Preserved MySQL features</h3>
+
+<p>Since the underlying storage layer is still MySQL, we still get to preserve
+its other important features:
+* <em>Indexes</em>: You can create secondary indexes on your tables. This allows you
+to efficiently query rows using more than one key.
+* <em>Joins</em>:  MySQL allows you to split one-to-many and many-to-many relational data
+into separate tables, and lets you join them on demand.
+This flexibility generally results in more efficient storage as each piece of
+data is stored only once, and fetched only if needed.</p>
+
+<h3 id="the-vitess-spectrum">The Vitess spectrum</h3>
+
+<p>The following diagram illustrates where vitess fits in the spectrum of storage solutions:</p>
+
+<p><img src="https://raw.github.com/youtube/vitess/master/doc/VitessSpectrum.png" alt="Spectrum"></p>
+
+	<hr />
+	<footer class="page-footer">
+	  
+
+
+<div class="author-image">
+	<img src="http://youtube.github.io/vitess/images/" alt="Vitess Team">
+</div>
+<div class="author-content">
+	<h3 class="author-name" >Written by <a href="https://github.com/youtube/vitess" itemprop="author">Vitess Team</a></h3>
+	<p class="author-bio"></p>
+</div>
+
+	  <div class="inline-btn">
+	<a class="btn-social twitter" href="https://twitter.com/intent/tweet?text=Vision&amp;url=http://youtube.github.io/vitess/doc/Vision/&amp;via=" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i> Share on Twitter</a>
+	<a class="btn-social facebook" href="https://www.facebook.com/sharer/sharer.php?u=http://youtube.github.io/vitess/doc/Vision/" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i> Share on Facebook</a>
+	<a class="btn-social google-plus"  href="https://plus.google.com/share?url=http://youtube.github.io/vitess/doc/Vision/" target="_blank"><i class="fa fa-google-plus" aria-hidden="true"></i> Share on Google+</a>
+</div>
+
+	  <div class="page-meta">
+	<p>Updated <time datetime="2015-01-01T00:00:00Z" itemprop="datePublished">January 01, 2015</time></p>
+</div>
+
+	</footer>
+	<aside>
+	  
+	</aside>
+      </div>
+    </div>
+  </article>
+</div>
+
+
+      <footer role="contentinfo" id="site-footer">
+  <nav role="navigation" class="menu bottom-menu">
+    <ul class="menu-item">
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/" >Home</a></li>
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/getting-started/" >Getting Started</a></li>
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/about/" >About</a></li>
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/faq/" >FAQ</a></li>
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/terms/" >Terms</a></li>
+      
+    </ul>
+  </nav>
+  <p class="copyright">&#169; 2015 <a href="http://youtube.github.io/vitess">Vitess</a> powered by <a href="http://www.google.com">Google Inc</a>.</p>
+</footer>
+
+    </div>
+
+    <script src="http://youtube.github.io/vitess/js/vendor/jquery-1.9.1.min.js"></script>
+    <script src="http://youtube.github.io/vitess/js/main.js"></script>
+    
+    
+    <script type="text/javascript">
+      $('.toc').toc({
+        'selectors': 'h2', //elements to use as headings
+        'container': '.page-content', //element to find all selectors in
+        'smoothScrolling': true, //enable or disable smooth scrolling on click
+        'prefix': 'toc', //prefix for anchor tags and class names
+        'onHighlight': function(el) {}, //called when a new section is highlighted 
+        'highlightOnScroll': true, //add class to heading that is currently in focus
+        'highlightOffset': 100, //offset to trigger the next headline
+        'anchorName': function(i, heading, prefix) { //custom function for anchor name
+          return prefix+i;
+        },
+        'headerText': function(i, heading, $heading) { //custom function building the header-item text
+          return $heading.text();
+        },
+        'itemClass': function(i, heading, $heading, prefix) { //custom function for item class
+          return $heading[0].tagName.toLowerCase();
+        }
+      });
+    </script>
+    
+
+  </body>
+
+</html>

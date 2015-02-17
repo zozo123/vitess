@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>ZookeeperData • Vitess</title>
+    <meta name="description" content="Zookeeper Data
+
+This document describes the information we keep in zookeeper, how it is generated, and how the python client uses it.
+
+Keyspace / Shard / Tablet Data
+
+Keyspace
+
+Each keyspace is now a global zookeeper path, with sub-directories for its shards and action / actionlog. The Keyspace
+object there contains very basic information.
+// see go/vt/topo/keyspace.go for latest version
+type Keyspace struct {
+        // name of the column used for sharding
+        // empty if the keyspace is not sharded
+        ShardingColumnName string
+
+        // type of the column used for sharding
+        // KIT_UNSET if the keyspace is not sharded
+        ShardingColumnType key.KeyspaceIdType
+
+        // ServedFrom will redirect the appropriate traffic to
+        // another keyspace
+        ServedFrom map[TabletType]string
+}
+# NOTE: You need to source zookeeper client config file, like so:
+#  export ZK_CLIENT_CONFIG=/path/to/zk/client.conf
+$ zk ls /zk/global/vt/keyspaces/ruser
+action
+actionlog
+shards
+
+The path and sub-paths are created by &#39;vtctl CreateKeyspace&#39;.
+
+We use the action and actionlog paths for locking only, no process is actively watching these paths.
+
+Shard
+
+A shard is a global zookeeper path, with sub-directories for its action / actionlog, and a node for some more data and replication graph.
+// see go/vt/topo/shard.go for latest version
+// A pure data struct for information stored in topology server.  This
+// node is used to present a controlled view of the shard, unaware of
+// every management action. It also contains configuration data for a
+// shard.
+type Shard struct {
+        // There can be only at most one master, but there may be none. (0)
+        MasterAlias TabletAlias
+
+        // This must match the shard name based on our other conventions, but
+        // helpful to have it decomposed here.
+        KeyRange key.KeyRange
+
+        // ServedTypes is a list of all the tablet types this shard will
+        // serve. This is usually used with overlapping shards during
+        // data shuffles like shard splitting.
+        ServedTypes []TabletType
+
+        // SourceShards is the list of shards we&#39;re replicating from,
+        // using filtered replication.
+        SourceShards []SourceShard
+
+        // Cells is the list of cells that have tablets for this shard.
+        // It is populated at InitTablet time when a tabelt is added
+        // in a cell that is not in the list yet.
+        Cells []string
+}
+
+// SourceShard represents a data source for filtered replication
+// across shards. When this is used in a destination shard, the master
+// of that shard will run filtered replication.
+type SourceShard struct {
+        // Uid is the unique ID for this SourceShard object.
+        // It is for instance used as a unique index in blp_checkpoint
+        // when storing the position. It should be unique whithin a
+        // destination Shard, but not globally unique.
+        Uid uint32
+
+        // the source keyspace
+        Keyspace string
+
+        // the source shard
+        Shard string
+
+        // The source shard keyrange
+        // If partial, len(Tables) has to be zero
+        KeyRange key.KeyRange
+
+        // The source table list to replicate
+        // If non-empty, KeyRange must not be partial (must be KeyRange{})
+        Tables []string
+}
+$ zk ls /zk/global/vt/keyspaces/ruser/shards/10-20
+action
+actionlog
+nyc-0000200278
+
+We use the action and actionlog paths for locking only, no process is actively watching these paths.
+$ zk cat /zk/global/vt/keyspaces/ruser/shards/10-20
+{
+  &quot;MasterAlias&quot;: {
+    &quot;Cell&quot;: &quot;nyc&quot;,
+    &quot;Uid&quot;: 200278
+  },
+  &quot;KeyRange&quot;: {
+    &quot;Start&quot;: &quot;10&quot;,
+    &quot;End&quot;: &quot;20&quot;
+  },
+ &quot;Cells&quot;: [
+    &quot;oe&quot;,
+    &quot;yh&quot;
+ ]
+}
+
+The shard path and sub-directories are created when the first tablet in that shard is created.
+
+The Shard object is changed when we add tablets in unknown cells, or when we change the master.
+
+Tablet
+
+A tablet has a path in zookeeper, with its pid file:
+$ zk ls /zk/nyc/vt/tablets/0000200308
+pid
+
+A tablet also has a node of type Tablet:
+// see go/vt/topo/tablet.go for latest version
+type Tablet struct {
+        Parent      TabletAlias // the globally unique alias for our replication parent - zero if this is the global master
+
+        // What is this tablet?
+        Alias TabletAlias
+
+        // Locaiton of the tablet
+        Hostname string
+        IPAddr   string
+
+        // Named port names. Currently supported ports: vt, vts,
+        // mysql.
+        Portmap map[string]int
+
+        // Tags contain freeform information about the tablet.
+        Tags map[string]string
+
+        // Information about the tablet inside a keyspace/shard
+        Keyspace string
+        Shard    string
+        Type     TabletType
+
+        // Is the tablet read-only?
+        State TabletState
+
+        // Normally the database name is implied by &quot;vt_&quot; + keyspace. I
+        // really want to remove this but there are some databases that are
+        // hard to rename.
+        DbNameOverride string
+        KeyRange       key.KeyRange
+}
+$ zk cat /zk/nyc/vt/tablets/0000200308
+{
+  &quot;Alias&quot;: {
+    &quot;Cell&quot;: &quot;nyc&quot;,
+    &quot;Uid&quot;: 200308,
+  },
+  &quot;Parent&quot;: {
+    &quot;Cell&quot;: &quot;&quot;,
+    &quot;Uid&quot;: 0
+  },
+  &quot;Keyspace&quot;: &quot;&quot;,
+  &quot;Shard&quot;: &quot;&quot;,
+  &quot;Type&quot;: &quot;idle&quot;,
+  &quot;State&quot;: &quot;ReadOnly&quot;,
+  &quot;DbNameOverride&quot;: &quot;&quot;,
+  &quot;KeyRange&quot;: {
+    &quot;Start&quot;: &quot;&quot;,
+    &quot;End&quot;: &quot;&quot;
+  }
+}
+
+The Tablet object is created by &#39;vtctl InitTablet&#39;. Up-to-date information (port numbers, ...) is maintained by the vttablet process. &#39;vtctl ChangeSlaveType&#39; will also change the Tablet record.
+
+Replication Graph
+
+The data maintained by vt tools is as follows:
+- it is stored in the global zk cell
+- the master tablet alias is stored in the Shard object
+- each cell then has a ShardReplication object that stores to master -&gt; slave pairs.
+
+Serving Graph
+
+The serving graph for a shard is maintained in every cell that contains tablets for that shard. To get all the available keyspaces in a cell, just list the top-level cell serving graph directory:
+$ zk ls /zk/nyc/vt/ns
+keyspace1
+keyspace2
+
+The python client lists that directory at startup to find all the keyspaces.
+
+SrvKeyspace
+
+The keyspace data is stored under /zk/&lt;cell&gt;/vt/ns/&lt;keyspace&gt;
+// see go/vt/topo/srvshard.go for latest version
+type SrvShard struct {
+        // Copied from Shard
+        KeyRange    key.KeyRange
+        ServedTypes []TabletType
+
+        // TabletTypes represents the list of types we have serving tablets
+        // for, in this cell only.
+        TabletTypes []TabletType
+
+        // For atomic updates
+        version int64
+}
+
+// A distilled serving copy of keyspace detail stored in the local
+// cell for fast access. Derived from the global keyspace, shards and
+// local details.
+// In zk, it is in /zk/local/vt/ns/&lt;keyspace&gt;
+type SrvKeyspace struct {
+        // Shards to use per type, only contains complete partitions.
+        Partitions map[TabletType]*KeyspacePartition
+
+        // List of available tablet types for this keyspace in this cell.
+        // May not have a server for every shard, but we have some.
+        TabletTypes []TabletType
+
+        // Copied from Keyspace
+        ShardingColumnName string
+        ShardingColumnType key.KeyspaceIdType
+        ServedFrom         map[TabletType]string
+
+        // For atomic updates
+        version int64
+}
+
+// KeyspacePartition represents a continuous set of shards to
+// serve an entire data set.
+type KeyspacePartition struct {
+        // List of non-overlapping continuous shards sorted by range.
+        Shards []SrvShard
+}
+$ zk cat /zk/nyc/vt/ns/rlookup
+{
+  &quot;Shards&quot;: [
+    {
+      &quot;KeyRange&quot;: {
+        &quot;Start&quot;: &quot;&quot;,
+        &quot;End&quot;: &quot;&quot;
+      },
+    }
+  ],
+  &quot;TabletTypes&quot;: [
+    &quot;master&quot;,
+    &quot;rdonly&quot;,
+    &quot;replica&quot;
+  ]
+}
+
+The only way to build this data is to run the following vtctl command:
+$ vtctl RebuildKeyspaceGraph &lt;keyspace&gt;
+
+When building a new Cell, this command should be run for every keyspace.
+
+Rebuilding a keyspace graph will:
+- find all the shard names in the keyspace from looking at the children of /zk/global/vt/keyspaces/&lt;keyspace&gt;/shards
+- rebuild the graph for every shard in the keyspace (see below)
+- find the list of cells to update by collecting the cells for each tablet of the first shard
+- compute, sanity check and update the keyspace graph object in every cell
+
+The python client reads the nodes to find the shard map (KeyRanges, TabletTypes, ...)
+
+SrvShard
+
+The shard data is stored under /zk/&lt;cell&gt;/vt/ns/&lt;keyspace&gt;/&lt;shard&gt;
+$ zk cat /zk/nyc/vt/ns/rlookup/0
+{
+  &quot;KeyRange&quot;: {
+    &quot;Start&quot;: &quot;&quot;,
+    &quot;End&quot;: &quot;&quot;
+  }
+}
+
+EndPoints
+
+We also have per serving type data under /zk/&lt;cell&gt;/vt/ns/&lt;keyspace&gt;/&lt;shard&gt;/&lt;type&gt;
+$ zk cat /zk/nyc/vt/ns/rlookup/0/master
+{
+  &quot;entries&quot;: [
+    {
+      &quot;uid&quot;: 200274,
+      &quot;host&quot;: &quot;nyc-db274.nyc.youtube.com&quot;,
+      &quot;port&quot;: 0,
+      &quot;named_port_map&quot;: {
+        &quot;mysql&quot;: 3306,
+        &quot;vt&quot;: 8101,
+        &quot;vts&quot;: 8102
+      }
+    }
+  ]
+}
+
+The shard serving graph can be re-built using the &#39;vtctl RebuildShardGraph /&#39; command. However, it is also triggered by any &#39;vtctl ChangeSlaveType&#39; command, so it is usually not needed. For instance, when vt_bns_monitor takes servers in and out of serving state, it will rebuild the shard graph.
+
+Note this will rebuild the serving graph for all cells, not just one cell.
+
+Rebuilding a shard serving graph will:
+- compute the data to write by looking at all the tablets from the replicaton graph
+- write all the /zk/&lt;cell&gt;/vt/ns/&lt;keyspace&gt;/&lt;shard&gt;/&lt;type&gt; nodes everywhere
+- delete any pre-existing /zk/&lt;cell&gt;/vt/ns/&lt;keyspace&gt;/&lt;shard&gt;/&lt;type&gt; that is not in use any more
+- compute and write all the /zk/&lt;cell&gt;/vt/ns/&lt;keyspace&gt;/&lt;shard&gt; nodes everywhere
+
+The clients read the per-type data nodes to find servers to talk to. When resolving ruser.10-20.master, it will try to read /zk/local/vt/ns/ruser/10-20/master.
+">
+    <meta name="keywords" content="">
+    
+    
+    	<!-- Twitter Cards -->
+	<meta name="twitter:title" content="ZookeeperData">
+	<meta name="twitter:description" content="Zookeeper Data
+
+This document describes the information we keep in zookeeper, how it is generated, and how the python client uses it.
+
+Keyspace / Shard / Tablet Data
+
+Keyspace
+
+Each keyspace is now a global zookeeper path, with sub-directories for its shards and action / actionlog. The Keyspace
+object there contains very basic information.
+// see go/vt/topo/keyspace.go for latest version
+type Keyspace struct {
+        // name of the column used for sharding
+        // empty if the keyspace is not sharded
+        ShardingColumnName string
+
+        // type of the column used for sharding
+        // KIT_UNSET if the keyspace is not sharded
+        ShardingColumnType key.KeyspaceIdType
+
+        // ServedFrom will redirect the appropriate traffic to
+        // another keyspace
+        ServedFrom map[TabletType]string
+}
+# NOTE: You need to source zookeeper client config file, like so:
+#  export ZK_CLIENT_CONFIG=/path/to/zk/client.conf
+$ zk ls /zk/global/vt/keyspaces/ruser
+action
+actionlog
+shards
+
+The path and sub-paths are created by &#39;vtctl CreateKeyspace&#39;.
+
+We use the action and actionlog paths for locking only, no process is actively watching these paths.
+
+Shard
+
+A shard is a global zookeeper path, with sub-directories for its action / actionlog, and a node for some more data and replication graph.
+// see go/vt/topo/shard.go for latest version
+// A pure data struct for information stored in topology server.  This
+// node is used to present a controlled view of the shard, unaware of
+// every management action. It also contains configuration data for a
+// shard.
+type Shard struct {
+        // There can be only at most one master, but there may be none. (0)
+        MasterAlias TabletAlias
+
+        // This must match the shard name based on our other conventions, but
+        // helpful to have it decomposed here.
+        KeyRange key.KeyRange
+
+        // ServedTypes is a list of all the tablet types this shard will
+        // serve. This is usually used with overlapping shards during
+        // data shuffles like shard splitting.
+        ServedTypes []TabletType
+
+        // SourceShards is the list of shards we&#39;re replicating from,
+        // using filtered replication.
+        SourceShards []SourceShard
+
+        // Cells is the list of cells that have tablets for this shard.
+        // It is populated at InitTablet time when a tabelt is added
+        // in a cell that is not in the list yet.
+        Cells []string
+}
+
+// SourceShard represents a data source for filtered replication
+// across shards. When this is used in a destination shard, the master
+// of that shard will run filtered replication.
+type SourceShard struct {
+        // Uid is the unique ID for this SourceShard object.
+        // It is for instance used as a unique index in blp_checkpoint
+        // when storing the position. It should be unique whithin a
+        // destination Shard, but not globally unique.
+        Uid uint32
+
+        // the source keyspace
+        Keyspace string
+
+        // the source shard
+        Shard string
+
+        // The source shard keyrange
+        // If partial, len(Tables) has to be zero
+        KeyRange key.KeyRange
+
+        // The source table list to replicate
+        // If non-empty, KeyRange must not be partial (must be KeyRange{})
+        Tables []string
+}
+$ zk ls /zk/global/vt/keyspaces/ruser/shards/10-20
+action
+actionlog
+nyc-0000200278
+
+We use the action and actionlog paths for locking only, no process is actively watching these paths.
+$ zk cat /zk/global/vt/keyspaces/ruser/shards/10-20
+{
+  &quot;MasterAlias&quot;: {
+    &quot;Cell&quot;: &quot;nyc&quot;,
+    &quot;Uid&quot;: 200278
+  },
+  &quot;KeyRange&quot;: {
+    &quot;Start&quot;: &quot;10&quot;,
+    &quot;End&quot;: &quot;20&quot;
+  },
+ &quot;Cells&quot;: [
+    &quot;oe&quot;,
+    &quot;yh&quot;
+ ]
+}
+
+The shard path and sub-directories are created when the first tablet in that shard is created.
+
+The Shard object is changed when we add tablets in unknown cells, or when we change the master.
+
+Tablet
+
+A tablet has a path in zookeeper, with its pid file:
+$ zk ls /zk/nyc/vt/tablets/0000200308
+pid
+
+A tablet also has a node of type Tablet:
+// see go/vt/topo/tablet.go for latest version
+type Tablet struct {
+        Parent      TabletAlias // the globally unique alias for our replication parent - zero if this is the global master
+
+        // What is this tablet?
+        Alias TabletAlias
+
+        // Locaiton of the tablet
+        Hostname string
+        IPAddr   string
+
+        // Named port names. Currently supported ports: vt, vts,
+        // mysql.
+        Portmap map[string]int
+
+        // Tags contain freeform information about the tablet.
+        Tags map[string]string
+
+        // Information about the tablet inside a keyspace/shard
+        Keyspace string
+        Shard    string
+        Type     TabletType
+
+        // Is the tablet read-only?
+        State TabletState
+
+        // Normally the database name is implied by &quot;vt_&quot; + keyspace. I
+        // really want to remove this but there are some databases that are
+        // hard to rename.
+        DbNameOverride string
+        KeyRange       key.KeyRange
+}
+$ zk cat /zk/nyc/vt/tablets/0000200308
+{
+  &quot;Alias&quot;: {
+    &quot;Cell&quot;: &quot;nyc&quot;,
+    &quot;Uid&quot;: 200308,
+  },
+  &quot;Parent&quot;: {
+    &quot;Cell&quot;: &quot;&quot;,
+    &quot;Uid&quot;: 0
+  },
+  &quot;Keyspace&quot;: &quot;&quot;,
+  &quot;Shard&quot;: &quot;&quot;,
+  &quot;Type&quot;: &quot;idle&quot;,
+  &quot;State&quot;: &quot;ReadOnly&quot;,
+  &quot;DbNameOverride&quot;: &quot;&quot;,
+  &quot;KeyRange&quot;: {
+    &quot;Start&quot;: &quot;&quot;,
+    &quot;End&quot;: &quot;&quot;
+  }
+}
+
+The Tablet object is created by &#39;vtctl InitTablet&#39;. Up-to-date information (port numbers, ...) is maintained by the vttablet process. &#39;vtctl ChangeSlaveType&#39; will also change the Tablet record.
+
+Replication Graph
+
+The data maintained by vt tools is as follows:
+- it is stored in the global zk cell
+- the master tablet alias is stored in the Shard object
+- each cell then has a ShardReplication object that stores to master -&gt; slave pairs.
+
+Serving Graph
+
+The serving graph for a shard is maintained in every cell that contains tablets for that shard. To get all the available keyspaces in a cell, just list the top-level cell serving graph directory:
+$ zk ls /zk/nyc/vt/ns
+keyspace1
+keyspace2
+
+The python client lists that directory at startup to find all the keyspaces.
+
+SrvKeyspace
+
+The keyspace data is stored under /zk/&lt;cell&gt;/vt/ns/&lt;keyspace&gt;
+// see go/vt/topo/srvshard.go for latest version
+type SrvShard struct {
+        // Copied from Shard
+        KeyRange    key.KeyRange
+        ServedTypes []TabletType
+
+        // TabletTypes represents the list of types we have serving tablets
+        // for, in this cell only.
+        TabletTypes []TabletType
+
+        // For atomic updates
+        version int64
+}
+
+// A distilled serving copy of keyspace detail stored in the local
+// cell for fast access. Derived from the global keyspace, shards and
+// local details.
+// In zk, it is in /zk/local/vt/ns/&lt;keyspace&gt;
+type SrvKeyspace struct {
+        // Shards to use per type, only contains complete partitions.
+        Partitions map[TabletType]*KeyspacePartition
+
+        // List of available tablet types for this keyspace in this cell.
+        // May not have a server for every shard, but we have some.
+        TabletTypes []TabletType
+
+        // Copied from Keyspace
+        ShardingColumnName string
+        ShardingColumnType key.KeyspaceIdType
+        ServedFrom         map[TabletType]string
+
+        // For atomic updates
+        version int64
+}
+
+// KeyspacePartition represents a continuous set of shards to
+// serve an entire data set.
+type KeyspacePartition struct {
+        // List of non-overlapping continuous shards sorted by range.
+        Shards []SrvShard
+}
+$ zk cat /zk/nyc/vt/ns/rlookup
+{
+  &quot;Shards&quot;: [
+    {
+      &quot;KeyRange&quot;: {
+        &quot;Start&quot;: &quot;&quot;,
+        &quot;End&quot;: &quot;&quot;
+      },
+    }
+  ],
+  &quot;TabletTypes&quot;: [
+    &quot;master&quot;,
+    &quot;rdonly&quot;,
+    &quot;replica&quot;
+  ]
+}
+
+The only way to build this data is to run the following vtctl command:
+$ vtctl RebuildKeyspaceGraph &lt;keyspace&gt;
+
+When building a new Cell, this command should be run for every keyspace.
+
+Rebuilding a keyspace graph will:
+- find all the shard names in the keyspace from looking at the children of /zk/global/vt/keyspaces/&lt;keyspace&gt;/shards
+- rebuild the graph for every shard in the keyspace (see below)
+- find the list of cells to update by collecting the cells for each tablet of the first shard
+- compute, sanity check and update the keyspace graph object in every cell
+
+The python client reads the nodes to find the shard map (KeyRanges, TabletTypes, ...)
+
+SrvShard
+
+The shard data is stored under /zk/&lt;cell&gt;/vt/ns/&lt;keyspace&gt;/&lt;shard&gt;
+$ zk cat /zk/nyc/vt/ns/rlookup/0
+{
+  &quot;KeyRange&quot;: {
+    &quot;Start&quot;: &quot;&quot;,
+    &quot;End&quot;: &quot;&quot;
+  }
+}
+
+EndPoints
+
+We also have per serving type data under /zk/&lt;cell&gt;/vt/ns/&lt;keyspace&gt;/&lt;shard&gt;/&lt;type&gt;
+$ zk cat /zk/nyc/vt/ns/rlookup/0/master
+{
+  &quot;entries&quot;: [
+    {
+      &quot;uid&quot;: 200274,
+      &quot;host&quot;: &quot;nyc-db274.nyc.youtube.com&quot;,
+      &quot;port&quot;: 0,
+      &quot;named_port_map&quot;: {
+        &quot;mysql&quot;: 3306,
+        &quot;vt&quot;: 8101,
+        &quot;vts&quot;: 8102
+      }
+    }
+  ]
+}
+
+The shard serving graph can be re-built using the &#39;vtctl RebuildShardGraph /&#39; command. However, it is also triggered by any &#39;vtctl ChangeSlaveType&#39; command, so it is usually not needed. For instance, when vt_bns_monitor takes servers in and out of serving state, it will rebuild the shard graph.
+
+Note this will rebuild the serving graph for all cells, not just one cell.
+
+Rebuilding a shard serving graph will:
+- compute the data to write by looking at all the tablets from the replicaton graph
+- write all the /zk/&lt;cell&gt;/vt/ns/&lt;keyspace&gt;/&lt;shard&gt;/&lt;type&gt; nodes everywhere
+- delete any pre-existing /zk/&lt;cell&gt;/vt/ns/&lt;keyspace&gt;/&lt;shard&gt;/&lt;type&gt; that is not in use any more
+- compute and write all the /zk/&lt;cell&gt;/vt/ns/&lt;keyspace&gt;/&lt;shard&gt; nodes everywhere
+
+The clients read the per-type data nodes to find servers to talk to. When resolving ruser.10-20.master, it will try to read /zk/local/vt/ns/ruser/10-20/master.
+">
+	
+	
+	
+	<meta name="twitter:card" content="summary">
+	<meta name="twitter:image" content="http://youtube.github.io/vitess/images/120x120.gif">
+	
+	<!-- Open Graph -->
+	<meta property="og:locale" content="en_US">
+	<meta property="og:type" content="article">
+	<meta property="og:title" content="ZookeeperData">
+	<meta property="og:description" content="Zookeeper Data
+
+This document describes the information we keep in zookeeper, how it is generated, and how the python client uses it.
+
+Keyspace / Shard / Tablet Data
+
+Keyspace
+
+Each keyspace is now a global zookeeper path, with sub-directories for its shards and action / actionlog. The Keyspace
+object there contains very basic information.
+// see go/vt/topo/keyspace.go for latest version
+type Keyspace struct {
+        // name of the column used for sharding
+        // empty if the keyspace is not sharded
+        ShardingColumnName string
+
+        // type of the column used for sharding
+        // KIT_UNSET if the keyspace is not sharded
+        ShardingColumnType key.KeyspaceIdType
+
+        // ServedFrom will redirect the appropriate traffic to
+        // another keyspace
+        ServedFrom map[TabletType]string
+}
+# NOTE: You need to source zookeeper client config file, like so:
+#  export ZK_CLIENT_CONFIG=/path/to/zk/client.conf
+$ zk ls /zk/global/vt/keyspaces/ruser
+action
+actionlog
+shards
+
+The path and sub-paths are created by &#39;vtctl CreateKeyspace&#39;.
+
+We use the action and actionlog paths for locking only, no process is actively watching these paths.
+
+Shard
+
+A shard is a global zookeeper path, with sub-directories for its action / actionlog, and a node for some more data and replication graph.
+// see go/vt/topo/shard.go for latest version
+// A pure data struct for information stored in topology server.  This
+// node is used to present a controlled view of the shard, unaware of
+// every management action. It also contains configuration data for a
+// shard.
+type Shard struct {
+        // There can be only at most one master, but there may be none. (0)
+        MasterAlias TabletAlias
+
+        // This must match the shard name based on our other conventions, but
+        // helpful to have it decomposed here.
+        KeyRange key.KeyRange
+
+        // ServedTypes is a list of all the tablet types this shard will
+        // serve. This is usually used with overlapping shards during
+        // data shuffles like shard splitting.
+        ServedTypes []TabletType
+
+        // SourceShards is the list of shards we&#39;re replicating from,
+        // using filtered replication.
+        SourceShards []SourceShard
+
+        // Cells is the list of cells that have tablets for this shard.
+        // It is populated at InitTablet time when a tabelt is added
+        // in a cell that is not in the list yet.
+        Cells []string
+}
+
+// SourceShard represents a data source for filtered replication
+// across shards. When this is used in a destination shard, the master
+// of that shard will run filtered replication.
+type SourceShard struct {
+        // Uid is the unique ID for this SourceShard object.
+        // It is for instance used as a unique index in blp_checkpoint
+        // when storing the position. It should be unique whithin a
+        // destination Shard, but not globally unique.
+        Uid uint32
+
+        // the source keyspace
+        Keyspace string
+
+        // the source shard
+        Shard string
+
+        // The source shard keyrange
+        // If partial, len(Tables) has to be zero
+        KeyRange key.KeyRange
+
+        // The source table list to replicate
+        // If non-empty, KeyRange must not be partial (must be KeyRange{})
+        Tables []string
+}
+$ zk ls /zk/global/vt/keyspaces/ruser/shards/10-20
+action
+actionlog
+nyc-0000200278
+
+We use the action and actionlog paths for locking only, no process is actively watching these paths.
+$ zk cat /zk/global/vt/keyspaces/ruser/shards/10-20
+{
+  &quot;MasterAlias&quot;: {
+    &quot;Cell&quot;: &quot;nyc&quot;,
+    &quot;Uid&quot;: 200278
+  },
+  &quot;KeyRange&quot;: {
+    &quot;Start&quot;: &quot;10&quot;,
+    &quot;End&quot;: &quot;20&quot;
+  },
+ &quot;Cells&quot;: [
+    &quot;oe&quot;,
+    &quot;yh&quot;
+ ]
+}
+
+The shard path and sub-directories are created when the first tablet in that shard is created.
+
+The Shard object is changed when we add tablets in unknown cells, or when we change the master.
+
+Tablet
+
+A tablet has a path in zookeeper, with its pid file:
+$ zk ls /zk/nyc/vt/tablets/0000200308
+pid
+
+A tablet also has a node of type Tablet:
+// see go/vt/topo/tablet.go for latest version
+type Tablet struct {
+        Parent      TabletAlias // the globally unique alias for our replication parent - zero if this is the global master
+
+        // What is this tablet?
+        Alias TabletAlias
+
+        // Locaiton of the tablet
+        Hostname string
+        IPAddr   string
+
+        // Named port names. Currently supported ports: vt, vts,
+        // mysql.
+        Portmap map[string]int
+
+        // Tags contain freeform information about the tablet.
+        Tags map[string]string
+
+        // Information about the tablet inside a keyspace/shard
+        Keyspace string
+        Shard    string
+        Type     TabletType
+
+        // Is the tablet read-only?
+        State TabletState
+
+        // Normally the database name is implied by &quot;vt_&quot; + keyspace. I
+        // really want to remove this but there are some databases that are
+        // hard to rename.
+        DbNameOverride string
+        KeyRange       key.KeyRange
+}
+$ zk cat /zk/nyc/vt/tablets/0000200308
+{
+  &quot;Alias&quot;: {
+    &quot;Cell&quot;: &quot;nyc&quot;,
+    &quot;Uid&quot;: 200308,
+  },
+  &quot;Parent&quot;: {
+    &quot;Cell&quot;: &quot;&quot;,
+    &quot;Uid&quot;: 0
+  },
+  &quot;Keyspace&quot;: &quot;&quot;,
+  &quot;Shard&quot;: &quot;&quot;,
+  &quot;Type&quot;: &quot;idle&quot;,
+  &quot;State&quot;: &quot;ReadOnly&quot;,
+  &quot;DbNameOverride&quot;: &quot;&quot;,
+  &quot;KeyRange&quot;: {
+    &quot;Start&quot;: &quot;&quot;,
+    &quot;End&quot;: &quot;&quot;
+  }
+}
+
+The Tablet object is created by &#39;vtctl InitTablet&#39;. Up-to-date information (port numbers, ...) is maintained by the vttablet process. &#39;vtctl ChangeSlaveType&#39; will also change the Tablet record.
+
+Replication Graph
+
+The data maintained by vt tools is as follows:
+- it is stored in the global zk cell
+- the master tablet alias is stored in the Shard object
+- each cell then has a ShardReplication object that stores to master -&gt; slave pairs.
+
+Serving Graph
+
+The serving graph for a shard is maintained in every cell that contains tablets for that shard. To get all the available keyspaces in a cell, just list the top-level cell serving graph directory:
+$ zk ls /zk/nyc/vt/ns
+keyspace1
+keyspace2
+
+The python client lists that directory at startup to find all the keyspaces.
+
+SrvKeyspace
+
+The keyspace data is stored under /zk/&lt;cell&gt;/vt/ns/&lt;keyspace&gt;
+// see go/vt/topo/srvshard.go for latest version
+type SrvShard struct {
+        // Copied from Shard
+        KeyRange    key.KeyRange
+        ServedTypes []TabletType
+
+        // TabletTypes represents the list of types we have serving tablets
+        // for, in this cell only.
+        TabletTypes []TabletType
+
+        // For atomic updates
+        version int64
+}
+
+// A distilled serving copy of keyspace detail stored in the local
+// cell for fast access. Derived from the global keyspace, shards and
+// local details.
+// In zk, it is in /zk/local/vt/ns/&lt;keyspace&gt;
+type SrvKeyspace struct {
+        // Shards to use per type, only contains complete partitions.
+        Partitions map[TabletType]*KeyspacePartition
+
+        // List of available tablet types for this keyspace in this cell.
+        // May not have a server for every shard, but we have some.
+        TabletTypes []TabletType
+
+        // Copied from Keyspace
+        ShardingColumnName string
+        ShardingColumnType key.KeyspaceIdType
+        ServedFrom         map[TabletType]string
+
+        // For atomic updates
+        version int64
+}
+
+// KeyspacePartition represents a continuous set of shards to
+// serve an entire data set.
+type KeyspacePartition struct {
+        // List of non-overlapping continuous shards sorted by range.
+        Shards []SrvShard
+}
+$ zk cat /zk/nyc/vt/ns/rlookup
+{
+  &quot;Shards&quot;: [
+    {
+      &quot;KeyRange&quot;: {
+        &quot;Start&quot;: &quot;&quot;,
+        &quot;End&quot;: &quot;&quot;
+      },
+    }
+  ],
+  &quot;TabletTypes&quot;: [
+    &quot;master&quot;,
+    &quot;rdonly&quot;,
+    &quot;replica&quot;
+  ]
+}
+
+The only way to build this data is to run the following vtctl command:
+$ vtctl RebuildKeyspaceGraph &lt;keyspace&gt;
+
+When building a new Cell, this command should be run for every keyspace.
+
+Rebuilding a keyspace graph will:
+- find all the shard names in the keyspace from looking at the children of /zk/global/vt/keyspaces/&lt;keyspace&gt;/shards
+- rebuild the graph for every shard in the keyspace (see below)
+- find the list of cells to update by collecting the cells for each tablet of the first shard
+- compute, sanity check and update the keyspace graph object in every cell
+
+The python client reads the nodes to find the shard map (KeyRanges, TabletTypes, ...)
+
+SrvShard
+
+The shard data is stored under /zk/&lt;cell&gt;/vt/ns/&lt;keyspace&gt;/&lt;shard&gt;
+$ zk cat /zk/nyc/vt/ns/rlookup/0
+{
+  &quot;KeyRange&quot;: {
+    &quot;Start&quot;: &quot;&quot;,
+    &quot;End&quot;: &quot;&quot;
+  }
+}
+
+EndPoints
+
+We also have per serving type data under /zk/&lt;cell&gt;/vt/ns/&lt;keyspace&gt;/&lt;shard&gt;/&lt;type&gt;
+$ zk cat /zk/nyc/vt/ns/rlookup/0/master
+{
+  &quot;entries&quot;: [
+    {
+      &quot;uid&quot;: 200274,
+      &quot;host&quot;: &quot;nyc-db274.nyc.youtube.com&quot;,
+      &quot;port&quot;: 0,
+      &quot;named_port_map&quot;: {
+        &quot;mysql&quot;: 3306,
+        &quot;vt&quot;: 8101,
+        &quot;vts&quot;: 8102
+      }
+    }
+  ]
+}
+
+The shard serving graph can be re-built using the &#39;vtctl RebuildShardGraph /&#39; command. However, it is also triggered by any &#39;vtctl ChangeSlaveType&#39; command, so it is usually not needed. For instance, when vt_bns_monitor takes servers in and out of serving state, it will rebuild the shard graph.
+
+Note this will rebuild the serving graph for all cells, not just one cell.
+
+Rebuilding a shard serving graph will:
+- compute the data to write by looking at all the tablets from the replicaton graph
+- write all the /zk/&lt;cell&gt;/vt/ns/&lt;keyspace&gt;/&lt;shard&gt;/&lt;type&gt; nodes everywhere
+- delete any pre-existing /zk/&lt;cell&gt;/vt/ns/&lt;keyspace&gt;/&lt;shard&gt;/&lt;type&gt; that is not in use any more
+- compute and write all the /zk/&lt;cell&gt;/vt/ns/&lt;keyspace&gt;/&lt;shard&gt; nodes everywhere
+
+The clients read the per-type data nodes to find servers to talk to. When resolving ruser.10-20.master, it will try to read /zk/local/vt/ns/ruser/10-20/master.
+">
+	<meta property="og:url" content="http://youtube.github.io/vitess/doc/ZookeeperData/">
+	<meta property="og:site_name" content="Vitess">
+
+    <link rel="canonical" href="http://youtube.github.io/vitess/doc/ZookeeperData/">
+
+    <link href="http://youtube.github.io/vitess/sitemap.xml" type="application/xml" rel="sitemap" title="Sitemap">
+
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="cleartype" content="on">
+
+    <style>
+    .sliding-menu-content {
+      top: 0;
+      right: 0;
+      text-align: center;
+      visibility: hidden;
+      height: 100%;
+      width: 100%;
+      -webkit-transform: translateX(100%);
+      -moz-transform: translateX(100%);
+      -ms-transform: translateX(100%);
+      -o-transform: translateX(100%);
+      transform: translateX(100%);
+    }
+    </style>
+
+    <link rel="stylesheet" href="http://youtube.github.io/vitess/css/main.css">
+    <!-- HTML5 Shiv and Media Query Support for IE -->
+    <!--[if lt IE 9]>
+      <script src="http://youtube.github.io/vitess/js/vendor/html5shiv.min.js"></script>
+      <script src="http://youtube.github.io/vitess/js/vendor/respond.min.js"></script>
+    <![endif]-->
+
+  </head>
+
+  <body>
+    <header id="masthead">
+  <div class="inner-wrap">
+    <a href="http://youtube.github.io/vitess/" class="site-title">Vitess</a>
+    <nav role="navigation" class="menu top-menu">
+        <ul class="menu-item">
+	<li class="home"><a href="/">Vitess</a></li>
+	
+    
+        
+    
+    <li><a href="http://youtube.github.io/vitess/getting-started/" >Getting Started</a></li>
+  
+    
+        
+    
+    <li><a href="http://youtube.github.io/vitess/doc/" >Documentation</a></li>
+  
+    
+        
+    
+    <li><a href="http://youtube.github.io/vitess/about/" >About</a></li>
+  
+    
+        
+    
+    <li><a href="http://youtube.github.io/vitess/faq/" >FAQ</a></li>
+  
+</ul>
+    </nav>
+  </div>
+</header>
+
+    <nav role="navigation" class="js-menu sliding-menu-content">
+	<ul class="menu-item">
+		<li>
+      
+        
+      
+			<a href="http://youtube.github.io/vitess/getting-started/"><img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" class="teaser"></a>
+			<a href="http://youtube.github.io/vitess/getting-started/" class="title">Getting Started</a>
+			<p class="excerpt">Everything you need to know to get started with Vitess.</p>
+		</li><li>
+      
+        
+      
+			<a href="http://youtube.github.io/vitess/doc/"><img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" class="teaser"></a>
+			<a href="http://youtube.github.io/vitess/doc/" class="title">Documentation</a>
+			<p class="excerpt">Vitess Docs.</p>
+		</li><li>
+      
+        
+      
+			<a href="http://youtube.github.io/vitess/about/"><img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" class="teaser"></a>
+			<a href="http://youtube.github.io/vitess/about/" class="title">About</a>
+			<p class="excerpt">All about Vitess.</p>
+		</li><li>
+      
+        
+      
+			<a href="http://youtube.github.io/vitess/faq/"><img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" class="teaser"></a>
+			<a href="http://youtube.github.io/vitess/faq/" class="title">FAQ</a>
+			<p class="excerpt">Vitess Faq.</p>
+		</li>
+	</ul>
+</nav>
+<button type="button" class="js-menu-trigger sliding-menu-button menulines-button x2" role="button" aria-label="Toggle Navigation">
+	<span class="menulines"></span>
+</button>
+
+<div class="js-menu-screen menu-screen"></div>
+
+    <div id="page-wrapper">
+      <!--[if lt IE 9]><div class="upgrade notice-danger"><strong>Your browser is quite old!</strong> Why not <a href="http://whatbrowser.org/">upgrade to a newer one</a> to better enjoy this site?</div><![endif]-->
+
+      <div id="main" role="main">
+  <article class="wrap" itemscope itemtype="http://schema.org/Article">
+    
+    
+  <nav class="breadcrumbs">
+    <span itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+      <a href="http://youtube.github.io/vitess" itemprop="url">
+        <span itemprop="title">Home</span>
+      </a> › 
+    <span itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+      <a href="http://youtube.github.io/vitess/doc/" itemprop="url">
+        <span itemprop="title">Doc</span>
+      </a>
+    </span>
+  </nav>
+
+
+    <div class="inner-wrap">
+      <nav class="toc"></nav>
+      <div id="content" class="page-content" itemprop="articleBody">
+	<h1 id="zookeeper-data">Zookeeper Data</h1>
+
+<p>This document describes the information we keep in zookeeper, how it is generated, and how the python client uses it.</p>
+
+<h2 id="keyspace-/-shard-/-tablet-data">Keyspace / Shard / Tablet Data</h2>
+
+<h3 id="keyspace">Keyspace</h3>
+
+<p>Each keyspace is now a global zookeeper path, with sub-directories for its shards and action / actionlog. The Keyspace
+object there contains very basic information.</p>
+<div class="highlight"><pre><code class="language-go" data-lang="go"><span class="c1">// see go/vt/topo/keyspace.go for latest version</span>
+<span class="kd">type</span> <span class="nx">Keyspace</span> <span class="kd">struct</span> <span class="p">{</span>
+        <span class="c1">// name of the column used for sharding</span>
+        <span class="c1">// empty if the keyspace is not sharded</span>
+        <span class="nx">ShardingColumnName</span> <span class="kt">string</span>
+
+        <span class="c1">// type of the column used for sharding</span>
+        <span class="c1">// KIT_UNSET if the keyspace is not sharded</span>
+        <span class="nx">ShardingColumnType</span> <span class="nx">key</span><span class="p">.</span><span class="nx">KeyspaceIdType</span>
+
+        <span class="c1">// ServedFrom will redirect the appropriate traffic to</span>
+        <span class="c1">// another keyspace</span>
+        <span class="nx">ServedFrom</span> <span class="kd">map</span><span class="p">[</span><span class="nx">TabletType</span><span class="p">]</span><span class="kt">string</span>
+<span class="p">}</span>
+</code></pre></div><div class="highlight"><pre><code class="language-text" data-lang="text"># NOTE: You need to source zookeeper client config file, like so:
+#  export ZK_CLIENT_CONFIG=/path/to/zk/client.conf
+$ zk ls /zk/global/vt/keyspaces/ruser
+action
+actionlog
+shards
+</code></pre></div>
+<p>The path and sub-paths are created by &#39;vtctl CreateKeyspace&#39;.</p>
+
+<p>We use the action and actionlog paths for locking only, no process is actively watching these paths.</p>
+
+<h3 id="shard">Shard</h3>
+
+<p>A shard is a global zookeeper path, with sub-directories for its action / actionlog, and a node for some more data and replication graph.</p>
+<div class="highlight"><pre><code class="language-go" data-lang="go"><span class="c1">// see go/vt/topo/shard.go for latest version</span>
+<span class="c1">// A pure data struct for information stored in topology server.  This</span>
+<span class="c1">// node is used to present a controlled view of the shard, unaware of</span>
+<span class="c1">// every management action. It also contains configuration data for a</span>
+<span class="c1">// shard.</span>
+<span class="kd">type</span> <span class="nx">Shard</span> <span class="kd">struct</span> <span class="p">{</span>
+        <span class="c1">// There can be only at most one master, but there may be none. (0)</span>
+        <span class="nx">MasterAlias</span> <span class="nx">TabletAlias</span>
+
+        <span class="c1">// This must match the shard name based on our other conventions, but</span>
+        <span class="c1">// helpful to have it decomposed here.</span>
+        <span class="nx">KeyRange</span> <span class="nx">key</span><span class="p">.</span><span class="nx">KeyRange</span>
+
+        <span class="c1">// ServedTypes is a list of all the tablet types this shard will</span>
+        <span class="c1">// serve. This is usually used with overlapping shards during</span>
+        <span class="c1">// data shuffles like shard splitting.</span>
+        <span class="nx">ServedTypes</span> <span class="p">[]</span><span class="nx">TabletType</span>
+
+        <span class="c1">// SourceShards is the list of shards we&#39;re replicating from,</span>
+        <span class="c1">// using filtered replication.</span>
+        <span class="nx">SourceShards</span> <span class="p">[]</span><span class="nx">SourceShard</span>
+
+        <span class="c1">// Cells is the list of cells that have tablets for this shard.</span>
+        <span class="c1">// It is populated at InitTablet time when a tabelt is added</span>
+        <span class="c1">// in a cell that is not in the list yet.</span>
+        <span class="nx">Cells</span> <span class="p">[]</span><span class="kt">string</span>
+<span class="p">}</span>
+
+<span class="c1">// SourceShard represents a data source for filtered replication</span>
+<span class="c1">// across shards. When this is used in a destination shard, the master</span>
+<span class="c1">// of that shard will run filtered replication.</span>
+<span class="kd">type</span> <span class="nx">SourceShard</span> <span class="kd">struct</span> <span class="p">{</span>
+        <span class="c1">// Uid is the unique ID for this SourceShard object.</span>
+        <span class="c1">// It is for instance used as a unique index in blp_checkpoint</span>
+        <span class="c1">// when storing the position. It should be unique whithin a</span>
+        <span class="c1">// destination Shard, but not globally unique.</span>
+        <span class="nx">Uid</span> <span class="kt">uint32</span>
+
+        <span class="c1">// the source keyspace</span>
+        <span class="nx">Keyspace</span> <span class="kt">string</span>
+
+        <span class="c1">// the source shard</span>
+        <span class="nx">Shard</span> <span class="kt">string</span>
+
+        <span class="c1">// The source shard keyrange</span>
+        <span class="c1">// If partial, len(Tables) has to be zero</span>
+        <span class="nx">KeyRange</span> <span class="nx">key</span><span class="p">.</span><span class="nx">KeyRange</span>
+
+        <span class="c1">// The source table list to replicate</span>
+        <span class="c1">// If non-empty, KeyRange must not be partial (must be KeyRange{})</span>
+        <span class="nx">Tables</span> <span class="p">[]</span><span class="kt">string</span>
+<span class="p">}</span>
+</code></pre></div><div class="highlight"><pre><code class="language-text" data-lang="text">$ zk ls /zk/global/vt/keyspaces/ruser/shards/10-20
+action
+actionlog
+nyc-0000200278
+</code></pre></div>
+<p>We use the action and actionlog paths for locking only, no process is actively watching these paths.</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">$ zk cat /zk/global/vt/keyspaces/ruser/shards/10-20
+{
+  &quot;MasterAlias&quot;: {
+    &quot;Cell&quot;: &quot;nyc&quot;,
+    &quot;Uid&quot;: 200278
+  },
+  &quot;KeyRange&quot;: {
+    &quot;Start&quot;: &quot;10&quot;,
+    &quot;End&quot;: &quot;20&quot;
+  },
+ &quot;Cells&quot;: [
+    &quot;oe&quot;,
+    &quot;yh&quot;
+ ]
+}
+</code></pre></div>
+<p>The shard path and sub-directories are created when the first tablet in that shard is created.</p>
+
+<p>The Shard object is changed when we add tablets in unknown cells, or when we change the master.</p>
+
+<h3 id="tablet">Tablet</h3>
+
+<p>A tablet has a path in zookeeper, with its pid file:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">$ zk ls /zk/nyc/vt/tablets/0000200308
+pid
+</code></pre></div>
+<p>A tablet also has a node of type Tablet:</p>
+<div class="highlight"><pre><code class="language-go" data-lang="go"><span class="c1">// see go/vt/topo/tablet.go for latest version</span>
+<span class="kd">type</span> <span class="nx">Tablet</span> <span class="kd">struct</span> <span class="p">{</span>
+        <span class="nx">Parent</span>      <span class="nx">TabletAlias</span> <span class="c1">// the globally unique alias for our replication parent - zero if this is the global master</span>
+
+        <span class="c1">// What is this tablet?</span>
+        <span class="nx">Alias</span> <span class="nx">TabletAlias</span>
+
+        <span class="c1">// Locaiton of the tablet</span>
+        <span class="nx">Hostname</span> <span class="kt">string</span>
+        <span class="nx">IPAddr</span>   <span class="kt">string</span>
+
+        <span class="c1">// Named port names. Currently supported ports: vt, vts,</span>
+        <span class="c1">// mysql.</span>
+        <span class="nx">Portmap</span> <span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">int</span>
+
+        <span class="c1">// Tags contain freeform information about the tablet.</span>
+        <span class="nx">Tags</span> <span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span>
+
+        <span class="c1">// Information about the tablet inside a keyspace/shard</span>
+        <span class="nx">Keyspace</span> <span class="kt">string</span>
+        <span class="nx">Shard</span>    <span class="kt">string</span>
+        <span class="nx">Type</span>     <span class="nx">TabletType</span>
+
+        <span class="c1">// Is the tablet read-only?</span>
+        <span class="nx">State</span> <span class="nx">TabletState</span>
+
+        <span class="c1">// Normally the database name is implied by &quot;vt_&quot; + keyspace. I</span>
+        <span class="c1">// really want to remove this but there are some databases that are</span>
+        <span class="c1">// hard to rename.</span>
+        <span class="nx">DbNameOverride</span> <span class="kt">string</span>
+        <span class="nx">KeyRange</span>       <span class="nx">key</span><span class="p">.</span><span class="nx">KeyRange</span>
+<span class="p">}</span>
+</code></pre></div><div class="highlight"><pre><code class="language-text" data-lang="text">$ zk cat /zk/nyc/vt/tablets/0000200308
+{
+  &quot;Alias&quot;: {
+    &quot;Cell&quot;: &quot;nyc&quot;,
+    &quot;Uid&quot;: 200308,
+  },
+  &quot;Parent&quot;: {
+    &quot;Cell&quot;: &quot;&quot;,
+    &quot;Uid&quot;: 0
+  },
+  &quot;Keyspace&quot;: &quot;&quot;,
+  &quot;Shard&quot;: &quot;&quot;,
+  &quot;Type&quot;: &quot;idle&quot;,
+  &quot;State&quot;: &quot;ReadOnly&quot;,
+  &quot;DbNameOverride&quot;: &quot;&quot;,
+  &quot;KeyRange&quot;: {
+    &quot;Start&quot;: &quot;&quot;,
+    &quot;End&quot;: &quot;&quot;
+  }
+}
+</code></pre></div>
+<p>The Tablet object is created by &#39;vtctl InitTablet&#39;. Up-to-date information (port numbers, ...) is maintained by the vttablet process. &#39;vtctl ChangeSlaveType&#39; will also change the Tablet record.</p>
+
+<h2 id="replication-graph">Replication Graph</h2>
+
+<p>The data maintained by vt tools is as follows:
+- it is stored in the global zk cell
+- the master tablet alias is stored in the Shard object
+- each cell then has a ShardReplication object that stores to master -&gt; slave pairs.</p>
+
+<h2 id="serving-graph">Serving Graph</h2>
+
+<p>The serving graph for a shard is maintained in every cell that contains tablets for that shard. To get all the available keyspaces in a cell, just list the top-level cell serving graph directory:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">$ zk ls /zk/nyc/vt/ns
+keyspace1
+keyspace2
+</code></pre></div>
+<p>The python client lists that directory at startup to find all the keyspaces.</p>
+
+<h3 id="srvkeyspace">SrvKeyspace</h3>
+
+<p>The keyspace data is stored under <code>/zk/&lt;cell&gt;/vt/ns/&lt;keyspace&gt;</code></p>
+<div class="highlight"><pre><code class="language-go" data-lang="go"><span class="c1">// see go/vt/topo/srvshard.go for latest version</span>
+<span class="kd">type</span> <span class="nx">SrvShard</span> <span class="kd">struct</span> <span class="p">{</span>
+        <span class="c1">// Copied from Shard</span>
+        <span class="nx">KeyRange</span>    <span class="nx">key</span><span class="p">.</span><span class="nx">KeyRange</span>
+        <span class="nx">ServedTypes</span> <span class="p">[]</span><span class="nx">TabletType</span>
+
+        <span class="c1">// TabletTypes represents the list of types we have serving tablets</span>
+        <span class="c1">// for, in this cell only.</span>
+        <span class="nx">TabletTypes</span> <span class="p">[]</span><span class="nx">TabletType</span>
+
+        <span class="c1">// For atomic updates</span>
+        <span class="nx">version</span> <span class="kt">int64</span>
+<span class="p">}</span>
+
+<span class="c1">// A distilled serving copy of keyspace detail stored in the local</span>
+<span class="c1">// cell for fast access. Derived from the global keyspace, shards and</span>
+<span class="c1">// local details.</span>
+<span class="c1">// In zk, it is in /zk/local/vt/ns/&lt;keyspace&gt;</span>
+<span class="kd">type</span> <span class="nx">SrvKeyspace</span> <span class="kd">struct</span> <span class="p">{</span>
+        <span class="c1">// Shards to use per type, only contains complete partitions.</span>
+        <span class="nx">Partitions</span> <span class="kd">map</span><span class="p">[</span><span class="nx">TabletType</span><span class="p">]</span><span class="o">*</span><span class="nx">KeyspacePartition</span>
+
+        <span class="c1">// List of available tablet types for this keyspace in this cell.</span>
+        <span class="c1">// May not have a server for every shard, but we have some.</span>
+        <span class="nx">TabletTypes</span> <span class="p">[]</span><span class="nx">TabletType</span>
+
+        <span class="c1">// Copied from Keyspace</span>
+        <span class="nx">ShardingColumnName</span> <span class="kt">string</span>
+        <span class="nx">ShardingColumnType</span> <span class="nx">key</span><span class="p">.</span><span class="nx">KeyspaceIdType</span>
+        <span class="nx">ServedFrom</span>         <span class="kd">map</span><span class="p">[</span><span class="nx">TabletType</span><span class="p">]</span><span class="kt">string</span>
+
+        <span class="c1">// For atomic updates</span>
+        <span class="nx">version</span> <span class="kt">int64</span>
+<span class="p">}</span>
+
+<span class="c1">// KeyspacePartition represents a continuous set of shards to</span>
+<span class="c1">// serve an entire data set.</span>
+<span class="kd">type</span> <span class="nx">KeyspacePartition</span> <span class="kd">struct</span> <span class="p">{</span>
+        <span class="c1">// List of non-overlapping continuous shards sorted by range.</span>
+        <span class="nx">Shards</span> <span class="p">[]</span><span class="nx">SrvShard</span>
+<span class="p">}</span>
+</code></pre></div><div class="highlight"><pre><code class="language-text" data-lang="text">$ zk cat /zk/nyc/vt/ns/rlookup
+{
+  &quot;Shards&quot;: [
+    {
+      &quot;KeyRange&quot;: {
+        &quot;Start&quot;: &quot;&quot;,
+        &quot;End&quot;: &quot;&quot;
+      },
+    }
+  ],
+  &quot;TabletTypes&quot;: [
+    &quot;master&quot;,
+    &quot;rdonly&quot;,
+    &quot;replica&quot;
+  ]
+}
+</code></pre></div>
+<p>The only way to build this data is to run the following vtctl command:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">$ vtctl RebuildKeyspaceGraph &lt;keyspace&gt;
+</code></pre></div>
+<p>When building a new Cell, this command should be run for every keyspace.</p>
+
+<p>Rebuilding a keyspace graph will:
+- find all the shard names in the keyspace from looking at the children of <code>/zk/global/vt/keyspaces/&lt;keyspace&gt;/shards</code>
+- rebuild the graph for every shard in the keyspace (see below)
+- find the list of cells to update by collecting the cells for each tablet of the first shard
+- compute, sanity check and update the keyspace graph object in every cell</p>
+
+<p>The python client reads the nodes to find the shard map (KeyRanges, TabletTypes, ...)</p>
+
+<h3 id="srvshard">SrvShard</h3>
+
+<p>The shard data is stored under <code>/zk/&lt;cell&gt;/vt/ns/&lt;keyspace&gt;/&lt;shard&gt;</code></p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">$ zk cat /zk/nyc/vt/ns/rlookup/0
+{
+  &quot;KeyRange&quot;: {
+    &quot;Start&quot;: &quot;&quot;,
+    &quot;End&quot;: &quot;&quot;
+  }
+}
+</code></pre></div>
+<h3 id="endpoints">EndPoints</h3>
+
+<p>We also have per serving type data under <code>/zk/&lt;cell&gt;/vt/ns/&lt;keyspace&gt;/&lt;shard&gt;/&lt;type&gt;</code></p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">$ zk cat /zk/nyc/vt/ns/rlookup/0/master
+{
+  &quot;entries&quot;: [
+    {
+      &quot;uid&quot;: 200274,
+      &quot;host&quot;: &quot;nyc-db274.nyc.youtube.com&quot;,
+      &quot;port&quot;: 0,
+      &quot;named_port_map&quot;: {
+        &quot;mysql&quot;: 3306,
+        &quot;vt&quot;: 8101,
+        &quot;vts&quot;: 8102
+      }
+    }
+  ]
+}
+</code></pre></div>
+<p>The shard serving graph can be re-built using the &#39;vtctl RebuildShardGraph <keyspace>/<shard>&#39; command. However, it is also triggered by any &#39;vtctl ChangeSlaveType&#39; command, so it is usually not needed. For instance, when vt_bns_monitor takes servers in and out of serving state, it will rebuild the shard graph.</p>
+
+<p>Note this will rebuild the serving graph for all cells, not just one cell.</p>
+
+<p>Rebuilding a shard serving graph will:
+- compute the data to write by looking at all the tablets from the replicaton graph
+- write all the <code>/zk/&lt;cell&gt;/vt/ns/&lt;keyspace&gt;/&lt;shard&gt;/&lt;type&gt;</code> nodes everywhere
+- delete any pre-existing <code>/zk/&lt;cell&gt;/vt/ns/&lt;keyspace&gt;/&lt;shard&gt;/&lt;type&gt;</code> that is not in use any more
+- compute and write all the <code>/zk/&lt;cell&gt;/vt/ns/&lt;keyspace&gt;/&lt;shard&gt;</code> nodes everywhere</p>
+
+<p>The clients read the per-type data nodes to find servers to talk to. When resolving ruser.10-20.master, it will try to read /zk/local/vt/ns/ruser/10-20/master.</p>
+
+	<hr />
+	<footer class="page-footer">
+	  
+
+
+<div class="author-image">
+	<img src="http://youtube.github.io/vitess/images/" alt="Vitess Team">
+</div>
+<div class="author-content">
+	<h3 class="author-name" >Written by <a href="https://github.com/youtube/vitess" itemprop="author">Vitess Team</a></h3>
+	<p class="author-bio"></p>
+</div>
+
+	  <div class="inline-btn">
+	<a class="btn-social twitter" href="https://twitter.com/intent/tweet?text=ZookeeperData&amp;url=http://youtube.github.io/vitess/doc/ZookeeperData/&amp;via=" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i> Share on Twitter</a>
+	<a class="btn-social facebook" href="https://www.facebook.com/sharer/sharer.php?u=http://youtube.github.io/vitess/doc/ZookeeperData/" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i> Share on Facebook</a>
+	<a class="btn-social google-plus"  href="https://plus.google.com/share?url=http://youtube.github.io/vitess/doc/ZookeeperData/" target="_blank"><i class="fa fa-google-plus" aria-hidden="true"></i> Share on Google+</a>
+</div>
+
+	  <div class="page-meta">
+	<p>Updated <time datetime="2015-01-01T00:00:00Z" itemprop="datePublished">January 01, 2015</time></p>
+</div>
+
+	</footer>
+	<aside>
+	  
+	</aside>
+      </div>
+    </div>
+  </article>
+</div>
+
+
+      <footer role="contentinfo" id="site-footer">
+  <nav role="navigation" class="menu bottom-menu">
+    <ul class="menu-item">
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/" >Home</a></li>
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/getting-started/" >Getting Started</a></li>
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/about/" >About</a></li>
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/faq/" >FAQ</a></li>
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/terms/" >Terms</a></li>
+      
+    </ul>
+  </nav>
+  <p class="copyright">&#169; 2015 <a href="http://youtube.github.io/vitess">Vitess</a> powered by <a href="http://www.google.com">Google Inc</a>.</p>
+</footer>
+
+    </div>
+
+    <script src="http://youtube.github.io/vitess/js/vendor/jquery-1.9.1.min.js"></script>
+    <script src="http://youtube.github.io/vitess/js/main.js"></script>
+    
+    
+    <script type="text/javascript">
+      $('.toc').toc({
+        'selectors': 'h2', //elements to use as headings
+        'container': '.page-content', //element to find all selectors in
+        'smoothScrolling': true, //enable or disable smooth scrolling on click
+        'prefix': 'toc', //prefix for anchor tags and class names
+        'onHighlight': function(el) {}, //called when a new section is highlighted 
+        'highlightOnScroll': true, //add class to heading that is currently in focus
+        'highlightOffset': 100, //offset to trigger the next headline
+        'anchorName': function(i, heading, prefix) { //custom function for anchor name
+          return prefix+i;
+        },
+        'headerText': function(i, heading, $heading) { //custom function building the header-item text
+          return $heading.text();
+        },
+        'itemClass': function(i, heading, $heading, prefix) { //custom function for item class
+          return $heading[0].tagName.toLowerCase();
+        }
+      });
+    </script>
+    
+
+  </body>
+
+</html>

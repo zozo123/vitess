@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>FAQ • Vitess</title>
+    <meta name="description" content="Vitess Frequently Asked Questions
+
+Is Vitess used at Google?
+
+Yes, Vitess has been used to serve all YouTube database traffic since
+2011.
+
+Why not do it inside MySQL?
+
+MySQL is really good at what it does: serving queries with a low
+latency, on a single server. However, it was not designed to do a lot
+of the things at the scale that we need at YouTube. Including the
+changes we needed inside MySQL itself would have been a huge
+project. Additionally, it’s a large C++ codebase that’s almost 20
+years old, which means that making changes is more complicated than we
+would like. We decided to correct or enforce the behaviors we
+needed from the outside.
+
+Why is it written in Go?
+
+Go is a language that hits the sweet spot in terms of expressiveness
+and performance: it’s almost as expressive as Python, very
+maintainable, but its performance is in the same range as Java (close
+to C++ in certain cases). What is more, the language is extremely well
+suited for concurrent programming, and it has a very high quality
+standard library.
+
+Why not use X (where X is usually a NoSQL database) instead of putting effort into scaling MySQL?
+
+Every database has its performance profile, meaning that some types of
+queries usually run faster than other. Because of that, migrating from
+one datastore to another involves a lot more work than just copying
+the data and writing equivalent queries. If you need high performance,
+you need to rethink how your app accesses its data. MySQL’s low
+latency is very hard to match. Moreover, even if it has some quirks,
+those quirks are usually pretty well understood.
+
+What’s up with the name, Vitess?
+
+Vitess was originally named Voltron, but we decided to change it
+before making it Open Source to avoid infringing any
+trademarks. Still, we wanted a name that would allow us to keep using
+the prefix VT in our code. Vitesse means speed in French – and we
+dropped the final E to make it easier to find using Google (also, it
+looks much cooler without the E!).
+
+Why are you using ZooKeeper instead of Etcd/Doozer/Consul/etc?
+
+The topology is a crucial part of our infrastructure, so we didn’t
+want to take any risks with it. ZooKeeper may have some rough edges
+and not be very easy to set up, but it’s battle tested, so we know we
+can rely on it. Of course, you are free to write a plugin to use your
+lock service of choice – we would appreciate if you contributed the
+code back.
+
+Is the Vitess used at Google the same as the Open Source version?
+
+Mostly. The core functionality remains unchanged, but we add some code
+to take advantage of Google’s infrastructure (so we can use Chubby,
+the Protocol Buffers based RPC system, etc.). Our philosophy is “Open
+Source first” – when we develop a new feature, we first make it work
+in the Open Source tree, and only then write a plugin that makes use
+of Google specific technologies. We believe this is very important to
+keep us honest, and to ensure that the Open Source version of Vitess
+is as high quality as the internal one. The vast majority of our
+development takes place in the open, on GitHub. This also means that
+Vitess is built with extensibility in mind – it should be pretty
+straightforward to adjust it to the needs of your infrastructure.
+">
+    <meta name="keywords" content="">
+    
+    
+    	<!-- Twitter Cards -->
+	<meta name="twitter:title" content="FAQ">
+	<meta name="twitter:description" content="Vitess Frequently Asked Questions
+
+Is Vitess used at Google?
+
+Yes, Vitess has been used to serve all YouTube database traffic since
+2011.
+
+Why not do it inside MySQL?
+
+MySQL is really good at what it does: serving queries with a low
+latency, on a single server. However, it was not designed to do a lot
+of the things at the scale that we need at YouTube. Including the
+changes we needed inside MySQL itself would have been a huge
+project. Additionally, it’s a large C++ codebase that’s almost 20
+years old, which means that making changes is more complicated than we
+would like. We decided to correct or enforce the behaviors we
+needed from the outside.
+
+Why is it written in Go?
+
+Go is a language that hits the sweet spot in terms of expressiveness
+and performance: it’s almost as expressive as Python, very
+maintainable, but its performance is in the same range as Java (close
+to C++ in certain cases). What is more, the language is extremely well
+suited for concurrent programming, and it has a very high quality
+standard library.
+
+Why not use X (where X is usually a NoSQL database) instead of putting effort into scaling MySQL?
+
+Every database has its performance profile, meaning that some types of
+queries usually run faster than other. Because of that, migrating from
+one datastore to another involves a lot more work than just copying
+the data and writing equivalent queries. If you need high performance,
+you need to rethink how your app accesses its data. MySQL’s low
+latency is very hard to match. Moreover, even if it has some quirks,
+those quirks are usually pretty well understood.
+
+What’s up with the name, Vitess?
+
+Vitess was originally named Voltron, but we decided to change it
+before making it Open Source to avoid infringing any
+trademarks. Still, we wanted a name that would allow us to keep using
+the prefix VT in our code. Vitesse means speed in French – and we
+dropped the final E to make it easier to find using Google (also, it
+looks much cooler without the E!).
+
+Why are you using ZooKeeper instead of Etcd/Doozer/Consul/etc?
+
+The topology is a crucial part of our infrastructure, so we didn’t
+want to take any risks with it. ZooKeeper may have some rough edges
+and not be very easy to set up, but it’s battle tested, so we know we
+can rely on it. Of course, you are free to write a plugin to use your
+lock service of choice – we would appreciate if you contributed the
+code back.
+
+Is the Vitess used at Google the same as the Open Source version?
+
+Mostly. The core functionality remains unchanged, but we add some code
+to take advantage of Google’s infrastructure (so we can use Chubby,
+the Protocol Buffers based RPC system, etc.). Our philosophy is “Open
+Source first” – when we develop a new feature, we first make it work
+in the Open Source tree, and only then write a plugin that makes use
+of Google specific technologies. We believe this is very important to
+keep us honest, and to ensure that the Open Source version of Vitess
+is as high quality as the internal one. The vast majority of our
+development takes place in the open, on GitHub. This also means that
+Vitess is built with extensibility in mind – it should be pretty
+straightforward to adjust it to the needs of your infrastructure.
+">
+	
+	
+	
+	<meta name="twitter:card" content="summary">
+	<meta name="twitter:image" content="http://youtube.github.io/vitess/images/120x120.gif">
+	
+	<!-- Open Graph -->
+	<meta property="og:locale" content="en_US">
+	<meta property="og:type" content="article">
+	<meta property="og:title" content="FAQ">
+	<meta property="og:description" content="Vitess Frequently Asked Questions
+
+Is Vitess used at Google?
+
+Yes, Vitess has been used to serve all YouTube database traffic since
+2011.
+
+Why not do it inside MySQL?
+
+MySQL is really good at what it does: serving queries with a low
+latency, on a single server. However, it was not designed to do a lot
+of the things at the scale that we need at YouTube. Including the
+changes we needed inside MySQL itself would have been a huge
+project. Additionally, it’s a large C++ codebase that’s almost 20
+years old, which means that making changes is more complicated than we
+would like. We decided to correct or enforce the behaviors we
+needed from the outside.
+
+Why is it written in Go?
+
+Go is a language that hits the sweet spot in terms of expressiveness
+and performance: it’s almost as expressive as Python, very
+maintainable, but its performance is in the same range as Java (close
+to C++ in certain cases). What is more, the language is extremely well
+suited for concurrent programming, and it has a very high quality
+standard library.
+
+Why not use X (where X is usually a NoSQL database) instead of putting effort into scaling MySQL?
+
+Every database has its performance profile, meaning that some types of
+queries usually run faster than other. Because of that, migrating from
+one datastore to another involves a lot more work than just copying
+the data and writing equivalent queries. If you need high performance,
+you need to rethink how your app accesses its data. MySQL’s low
+latency is very hard to match. Moreover, even if it has some quirks,
+those quirks are usually pretty well understood.
+
+What’s up with the name, Vitess?
+
+Vitess was originally named Voltron, but we decided to change it
+before making it Open Source to avoid infringing any
+trademarks. Still, we wanted a name that would allow us to keep using
+the prefix VT in our code. Vitesse means speed in French – and we
+dropped the final E to make it easier to find using Google (also, it
+looks much cooler without the E!).
+
+Why are you using ZooKeeper instead of Etcd/Doozer/Consul/etc?
+
+The topology is a crucial part of our infrastructure, so we didn’t
+want to take any risks with it. ZooKeeper may have some rough edges
+and not be very easy to set up, but it’s battle tested, so we know we
+can rely on it. Of course, you are free to write a plugin to use your
+lock service of choice – we would appreciate if you contributed the
+code back.
+
+Is the Vitess used at Google the same as the Open Source version?
+
+Mostly. The core functionality remains unchanged, but we add some code
+to take advantage of Google’s infrastructure (so we can use Chubby,
+the Protocol Buffers based RPC system, etc.). Our philosophy is “Open
+Source first” – when we develop a new feature, we first make it work
+in the Open Source tree, and only then write a plugin that makes use
+of Google specific technologies. We believe this is very important to
+keep us honest, and to ensure that the Open Source version of Vitess
+is as high quality as the internal one. The vast majority of our
+development takes place in the open, on GitHub. This also means that
+Vitess is built with extensibility in mind – it should be pretty
+straightforward to adjust it to the needs of your infrastructure.
+">
+	<meta property="og:url" content="http://youtube.github.io/vitess/doc/FAQ/">
+	<meta property="og:site_name" content="Vitess">
+
+    <link rel="canonical" href="http://youtube.github.io/vitess/doc/FAQ/">
+
+    <link href="http://youtube.github.io/vitess/sitemap.xml" type="application/xml" rel="sitemap" title="Sitemap">
+
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="cleartype" content="on">
+
+    <style>
+    .sliding-menu-content {
+      top: 0;
+      right: 0;
+      text-align: center;
+      visibility: hidden;
+      height: 100%;
+      width: 100%;
+      -webkit-transform: translateX(100%);
+      -moz-transform: translateX(100%);
+      -ms-transform: translateX(100%);
+      -o-transform: translateX(100%);
+      transform: translateX(100%);
+    }
+    </style>
+
+    <link rel="stylesheet" href="http://youtube.github.io/vitess/css/main.css">
+    <!-- HTML5 Shiv and Media Query Support for IE -->
+    <!--[if lt IE 9]>
+      <script src="http://youtube.github.io/vitess/js/vendor/html5shiv.min.js"></script>
+      <script src="http://youtube.github.io/vitess/js/vendor/respond.min.js"></script>
+    <![endif]-->
+
+  </head>
+
+  <body>
+    <header id="masthead">
+  <div class="inner-wrap">
+    <a href="http://youtube.github.io/vitess/" class="site-title">Vitess</a>
+    <nav role="navigation" class="menu top-menu">
+        <ul class="menu-item">
+	<li class="home"><a href="/">Vitess</a></li>
+	
+    
+        
+    
+    <li><a href="http://youtube.github.io/vitess/getting-started/" >Getting Started</a></li>
+  
+    
+        
+    
+    <li><a href="http://youtube.github.io/vitess/doc/" >Documentation</a></li>
+  
+    
+        
+    
+    <li><a href="http://youtube.github.io/vitess/about/" >About</a></li>
+  
+    
+        
+    
+    <li><a href="http://youtube.github.io/vitess/faq/" >FAQ</a></li>
+  
+</ul>
+    </nav>
+  </div>
+</header>
+
+    <nav role="navigation" class="js-menu sliding-menu-content">
+	<ul class="menu-item">
+		<li>
+      
+        
+      
+			<a href="http://youtube.github.io/vitess/getting-started/"><img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" class="teaser"></a>
+			<a href="http://youtube.github.io/vitess/getting-started/" class="title">Getting Started</a>
+			<p class="excerpt">Everything you need to know to get started with Vitess.</p>
+		</li><li>
+      
+        
+      
+			<a href="http://youtube.github.io/vitess/doc/"><img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" class="teaser"></a>
+			<a href="http://youtube.github.io/vitess/doc/" class="title">Documentation</a>
+			<p class="excerpt">Vitess Docs.</p>
+		</li><li>
+      
+        
+      
+			<a href="http://youtube.github.io/vitess/about/"><img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" class="teaser"></a>
+			<a href="http://youtube.github.io/vitess/about/" class="title">About</a>
+			<p class="excerpt">All about Vitess.</p>
+		</li><li>
+      
+        
+      
+			<a href="http://youtube.github.io/vitess/faq/"><img src="http://youtube.github.io/vitess/images/400x250.gif" alt="teaser" class="teaser"></a>
+			<a href="http://youtube.github.io/vitess/faq/" class="title">FAQ</a>
+			<p class="excerpt">Vitess Faq.</p>
+		</li>
+	</ul>
+</nav>
+<button type="button" class="js-menu-trigger sliding-menu-button menulines-button x2" role="button" aria-label="Toggle Navigation">
+	<span class="menulines"></span>
+</button>
+
+<div class="js-menu-screen menu-screen"></div>
+
+    <div id="page-wrapper">
+      <!--[if lt IE 9]><div class="upgrade notice-danger"><strong>Your browser is quite old!</strong> Why not <a href="http://whatbrowser.org/">upgrade to a newer one</a> to better enjoy this site?</div><![endif]-->
+
+      <div id="main" role="main">
+  <article class="wrap" itemscope itemtype="http://schema.org/Article">
+    
+    
+  <nav class="breadcrumbs">
+    <span itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+      <a href="http://youtube.github.io/vitess" itemprop="url">
+        <span itemprop="title">Home</span>
+      </a> › 
+    <span itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
+      <a href="http://youtube.github.io/vitess/doc/" itemprop="url">
+        <span itemprop="title">Doc</span>
+      </a>
+    </span>
+  </nav>
+
+
+    <div class="inner-wrap">
+      <nav class="toc"></nav>
+      <div id="content" class="page-content" itemprop="articleBody">
+	<h1 id="vitess-frequently-asked-questions">Vitess Frequently Asked Questions</h1>
+
+<h2 id="is-vitess-used-at-google?">Is Vitess used at Google?</h2>
+
+<p>Yes, Vitess has been used to serve all YouTube database traffic since
+2011.</p>
+
+<h2 id="why-not-do-it-inside-mysql?">Why not do it inside MySQL?</h2>
+
+<p>MySQL is really good at what it does: serving queries with a low
+latency, on a single server. However, it was not designed to do a lot
+of the things at the scale that we need at YouTube. Including the
+changes we needed inside MySQL itself would have been a huge
+project. Additionally, it’s a large C++ codebase that’s almost 20
+years old, which means that making changes is more complicated than we
+would like. We decided to correct or enforce the behaviors we
+needed from the outside.</p>
+
+<h2 id="why-is-it-written-in-go?">Why is it written in Go?</h2>
+
+<p>Go is a language that hits the sweet spot in terms of expressiveness
+and performance: it’s almost as expressive as Python, very
+maintainable, but its performance is in the same range as Java (close
+to C++ in certain cases). What is more, the language is extremely well
+suited for concurrent programming, and it has a very high quality
+standard library.</p>
+
+<h2 id="why-not-use-x-(where-x-is-usually-a-nosql-database)-instead-of-putting-effort-into-scaling-mysql?">Why not use X (where X is usually a NoSQL database) instead of putting effort into scaling MySQL?</h2>
+
+<p>Every database has its performance profile, meaning that some types of
+queries usually run faster than other. Because of that, migrating from
+one datastore to another involves a lot more work than just copying
+the data and writing equivalent queries. If you need high performance,
+you need to rethink how your app accesses its data. MySQL’s low
+latency is very hard to match. Moreover, even if it has some quirks,
+those quirks are usually pretty well understood.</p>
+
+<h2 id="what’s-up-with-the-name,-vitess?">What’s up with the name, Vitess?</h2>
+
+<p>Vitess was originally named <em>Voltron</em>, but we decided to change it
+before making it Open Source to avoid infringing any
+trademarks. Still, we wanted a name that would allow us to keep using
+the prefix VT in our code. <em>Vitesse</em> means speed in French – and we
+dropped the final E to make it easier to find using Google (also, it
+looks much cooler without the E!).</p>
+
+<h2 id="why-are-you-using-zookeeper-instead-of-etcd/doozer/consul/etc?">Why are you using ZooKeeper instead of Etcd/Doozer/Consul/etc?</h2>
+
+<p>The topology is a crucial part of our infrastructure, so we didn’t
+want to take any risks with it. ZooKeeper may have some rough edges
+and not be very easy to set up, but it’s battle tested, so we know we
+can rely on it. Of course, you are free to write a plugin to use your
+lock service of choice – we would appreciate if you contributed the
+code back.</p>
+
+<h2 id="is-the-vitess-used-at-google-the-same-as-the-open-source-version?">Is the Vitess used at Google the same as the Open Source version?</h2>
+
+<p>Mostly. The core functionality remains unchanged, but we add some code
+to take advantage of Google’s infrastructure (so we can use Chubby,
+the Protocol Buffers based RPC system, etc.). Our philosophy is “Open
+Source first” – when we develop a new feature, we first make it work
+in the Open Source tree, and only then write a plugin that makes use
+of Google specific technologies. We believe this is very important to
+keep us honest, and to ensure that the Open Source version of Vitess
+is as high quality as the internal one. The vast majority of our
+development takes place in the open, on GitHub. This also means that
+Vitess is built with extensibility in mind – it should be pretty
+straightforward to adjust it to the needs of your infrastructure.</p>
+
+	<hr />
+	<footer class="page-footer">
+	  
+
+
+<div class="author-image">
+	<img src="http://youtube.github.io/vitess/images/" alt="Vitess Team">
+</div>
+<div class="author-content">
+	<h3 class="author-name" >Written by <a href="https://github.com/youtube/vitess" itemprop="author">Vitess Team</a></h3>
+	<p class="author-bio"></p>
+</div>
+
+	  <div class="inline-btn">
+	<a class="btn-social twitter" href="https://twitter.com/intent/tweet?text=FAQ&amp;url=http://youtube.github.io/vitess/doc/FAQ/&amp;via=" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i> Share on Twitter</a>
+	<a class="btn-social facebook" href="https://www.facebook.com/sharer/sharer.php?u=http://youtube.github.io/vitess/doc/FAQ/" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i> Share on Facebook</a>
+	<a class="btn-social google-plus"  href="https://plus.google.com/share?url=http://youtube.github.io/vitess/doc/FAQ/" target="_blank"><i class="fa fa-google-plus" aria-hidden="true"></i> Share on Google+</a>
+</div>
+
+	  <div class="page-meta">
+	<p>Updated <time datetime="2015-01-01T00:00:00Z" itemprop="datePublished">January 01, 2015</time></p>
+</div>
+
+	</footer>
+	<aside>
+	  
+	</aside>
+      </div>
+    </div>
+  </article>
+</div>
+
+
+      <footer role="contentinfo" id="site-footer">
+  <nav role="navigation" class="menu bottom-menu">
+    <ul class="menu-item">
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/" >Home</a></li>
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/getting-started/" >Getting Started</a></li>
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/about/" >About</a></li>
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/faq/" >FAQ</a></li>
+      
+      
+        
+      
+      <li><a href="http://youtube.github.io/vitess/terms/" >Terms</a></li>
+      
+    </ul>
+  </nav>
+  <p class="copyright">&#169; 2015 <a href="http://youtube.github.io/vitess">Vitess</a> powered by <a href="http://www.google.com">Google Inc</a>.</p>
+</footer>
+
+    </div>
+
+    <script src="http://youtube.github.io/vitess/js/vendor/jquery-1.9.1.min.js"></script>
+    <script src="http://youtube.github.io/vitess/js/main.js"></script>
+    
+    
+    <script type="text/javascript">
+      $('.toc').toc({
+        'selectors': 'h2', //elements to use as headings
+        'container': '.page-content', //element to find all selectors in
+        'smoothScrolling': true, //enable or disable smooth scrolling on click
+        'prefix': 'toc', //prefix for anchor tags and class names
+        'onHighlight': function(el) {}, //called when a new section is highlighted 
+        'highlightOnScroll': true, //add class to heading that is currently in focus
+        'highlightOffset': 100, //offset to trigger the next headline
+        'anchorName': function(i, heading, prefix) { //custom function for anchor name
+          return prefix+i;
+        },
+        'headerText': function(i, heading, $heading) { //custom function building the header-item text
+          return $heading.text();
+        },
+        'itemClass': function(i, heading, $heading, prefix) { //custom function for item class
+          return $heading[0].tagName.toLowerCase();
+        }
+      });
+    </script>
+    
+
+  </body>
+
+</html>
