@@ -577,7 +577,7 @@ modulo some replication lag).</p>
 
 <p>A Keyspace usually has one shard when not using any sharding (we name it &#39;0&#39; by convention). When sharded, a Keyspace will have N shards (usually, N is a power of 2) with non-overlapping data.</p>
 
-<p>We support <a href="doc/Resharding">dynamic resharding</a>, when one shard is split into 2 shards for instance. In this case, the data in the
+<p>We support <a href="http://youtube.github.io/vitess/doc/Resharding">dynamic resharding</a>, when one shard is split into 2 shards for instance. In this case, the data in the
 source shard is duplicated into the 2 destination shards, but only during the transition. Afterwards, the source shard is
 deleted.</p>
 
@@ -645,7 +645,7 @@ the same shard, as all rows will share that keyspace_id.</p>
 
 <h3 id="replication-graph">Replication graph</h3>
 
-<p>The <a href="doc/ReplicationGraph">Replication Graph</a> represents the relationships between the master
+<p>The <a href="http://youtube.github.io/vitess/doc/ReplicationGraph">Replication Graph</a> represents the relationships between the master
 databases and their respective replicas.
 This data is particularly useful during a master failover.
 Once a new master has been designated, all existing replicas have to
@@ -653,7 +653,7 @@ repointed to the new master so that replication can resume.</p>
 
 <h3 id="serving-graph">Serving graph</h3>
 
-<p>The <a href="doc/ServingGraph">Serving Graph</a> is derived from the shard and replication graph.
+<p>The <a href="http://youtube.github.io/vitess/doc/ServingGraph">Serving Graph</a> is derived from the shard and replication graph.
 It represens the list of active servers that are available to serve
 queries.
 VTGate (or smart clients) query the serving graph to find out which servers

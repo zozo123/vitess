@@ -225,7 +225,7 @@ rmdir ${TEST_TMPDIR}
 
 <h1 id="setup">Setup</h1>
 
-<p>First, set up a normal vitess development environment by running <code>bootstrap.sh</code> and sourcing <code>dev.env</code> (see <a href="doc/GettingStarted">GettingStarted</a>). Then overwrite the testing temporary directories and make a 4GiB (smaller sizes may work, if you&#39;re constrained on RAM) ramdisk at the location of your choice (this example uses <code>/tmp/vt</code>):</p>
+<p>First, set up a normal vitess development environment by running <code>bootstrap.sh</code> and sourcing <code>dev.env</code> (see <a href="http://youtube.github.io/vitess/doc/GettingStarted">GettingStarted</a>). Then overwrite the testing temporary directories and make a 4GiB (smaller sizes may work, if you&#39;re constrained on RAM) ramdisk at the location of your choice (this example uses <code>/tmp/vt</code>):</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nb">export </span><span class="nv">TEST_TMPDIR</span><span class="o">=</span>/tmp/vt
 
 mkdir <span class="k">${</span><span class="nv">TEST_TMPDIR</span><span class="k">}</span>
