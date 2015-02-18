@@ -1,123 +1,123 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>vitess.io/doc/vtocc/</loc>
+    <loc>http://vitess.io/doc/vtocc/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>vitess.io/doc/ZookeeperData/</loc>
+    <loc>http://vitess.io/doc/ZookeeperData/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>vitess.io/doc/Vision/</loc>
+    <loc>http://vitess.io/doc/Vision/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>vitess.io/doc/VTGateV3/</loc>
+    <loc>http://vitess.io/doc/VTGateV3/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>vitess.io/doc/Tools/</loc>
+    <loc>http://vitess.io/doc/Tools/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>vitess.io/doc/TestingOnARamDisk/</loc>
+    <loc>http://vitess.io/doc/TestingOnARamDisk/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>vitess.io/doc/ServingGraph/</loc>
+    <loc>http://vitess.io/doc/ServingGraph/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>vitess.io/doc/SchemaManagement/</loc>
+    <loc>http://vitess.io/doc/SchemaManagement/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>vitess.io/doc/Resharding/</loc>
+    <loc>http://vitess.io/doc/Resharding/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>vitess.io/doc/ReplicationGraph/</loc>
+    <loc>http://vitess.io/doc/ReplicationGraph/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>vitess.io/doc/Reparenting/</loc>
+    <loc>http://vitess.io/doc/Reparenting/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>vitess.io/doc/Production/</loc>
+    <loc>http://vitess.io/doc/Production/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>vitess.io/doc/LifeOfAQuery/</loc>
+    <loc>http://vitess.io/doc/LifeOfAQuery/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>vitess.io/doc/HelicopterOverview/</loc>
+    <loc>http://vitess.io/doc/HelicopterOverview/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>vitess.io/doc/GettingStarted/</loc>
+    <loc>http://vitess.io/doc/GettingStarted/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>vitess.io/doc/FAQ/</loc>
+    <loc>http://vitess.io/doc/FAQ/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>vitess.io/doc/Concepts/</loc>
+    <loc>http://vitess.io/doc/Concepts/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>vitess.io/doc/</loc>
-    <lastmod>2015-02-18T13:38:29-08:00</lastmod>
+    <loc>http://vitess.io/doc/</loc>
+    <lastmod>2015-02-18T13:40:57-08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>vitess.io/terms/</loc>
-    <lastmod>2015-02-18T13:38:29-08:00</lastmod>
+    <loc>http://vitess.io/terms/</loc>
+    <lastmod>2015-02-18T13:40:57-08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>vitess.io/faq/</loc>
-    <lastmod>2015-02-18T13:38:29-08:00</lastmod>
+    <loc>http://vitess.io/faq/</loc>
+    <lastmod>2015-02-18T13:40:57-08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>vitess.io/</loc>
-    <lastmod>2015-02-18T13:38:29-08:00</lastmod>
+    <loc>http://vitess.io/</loc>
+    <lastmod>2015-02-18T13:40:57-08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>vitess.io/about/</loc>
-    <lastmod>2015-02-18T13:38:29-08:00</lastmod>
+    <loc>http://vitess.io/about/</loc>
+    <lastmod>2015-02-18T13:40:57-08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>vitess.io/getting-started/</loc>
-    <lastmod>2015-02-18T13:38:29-08:00</lastmod>
+    <loc>http://vitess.io/getting-started/</loc>
+    <lastmod>2015-02-18T13:40:57-08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
