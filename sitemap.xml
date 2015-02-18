@@ -1,123 +1,123 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>http://youtube.github.io/vitess/doc/vtocc/</loc>
+    <loc>vitess.io/doc/vtocc/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>http://youtube.github.io/vitess/doc/ZookeeperData/</loc>
+    <loc>vitess.io/doc/ZookeeperData/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>http://youtube.github.io/vitess/doc/Vision/</loc>
+    <loc>vitess.io/doc/Vision/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>http://youtube.github.io/vitess/doc/VTGateV3/</loc>
+    <loc>vitess.io/doc/VTGateV3/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>http://youtube.github.io/vitess/doc/Tools/</loc>
+    <loc>vitess.io/doc/Tools/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>http://youtube.github.io/vitess/doc/TestingOnARamDisk/</loc>
+    <loc>vitess.io/doc/TestingOnARamDisk/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>http://youtube.github.io/vitess/doc/ServingGraph/</loc>
+    <loc>vitess.io/doc/ServingGraph/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>http://youtube.github.io/vitess/doc/SchemaManagement/</loc>
+    <loc>vitess.io/doc/SchemaManagement/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>http://youtube.github.io/vitess/doc/Resharding/</loc>
+    <loc>vitess.io/doc/Resharding/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>http://youtube.github.io/vitess/doc/ReplicationGraph/</loc>
+    <loc>vitess.io/doc/ReplicationGraph/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>http://youtube.github.io/vitess/doc/Reparenting/</loc>
+    <loc>vitess.io/doc/Reparenting/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>http://youtube.github.io/vitess/doc/Production/</loc>
+    <loc>vitess.io/doc/Production/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>http://youtube.github.io/vitess/doc/LifeOfAQuery/</loc>
+    <loc>vitess.io/doc/LifeOfAQuery/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>http://youtube.github.io/vitess/doc/HelicopterOverview/</loc>
+    <loc>vitess.io/doc/HelicopterOverview/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>http://youtube.github.io/vitess/doc/GettingStarted/</loc>
+    <loc>vitess.io/doc/GettingStarted/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>http://youtube.github.io/vitess/doc/FAQ/</loc>
+    <loc>vitess.io/doc/FAQ/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>http://youtube.github.io/vitess/doc/Concepts/</loc>
+    <loc>vitess.io/doc/Concepts/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>http://youtube.github.io/vitess/doc/</loc>
-    <lastmod>2015-02-17T11:26:06-08:00</lastmod>
+    <loc>vitess.io/doc/</loc>
+    <lastmod>2015-02-18T13:38:29-08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>http://youtube.github.io/vitess/terms/</loc>
-    <lastmod>2015-02-17T11:26:06-08:00</lastmod>
+    <loc>vitess.io/terms/</loc>
+    <lastmod>2015-02-18T13:38:29-08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>http://youtube.github.io/vitess/faq/</loc>
-    <lastmod>2015-02-17T11:26:06-08:00</lastmod>
+    <loc>vitess.io/faq/</loc>
+    <lastmod>2015-02-18T13:38:29-08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>http://youtube.github.io/vitess/</loc>
-    <lastmod>2015-02-17T11:26:06-08:00</lastmod>
+    <loc>vitess.io/</loc>
+    <lastmod>2015-02-18T13:38:29-08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>http://youtube.github.io/vitess/about/</loc>
-    <lastmod>2015-02-17T11:26:06-08:00</lastmod>
+    <loc>vitess.io/about/</loc>
+    <lastmod>2015-02-18T13:38:29-08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>http://youtube.github.io/vitess/getting-started/</loc>
-    <lastmod>2015-02-17T11:26:06-08:00</lastmod>
+    <loc>vitess.io/getting-started/</loc>
+    <lastmod>2015-02-18T13:38:29-08:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
