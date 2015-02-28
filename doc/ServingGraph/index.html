@@ -18,7 +18,7 @@ that keyspace. It contains:
 - a shard map, for each serving type.
 - (optional) information about the sharding key for that keyspace.
 - (optional) a redirection map, in case some keyspaces are served by another keyspace (this feature is used during
-vrtical splits).
+vertical splits).
 
 It is rebuilt by running &#39;vtctl RebuildKeyspaceGraph&#39;. It is not automatically rebuilt when adding new tablets in a cell.
 It may also be changed during horizontal and vertical splits.
@@ -65,7 +65,7 @@ that keyspace. It contains:
 - a shard map, for each serving type.
 - (optional) information about the sharding key for that keyspace.
 - (optional) a redirection map, in case some keyspaces are served by another keyspace (this feature is used during
-vrtical splits).
+vertical splits).
 
 It is rebuilt by running &#39;vtctl RebuildKeyspaceGraph&#39;. It is not automatically rebuilt when adding new tablets in a cell.
 It may also be changed during horizontal and vertical splits.
@@ -117,7 +117,7 @@ that keyspace. It contains:
 - a shard map, for each serving type.
 - (optional) information about the sharding key for that keyspace.
 - (optional) a redirection map, in case some keyspaces are served by another keyspace (this feature is used during
-vrtical splits).
+vertical splits).
 
 It is rebuilt by running &#39;vtctl RebuildKeyspaceGraph&#39;. It is not automatically rebuilt when adding new tablets in a cell.
 It may also be changed during horizontal and vertical splits.
@@ -291,7 +291,7 @@ that keyspace. It contains:
 - a shard map, for each serving type.
 - (optional) information about the sharding key for that keyspace.
 - (optional) a redirection map, in case some keyspaces are served by another keyspace (this feature is used during
-vrtical splits).</p>
+vertical splits).</p>
 
 <p>It is rebuilt by running &#39;vtctl RebuildKeyspaceGraph&#39;. It is not automatically rebuilt when adding new tablets in a cell.
 It may also be changed during horizontal and vertical splits.</p>
@@ -412,7 +412,14 @@ may be missing when they were expected. The rebuild process will echo a warning 
       });
     </script>
     
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-60219601-1', 'auto');
+  ga('send', 'pageview');
+</script>
 
   </body>
-
 </html>

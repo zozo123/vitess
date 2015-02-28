@@ -64,7 +64,7 @@ type Shard struct {
         SourceShards []SourceShard
 
         // Cells is the list of cells that have tablets for this shard.
-        // It is populated at InitTablet time when a tabelt is added
+        // It is populated at InitTablet time when a tablet is added
         // in a cell that is not in the list yet.
         Cells []string
 }
@@ -133,7 +133,7 @@ type Tablet struct {
         // What is this tablet?
         Alias TabletAlias
 
-        // Locaiton of the tablet
+        // Location of the tablet
         Hostname string
         IPAddr   string
 
@@ -306,7 +306,7 @@ The shard serving graph can be re-built using the &#39;vtctl RebuildShardGraph /
 Note this will rebuild the serving graph for all cells, not just one cell.
 
 Rebuilding a shard serving graph will:
-- compute the data to write by looking at all the tablets from the replicaton graph
+- compute the data to write by looking at all the tablets from the replication graph
 - write all the /zk/&lt;cell&gt;/vt/ns/&lt;keyspace&gt;/&lt;shard&gt;/&lt;type&gt; nodes everywhere
 - delete any pre-existing /zk/&lt;cell&gt;/vt/ns/&lt;keyspace&gt;/&lt;shard&gt;/&lt;type&gt; that is not in use any more
 - compute and write all the /zk/&lt;cell&gt;/vt/ns/&lt;keyspace&gt;/&lt;shard&gt; nodes everywhere
@@ -379,7 +379,7 @@ type Shard struct {
         SourceShards []SourceShard
 
         // Cells is the list of cells that have tablets for this shard.
-        // It is populated at InitTablet time when a tabelt is added
+        // It is populated at InitTablet time when a tablet is added
         // in a cell that is not in the list yet.
         Cells []string
 }
@@ -448,7 +448,7 @@ type Tablet struct {
         // What is this tablet?
         Alias TabletAlias
 
-        // Locaiton of the tablet
+        // Location of the tablet
         Hostname string
         IPAddr   string
 
@@ -621,7 +621,7 @@ The shard serving graph can be re-built using the &#39;vtctl RebuildShardGraph /
 Note this will rebuild the serving graph for all cells, not just one cell.
 
 Rebuilding a shard serving graph will:
-- compute the data to write by looking at all the tablets from the replicaton graph
+- compute the data to write by looking at all the tablets from the replication graph
 - write all the /zk/&lt;cell&gt;/vt/ns/&lt;keyspace&gt;/&lt;shard&gt;/&lt;type&gt; nodes everywhere
 - delete any pre-existing /zk/&lt;cell&gt;/vt/ns/&lt;keyspace&gt;/&lt;shard&gt;/&lt;type&gt; that is not in use any more
 - compute and write all the /zk/&lt;cell&gt;/vt/ns/&lt;keyspace&gt;/&lt;shard&gt; nodes everywhere
@@ -699,7 +699,7 @@ type Shard struct {
         SourceShards []SourceShard
 
         // Cells is the list of cells that have tablets for this shard.
-        // It is populated at InitTablet time when a tabelt is added
+        // It is populated at InitTablet time when a tablet is added
         // in a cell that is not in the list yet.
         Cells []string
 }
@@ -768,7 +768,7 @@ type Tablet struct {
         // What is this tablet?
         Alias TabletAlias
 
-        // Locaiton of the tablet
+        // Location of the tablet
         Hostname string
         IPAddr   string
 
@@ -941,7 +941,7 @@ The shard serving graph can be re-built using the &#39;vtctl RebuildShardGraph /
 Note this will rebuild the serving graph for all cells, not just one cell.
 
 Rebuilding a shard serving graph will:
-- compute the data to write by looking at all the tablets from the replicaton graph
+- compute the data to write by looking at all the tablets from the replication graph
 - write all the /zk/&lt;cell&gt;/vt/ns/&lt;keyspace&gt;/&lt;shard&gt;/&lt;type&gt; nodes everywhere
 - delete any pre-existing /zk/&lt;cell&gt;/vt/ns/&lt;keyspace&gt;/&lt;shard&gt;/&lt;type&gt; that is not in use any more
 - compute and write all the /zk/&lt;cell&gt;/vt/ns/&lt;keyspace&gt;/&lt;shard&gt; nodes everywhere
@@ -1141,7 +1141,7 @@ shards
         <span class="nx">SourceShards</span> <span class="p">[]</span><span class="nx">SourceShard</span>
 
         <span class="c1">// Cells is the list of cells that have tablets for this shard.</span>
-        <span class="c1">// It is populated at InitTablet time when a tabelt is added</span>
+        <span class="c1">// It is populated at InitTablet time when a tablet is added</span>
         <span class="c1">// in a cell that is not in the list yet.</span>
         <span class="nx">Cells</span> <span class="p">[]</span><span class="kt">string</span>
 <span class="p">}</span>
@@ -1210,7 +1210,7 @@ pid
         <span class="c1">// What is this tablet?</span>
         <span class="nx">Alias</span> <span class="nx">TabletAlias</span>
 
-        <span class="c1">// Locaiton of the tablet</span>
+        <span class="c1">// Location of the tablet</span>
         <span class="nx">Hostname</span> <span class="kt">string</span>
         <span class="nx">IPAddr</span>   <span class="kt">string</span>
 
@@ -1383,7 +1383,7 @@ keyspace2
 <p>Note this will rebuild the serving graph for all cells, not just one cell.</p>
 
 <p>Rebuilding a shard serving graph will:
-- compute the data to write by looking at all the tablets from the replicaton graph
+- compute the data to write by looking at all the tablets from the replication graph
 - write all the <code>/zk/&lt;cell&gt;/vt/ns/&lt;keyspace&gt;/&lt;shard&gt;/&lt;type&gt;</code> nodes everywhere
 - delete any pre-existing <code>/zk/&lt;cell&gt;/vt/ns/&lt;keyspace&gt;/&lt;shard&gt;/&lt;type&gt;</code> that is not in use any more
 - compute and write all the <code>/zk/&lt;cell&gt;/vt/ns/&lt;keyspace&gt;/&lt;shard&gt;</code> nodes everywhere</p>
@@ -1484,7 +1484,14 @@ keyspace2
       });
     </script>
     
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-60219601-1', 'auto');
+  ga('send', 'pageview');
+</script>
 
   </body>
-
 </html>

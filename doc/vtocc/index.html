@@ -86,7 +86,7 @@ query = &quot;select a, b, c from t where id1 in ::list&quot;
 bindVars = {&quot;list&quot;: [1, 2, 3]}
 
 Additionally, vtocc tracks statistics grouped by these query strings, which are
-useful for analysis and trouble-shooting.
+useful for analysis and troubleshooting.
 
 Execute functions
 
@@ -133,7 +133,7 @@ All timeout related parameters below are specified in seconds. A value of zero m
 * queryserver-config-schema-reload-time=1800: This specifies how often the schema is reloaded by vtocc. If you rollout schema changes to a live serving database, you can be sure that it has been read by vtocc after the reload time has elapsed. If needed, there are ways to make vtocc reload the schema immediately.
 * queryserver-config-stream-buffer-size=32768: This is the buffer size for streaming queries.
 * queryserver-config-stream-pool-size=750: Connection pool size for streaming queries.
-* queryserver-config-strict-mode=true: If this is turned off, vtocc allows all DMLs and does not enforce MySQL&#39;s STRICT_TRANS_TABLES. This setting can be tuned off for migration purposes if the database is not already configured with these settings.
+* queryserver-config-strict-mode=true: If this is turned off, vtocc allows all DMLs and does not enforce MySQL&#39;s STRICT_TRANS_TABLES. This setting can be turned off for migration purposes if the database is not already configured with these settings.
 * queryserver-config-transaction-cap=20: This value limits the number of allowed concurrent transactions.
 * queryserver-config-transaction-timeout=30: The amount of time to allow a transaction to complete before killing it.
 
@@ -237,7 +237,7 @@ query = &quot;select a, b, c from t where id1 in ::list&quot;
 bindVars = {&quot;list&quot;: [1, 2, 3]}
 
 Additionally, vtocc tracks statistics grouped by these query strings, which are
-useful for analysis and trouble-shooting.
+useful for analysis and troubleshooting.
 
 Execute functions
 
@@ -284,7 +284,7 @@ All timeout related parameters below are specified in seconds. A value of zero m
 * queryserver-config-schema-reload-time=1800: This specifies how often the schema is reloaded by vtocc. If you rollout schema changes to a live serving database, you can be sure that it has been read by vtocc after the reload time has elapsed. If needed, there are ways to make vtocc reload the schema immediately.
 * queryserver-config-stream-buffer-size=32768: This is the buffer size for streaming queries.
 * queryserver-config-stream-pool-size=750: Connection pool size for streaming queries.
-* queryserver-config-strict-mode=true: If this is turned off, vtocc allows all DMLs and does not enforce MySQL&#39;s STRICT_TRANS_TABLES. This setting can be tuned off for migration purposes if the database is not already configured with these settings.
+* queryserver-config-strict-mode=true: If this is turned off, vtocc allows all DMLs and does not enforce MySQL&#39;s STRICT_TRANS_TABLES. This setting can be turned off for migration purposes if the database is not already configured with these settings.
 * queryserver-config-transaction-cap=20: This value limits the number of allowed concurrent transactions.
 * queryserver-config-transaction-timeout=30: The amount of time to allow a transaction to complete before killing it.
 
@@ -393,7 +393,7 @@ query = &quot;select a, b, c from t where id1 in ::list&quot;
 bindVars = {&quot;list&quot;: [1, 2, 3]}
 
 Additionally, vtocc tracks statistics grouped by these query strings, which are
-useful for analysis and trouble-shooting.
+useful for analysis and troubleshooting.
 
 Execute functions
 
@@ -440,7 +440,7 @@ All timeout related parameters below are specified in seconds. A value of zero m
 * queryserver-config-schema-reload-time=1800: This specifies how often the schema is reloaded by vtocc. If you rollout schema changes to a live serving database, you can be sure that it has been read by vtocc after the reload time has elapsed. If needed, there are ways to make vtocc reload the schema immediately.
 * queryserver-config-stream-buffer-size=32768: This is the buffer size for streaming queries.
 * queryserver-config-stream-pool-size=750: Connection pool size for streaming queries.
-* queryserver-config-strict-mode=true: If this is turned off, vtocc allows all DMLs and does not enforce MySQL&#39;s STRICT_TRANS_TABLES. This setting can be tuned off for migration purposes if the database is not already configured with these settings.
+* queryserver-config-strict-mode=true: If this is turned off, vtocc allows all DMLs and does not enforce MySQL&#39;s STRICT_TRANS_TABLES. This setting can be turned off for migration purposes if the database is not already configured with these settings.
 * queryserver-config-transaction-cap=20: This value limits the number of allowed concurrent transactions.
 * queryserver-config-transaction-timeout=30: The amount of time to allow a transaction to complete before killing it.
 
@@ -671,7 +671,7 @@ bindVars = {&quot;v1&quot;: 1, &quot;v2&quot;: 2}
 bindVars = {&quot;list&quot;: [1, 2, 3]}
 </code></pre></div>
 <p>Additionally, vtocc tracks statistics grouped by these query strings, which are
-useful for analysis and trouble-shooting.</p>
+useful for analysis and troubleshooting.</p>
 
 <h2 id="execute-functions">Execute functions</h2>
 
@@ -718,7 +718,7 @@ parameters are only used when running as vttablet.
 * <strong>queryserver-config-schema-reload-time=1800</strong>: This specifies how often the schema is reloaded by vtocc. If you rollout schema changes to a live serving database, you can be sure that it has been read by vtocc after the reload time has elapsed. If needed, there are ways to make vtocc reload the schema immediately.
 * <strong>queryserver-config-stream-buffer-size=32768</strong>: This is the buffer size for streaming queries.
 * <strong>queryserver-config-stream-pool-size=750</strong>: Connection pool size for streaming queries.
-* <strong>queryserver-config-strict-mode=true</strong>: If this is turned off, vtocc allows all DMLs and does not enforce MySQL&#39;s <code>STRICT_TRANS_TABLES</code>. This setting can be tuned off for migration purposes if the database is not already configured with these settings.
+* <strong>queryserver-config-strict-mode=true</strong>: If this is turned off, vtocc allows all DMLs and does not enforce MySQL&#39;s <code>STRICT_TRANS_TABLES</code>. This setting can be turned off for migration purposes if the database is not already configured with these settings.
 * <strong>queryserver-config-transaction-cap=20</strong>: This value limits the number of allowed concurrent transactions.
 * <strong>queryserver-config-transaction-timeout=30</strong>: The amount of time to allow a transaction to complete before killing it.</p>
 
@@ -828,7 +828,14 @@ parameters are only used when running as vttablet.
       });
     </script>
     
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-60219601-1', 'auto');
+  ga('send', 'pageview');
+</script>
 
   </body>
-
 </html>

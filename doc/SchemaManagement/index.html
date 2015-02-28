@@ -67,11 +67,12 @@ type SchemaChange struct {
 
 
 And the associated ApplySchema remote action for a tablet. Then the performed steps are:
-- The database to use is either derived from the tablet dbName if UseVt is false, or is the _vt database. A ‘use dbname’ is prepended to the Sql.
+- The database to use is either derived from the tablet dbName if UseVt is false, or is the vt database. A ‘use dbname’ is prepended to the Sql.
 - (if BeforeSchema is not nil) read the schema, make sure it is equal to BeforeSchema. If not equal: if Force is not set, we will abort, if Force is set, we’ll issue a warning and keep going.
-- if AllowReplication is false, we’ll disable replication (adding SET sql_log_bin=0 before the Sql).
+- if AllowReplication is false, we’ll disable replication (adding SET sqllog_bin=0 before the Sql).
 - We will then apply the Sql command.
 - (if AfterSchema is not nil) read the schema again, make sure it is equal to AfterSchema. If not equal: if Force is not set, we will issue an error, if Force is set, we’ll issue a warning.
+
 We will return the following information:
 - whether it worked or not (doh!)
 - BeforeSchema
@@ -96,7 +97,7 @@ if simple:
 nobody has it: apply to master, very similar to a single tablet update.
 some tablets have it but not others: error out
 
-if complex: do the shell game while disabling replication. Skip the tablets that already have it. Have an option to re-parent a the end.
+if complex: do the shell game while disabling replication. Skip the tablets that already have it. Have an option to re-parent at the end.
 
 
 Note the Backup, and Lag servers won&#39;t apply a complex schema change. Only the servers actively in the replication graph will.
@@ -124,7 +125,7 @@ apply the schema change to the specific tablet (allowing replication by default)
 a PreflightSchema operation will first be used to make sure the schema is OK (unless skip_preflight is specified).
 ApplySchemaShard {-sql=&lt;sql&gt; || -sql_file=&lt;filename&gt;} [-simple] [-new_parent=&lt;tablet alias&gt;] &lt;keyspace/shard&gt;
 
-apply the schema change to the specific shard. If simple is specified, we just apply on the live master. Otherwise we do the shell game and will optionally re-parent.
+apply the schema change to the specific shard. If simple is specified, we just apply on the live master. Otherwise, we do the shell game and will optionally re-parent.
 if new_parent is set, we will also reparent (otherwise the master won&#39;t be touched at all). Using the force flag will cause a bunch of checks to be ignored, use with care.
 $ vtctl ApplySchemaShard --sql-file=change.sql -simple vtx/0
 $ vtctl ApplySchemaShard --sql-file=change.sql -new_parent=nyc-0002009002 vtx/0
@@ -201,11 +202,12 @@ type SchemaChange struct {
 
 
 And the associated ApplySchema remote action for a tablet. Then the performed steps are:
-- The database to use is either derived from the tablet dbName if UseVt is false, or is the _vt database. A ‘use dbname’ is prepended to the Sql.
+- The database to use is either derived from the tablet dbName if UseVt is false, or is the vt database. A ‘use dbname’ is prepended to the Sql.
 - (if BeforeSchema is not nil) read the schema, make sure it is equal to BeforeSchema. If not equal: if Force is not set, we will abort, if Force is set, we’ll issue a warning and keep going.
-- if AllowReplication is false, we’ll disable replication (adding SET sql_log_bin=0 before the Sql).
+- if AllowReplication is false, we’ll disable replication (adding SET sqllog_bin=0 before the Sql).
 - We will then apply the Sql command.
 - (if AfterSchema is not nil) read the schema again, make sure it is equal to AfterSchema. If not equal: if Force is not set, we will issue an error, if Force is set, we’ll issue a warning.
+
 We will return the following information:
 - whether it worked or not (doh!)
 - BeforeSchema
@@ -230,7 +232,7 @@ if simple:
 nobody has it: apply to master, very similar to a single tablet update.
 some tablets have it but not others: error out
 
-if complex: do the shell game while disabling replication. Skip the tablets that already have it. Have an option to re-parent a the end.
+if complex: do the shell game while disabling replication. Skip the tablets that already have it. Have an option to re-parent at the end.
 
 
 Note the Backup, and Lag servers won&#39;t apply a complex schema change. Only the servers actively in the replication graph will.
@@ -258,7 +260,7 @@ apply the schema change to the specific tablet (allowing replication by default)
 a PreflightSchema operation will first be used to make sure the schema is OK (unless skip_preflight is specified).
 ApplySchemaShard {-sql=&lt;sql&gt; || -sql_file=&lt;filename&gt;} [-simple] [-new_parent=&lt;tablet alias&gt;] &lt;keyspace/shard&gt;
 
-apply the schema change to the specific shard. If simple is specified, we just apply on the live master. Otherwise we do the shell game and will optionally re-parent.
+apply the schema change to the specific shard. If simple is specified, we just apply on the live master. Otherwise, we do the shell game and will optionally re-parent.
 if new_parent is set, we will also reparent (otherwise the master won&#39;t be touched at all). Using the force flag will cause a bunch of checks to be ignored, use with care.
 $ vtctl ApplySchemaShard --sql-file=change.sql -simple vtx/0
 $ vtctl ApplySchemaShard --sql-file=change.sql -new_parent=nyc-0002009002 vtx/0
@@ -340,11 +342,12 @@ type SchemaChange struct {
 
 
 And the associated ApplySchema remote action for a tablet. Then the performed steps are:
-- The database to use is either derived from the tablet dbName if UseVt is false, or is the _vt database. A ‘use dbname’ is prepended to the Sql.
+- The database to use is either derived from the tablet dbName if UseVt is false, or is the vt database. A ‘use dbname’ is prepended to the Sql.
 - (if BeforeSchema is not nil) read the schema, make sure it is equal to BeforeSchema. If not equal: if Force is not set, we will abort, if Force is set, we’ll issue a warning and keep going.
-- if AllowReplication is false, we’ll disable replication (adding SET sql_log_bin=0 before the Sql).
+- if AllowReplication is false, we’ll disable replication (adding SET sqllog_bin=0 before the Sql).
 - We will then apply the Sql command.
 - (if AfterSchema is not nil) read the schema again, make sure it is equal to AfterSchema. If not equal: if Force is not set, we will issue an error, if Force is set, we’ll issue a warning.
+
 We will return the following information:
 - whether it worked or not (doh!)
 - BeforeSchema
@@ -369,7 +372,7 @@ if simple:
 nobody has it: apply to master, very similar to a single tablet update.
 some tablets have it but not others: error out
 
-if complex: do the shell game while disabling replication. Skip the tablets that already have it. Have an option to re-parent a the end.
+if complex: do the shell game while disabling replication. Skip the tablets that already have it. Have an option to re-parent at the end.
 
 
 Note the Backup, and Lag servers won&#39;t apply a complex schema change. Only the servers actively in the replication graph will.
@@ -397,7 +400,7 @@ apply the schema change to the specific tablet (allowing replication by default)
 a PreflightSchema operation will first be used to make sure the schema is OK (unless skip_preflight is specified).
 ApplySchemaShard {-sql=&lt;sql&gt; || -sql_file=&lt;filename&gt;} [-simple] [-new_parent=&lt;tablet alias&gt;] &lt;keyspace/shard&gt;
 
-apply the schema change to the specific shard. If simple is specified, we just apply on the live master. Otherwise we do the shell game and will optionally re-parent.
+apply the schema change to the specific shard. If simple is specified, we just apply on the live master. Otherwise, we do the shell game and will optionally re-parent.
 if new_parent is set, we will also reparent (otherwise the master won&#39;t be touched at all). Using the force flag will cause a bunch of checks to be ignored, use with care.
 $ vtctl ApplySchemaShard --sql-file=change.sql -simple vtx/0
 $ vtctl ApplySchemaShard --sql-file=change.sql -new_parent=nyc-0002009002 vtx/0
@@ -601,12 +604,13 @@ type SchemaChange struct {
 </code></p>
 
 <p>And the associated ApplySchema remote action for a tablet. Then the performed steps are:
-- The database to use is either derived from the tablet dbName if UseVt is false, or is the _vt database. A ‘use dbname’ is prepended to the Sql.
+- The database to use is either derived from the tablet dbName if UseVt is false, or is the <em>vt database. A ‘use dbname’ is prepended to the Sql.
 - (if BeforeSchema is not nil) read the schema, make sure it is equal to BeforeSchema. If not equal: if Force is not set, we will abort, if Force is set, we’ll issue a warning and keep going.
-- if AllowReplication is false, we’ll disable replication (adding SET sql_log_bin=0 before the Sql).
+- if AllowReplication is false, we’ll disable replication (adding SET sql</em>log_bin=0 before the Sql).
 - We will then apply the Sql command.
-- (if AfterSchema is not nil) read the schema again, make sure it is equal to AfterSchema. If not equal: if Force is not set, we will issue an error, if Force is set, we’ll issue a warning.
-We will return the following information:
+- (if AfterSchema is not nil) read the schema again, make sure it is equal to AfterSchema. If not equal: if Force is not set, we will issue an error, if Force is set, we’ll issue a warning.</p>
+
+<p>We will return the following information:
 - whether it worked or not (doh!)
 - BeforeSchema
 - AfterSchema</p>
@@ -630,7 +634,7 @@ We will return the following information:
 <li>nobody has it: apply to master, very similar to a single tablet update.</li>
 <li>some tablets have it but not others: error out</li>
 </ul></li>
-<li>if complex: do the shell game while disabling replication. Skip the tablets that already have it. Have an option to re-parent a the end.
+<li>if complex: do the shell game while disabling replication. Skip the tablets that already have it. Have an option to re-parent at the end.
 
 <ul>
 <li>Note the Backup, and Lag servers won&#39;t apply a complex schema change. Only the servers actively in the replication graph will.</li>
@@ -658,7 +662,7 @@ $ vtctl PreflightSchema -sql_file=change.sql nyc-0002009001
 a PreflightSchema operation will first be used to make sure the schema is OK (unless skip_preflight is specified).</p>
 <div class="highlight"><pre><code class="language-text" data-lang="text">ApplySchemaShard {-sql=&lt;sql&gt; || -sql_file=&lt;filename&gt;} [-simple] [-new_parent=&lt;tablet alias&gt;] &lt;keyspace/shard&gt;
 </code></pre></div>
-<p>apply the schema change to the specific shard. If simple is specified, we just apply on the live master. Otherwise we do the shell game and will optionally re-parent.
+<p>apply the schema change to the specific shard. If simple is specified, we just apply on the live master. Otherwise, we do the shell game and will optionally re-parent.
 if new_parent is set, we will also reparent (otherwise the master won&#39;t be touched at all). Using the force flag will cause a bunch of checks to be ignored, use with care.</p>
 <div class="highlight"><pre><code class="language-text" data-lang="text">$ vtctl ApplySchemaShard --sql-file=change.sql -simple vtx/0
 $ vtctl ApplySchemaShard --sql-file=change.sql -new_parent=nyc-0002009002 vtx/0
@@ -760,7 +764,14 @@ $ vtctl ApplySchemaShard --sql-file=change.sql -new_parent=nyc-0002009002 vtx/0
       });
     </script>
     
+    <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-60219601-1', 'auto');
+  ga('send', 'pageview');
+</script>
 
   </body>
-
 </html>
