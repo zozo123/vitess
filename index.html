@@ -1,314 +1,253 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>Vitess</title>
-    
-    
-    
-    
-    	<!-- Twitter Cards -->
-	<meta name="twitter:title" content="Vitess">
-	
-	
-	
-	
-	<meta name="twitter:card" content="summary_large_image">
-	<meta name="twitter:image" content="http://vitess.io/images/wood-texture-1600x800.jpg">
-	
-	<!-- Open Graph -->
-	<meta property="og:locale" content="en_US">
-	<meta property="og:type" content="article">
-	<meta property="og:title" content="Vitess">
-	
-	<meta property="og:url" content="http://vitess.io/">
-	<meta property="og:site_name" content="Vitess">
-    
+<html lang="en" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="canonical" href="http://vitess.io/">
+<title>Vitess</title>
+<meta name="description" content="A set of servers and tools that facilitate scaling of MySQL databases for the web.">
 
-    <meta name="HandheldFriendly" content="True">
-    <meta name="MobileOptimized" content="320">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="cleartype" content="on">
+<link rel="canonical" href="http://vitess.io/">
 
-    <style>
-    .sliding-menu-content {
-      top: 0;
-      right: 0;
-      text-align: center;
-      visibility: hidden;
-      height: 100%;
-      width: 100%;
-      -webkit-transform: translateX(100%);
-      -moz-transform: translateX(100%);
-      -ms-transform: translateX(100%);
-      -o-transform: translateX(100%);
-      transform: translateX(100%);
-    }
-    </style>
+<!-- Add to homescreen for Chrome on Android -->
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="icon" sizes="196x196" href="/images/touch/chrome-touch-icon-196x196.png">
 
-    <link rel="stylesheet" href="http://vitess.io/css/main.css">
-    <!-- HTML5 Shiv and Media Query Support for IE -->
-    <!--[if lt IE 9]>
-      <script src="http://vitess.io/js/vendor/html5shiv.min.js"></script>
-      <script src="http://vitess.io/js/vendor/respond.min.js"></script>
-    <![endif]-->
+<!-- Add to homescreen for Safari on iOS -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Vitess">
 
-  </head>
+<!-- Tile icon for Win8 (144x144 + tile color) -->
+<meta name="msapplication-TileImage" content="/images/touch/ms-touch-icon-144x144-precomposed.png">
+<meta name="msapplication-TileColor" content="#3372DF">
 
-  <body>
-    <header id="masthead">
-  <div class="inner-wrap">
-    <a href="http://vitess.io/" class="site-title">Vitess</a>
-    <nav role="navigation" class="menu top-menu">
-        <ul class="menu-item">
-	<li class="home"><a href="/">Vitess</a></li>
-	
-    
-        
-    
-    <li><a href="http://vitess.io/getting-started/" >Getting Started</a></li>
-  
-    
-        
-    
-    <li><a href="http://vitess.io/doc/" >Documentation</a></li>
-  
-    
-        
-    
-    <li><a href="http://vitess.io/about/" >About</a></li>
-  
-    
-        
-    
-    <li><a href="http://vitess.io/faq/" >FAQ</a></li>
-  
-</ul>
-    </nav>
+<link rel="stylesheet" href="/assets/vendor/styles/wsk.css">
+<link rel="stylesheet" href="/css/main.css">
+<link rel="stylesheet" href="/css/extra.css">
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,600,900|Roboto+Condensed:300,300italic,400,700">
+
+</head>
+<body class="home">
+
+<header id="app-bar" class="app-bar promote-layer">
+  <div class="app-bar-container">
+    <button id="menu" class="menu" title="Menu"></button>
+    <h1 class="logo"><a href="/">Vitess</a></h1>
+    <section class="app-bar-actions">
+      <a href="#"><i class="icon icon-chevron-up"></i> Top</a>
+    </section>
   </div>
 </header>
 
-    <nav role="navigation" class="js-menu sliding-menu-content">
-	<ul class="menu-item">
-		<li>
-      
-        
-      
-			<a href="http://vitess.io/getting-started/"><img src="http://vitess.io/images/400x250.gif" alt="teaser" class="teaser"></a>
-			<a href="http://vitess.io/getting-started/" class="title">Getting Started</a>
-			<p class="excerpt">Everything you need to know to get started with Vitess.</p>
-		</li><li>
-      
-        
-      
-			<a href="http://vitess.io/doc/"><img src="http://vitess.io/images/400x250.gif" alt="teaser" class="teaser"></a>
-			<a href="http://vitess.io/doc/" class="title">Documentation</a>
-			<p class="excerpt">Vitess Docs.</p>
-		</li><li>
-      
-        
-      
-			<a href="http://vitess.io/about/"><img src="http://vitess.io/images/400x250.gif" alt="teaser" class="teaser"></a>
-			<a href="http://vitess.io/about/" class="title">About</a>
-			<p class="excerpt">All about Vitess.</p>
-		</li><li>
-      
-        
-      
-			<a href="http://vitess.io/faq/"><img src="http://vitess.io/images/400x250.gif" alt="teaser" class="teaser"></a>
-			<a href="http://vitess.io/faq/" class="title">FAQ</a>
-			<p class="excerpt">Vitess Faq.</p>
-		</li>
-	</ul>
-</nav>
-<button type="button" class="js-menu-trigger sliding-menu-button menulines-button x2" role="button" aria-label="Toggle Navigation">
-	<span class="menulines"></span>
-</button>
-
-<div class="js-menu-screen menu-screen"></div>
-
+<div class="navdrawer">
+  <nav id="nav" class="navdrawer-container promote-layer">
+    <h4>Navigation</h4>
     
-    <div class="page-lead" style="background-image:url(http://vitess.io/images/wood-texture-1600x800.jpg)">
-      <div class="wrap page-lead-content">
-        <h1>Vitess</h1>
-        <h2>A set of servers and tools meant to facilitate scaling of MySQL databases for the web.</h2>
-        <a href="http://vitess.io/getting-started/" class="btn-inverse">Start Using Vitess</a> &nbsp; or &nbsp; <a href="https://github.com/youtube/vitess" class="btn-inverse">View on GitHub</a>
-      </div><!-- /.page-lead-content -->
-    </div><!-- /.page-lead -->
-    
-
-    <div id="page-wrapper">
-      <!--[if lt IE 9]><div class="upgrade notice-danger"><strong>Your browser is quite old!</strong> Why not <a href="http://whatbrowser.org/">upgrade to a newer one</a> to better enjoy this site?</div><![endif]-->
-
-      <div id="main" role="main">     
-        <div class="wrap">
-          <div class="page-title">
-            <h1></h1>
-            
-          </div>
-          <div class="archive-wrap">
-            <div class="page-content">
-              <h1 id="vitess--">Vitess <p align="right"><a href="https://travis-ci.org/youtube/vitess/builds"><img src="https://travis-ci.org/youtube/vitess.svg?branch=master" alt="Build Status"></a> <a href="https://coveralls.io/r/youtube/vitess"><img src="https://coveralls.io/repos/youtube/vitess/badge.png" alt="Coverage Status"></a></p></h1>
-
-<h2 id="introduction">Introduction</h2>
-
-<p>Vitess is a set of servers and tools meant to facilitate scaling of MySQL
-databases for the web. It&#39;s been developed since 2011, and is currently used as
-a fundamental component of YouTube&#39;s MySQL infrastructure, serving thousands of
-QPS (per server). If you want to find out whether Vitess is a good fit for your
-project, please read our <a href="https://github.com/youtube/vitess/blob/master/doc/HelicopterOverview.md">helicopter
-overview</a>.</p>
-
-<p>There are a couple of videos from <a href="https://github.com/sougou">sougou</a> that you can watch:
-a <a href="http://youtu.be/midJ6b1LkA0">short intro</a> prepared for Google I/O 2014
-and a more <a href="http://youtu.be/5yDO-tmIoXY">detailed presentation from @Scale &#39;14</a>.</p>
-
-<h2 id="overview">Overview</h2>
-
-<p><img src="https://raw.githubusercontent.com/youtube/vitess/master/doc/VitessOverview.png" alt="Overview"></p>
-
-<p>Vitess consists of a number servers, command line utilities, and a consistent
-metadata store. Taken together, they allow you to serve more database traffic,
-and add features like sharding, which normally you would have to implement in your
-application.</p>
-
-<p><strong>vttablet</strong> is a server that sits in front of a MySQL database, making it more
-robust and available in the face of high traffic. Among other things, it adds a
-connection pool, has a row based cache, and it rewrites SQL queries to be safer
-and nicer to the underlying database.</p>
-
-<p><strong>vtgate</strong> is a very light proxy that routes database traffic from your app to the
-right vttablet, basing on the sharding scheme, latency required, and health of
-the vttablets. This allows the client to be very simple, as all it needs to be
-concerned about is finding the closest vtgate.</p>
-
-<p>The <strong>topology</strong> is a metadata store that contains information about running
-servers, the sharding scheme, and replication graph. It is backed by a
-consistent data store, like <a href="http://zookeeper.apache.org/">Apache ZooKeeper</a>.
-The topology backends are plugin based, allowing you to write your own if
-ZooKeeper doesn&#39;t fit your needs. You can explore the topology through
-<strong>vtctld</strong>, a webserver (not shown in the diagram).</p>
-
-<p><strong>vtctl</strong> is a command line utility that allows a human or a script to easily
-interact with the system.</p>
-
-<p>All components communicate using a lightweight RPC system based on
-<a href="http://bsonspec.org/">BSON</a>. The RPC system is plugin based, so you can easily
-write your own backend (at Google we use a Protocol Buffers based protocol). We
-provide a client implementation for three languages: Python, Go, and Java.
-Writing a client for your language should not be difficult, as it&#39;s a matter of
-implementing only a few API calls (please send us a pull request if you do!).</p>
-
-<h2 id="trying-it-out">Trying it out</h2>
-
-<p>Vitess is not entirely ready for unsupervised use yet. Some functionality is
-still under development, APIs may change, and parts of the code are
-undocumented. However, if you feel adventurous, you&#39;re more than welcome to try
-it. We know that there are some rough edges, so please don&#39;t hesitate to reach out
-to us through <a href="https://groups.google.com/forum/#!forum/vitess">our mailing list</a>
-if you run into any issues. Warnings aside, please take a look at our <a href="https://github.com/youtube/vitess/blob/master/doc/GettingStarted.md">Getting
-Started</a>
-guide.</p>
-
-<h2 id="documentation">Documentation</h2>
-
-<h3 id="intro">Intro</h3>
-
 <ul>
-<li><a href="http://vitess.io/doc/HelicopterOverview">Helicopter overview</a>:
- high level overview of Vitess that should tell you whether Vitess is for you.</li>
-<li><a href="http://vitess.io/doc/FAQ">Frequently Asked Questions</a>.</li>
-<li><a href="http://vitess.io/doc/Vision">Vision</a>:
- principles guiding the design of Vitess.</li>
+  
+    <li >
+      <a href="http://vitess.io//"></a>
+    </li>
+  
+    <li >
+      <a href="http://vitess.io/overview/">Overview</a>
+    </li>
+  
+    <li >
+      <a href="http://vitess.io/getting-started/">Getting Started</a>
+    </li>
+  
+  <li><a href="https://github.com/youtube/vitess">GitHub</a></li>
 </ul>
 
-<h3 id="using-vitess">Using Vitess</h3>
-
-<ul>
-<li><a href="http://vitess.io/doc/GettingStarted">Getting Started</a>:
- how to set your environment to work with Vitess.</li>
-<li><a href="http://vitess.io/doc/Tools">Tools</a>:
- all Vitess tools and servers.</li>
-<li><a href="http://vitess.io/doc/vtocc">vttablet/vtocc</a>:
- information about the most important Vitess server.</li>
-<li><a href="http://vitess.io/doc/Reparenting">Reparenting</a>:
- performing master failover.</li>
-<li><a href="http://vitess.io/doc/Resharding">Resharding</a>:
- adding more shards to your cluster.</li>
-<li><a href="http://vitess.io/doc/Production">Preparing for production</a> (wip).</li>
-<li><a href="http://vitess.io/doc/SchemaManagement">Schema management</a>:
- managing your database schema using Vitess.</li>
-</ul>
-
-<h3 id="reference">Reference</h3>
-
-<ul>
-<li><a href="http://vitess.io/doc/Concepts">General Concepts</a></li>
-<li><a href="http://vitess.io/doc/ZookeeperData">Zookeeper data</a></li>
-<li><a href="http://vitess.io/doc/ServingGraph">Serving graph</a></li>
-<li><a href="http://vitess.io/doc/ReplicationGraph">Replication Graph</a></li>
-<li><a href="http://vitess.io/doc/VTGateV3">V3 design</a></li>
-</ul>
-
-<h2 id="license">License</h2>
-
-<p>Unless otherwise noted, the vitess source files are distributed
-under the BSD-style license found in the LICENSE file.</p>
-
-            </div><!-- /.page-content -->
-          </div class="archive-wrap"><!-- /.archive-wrap -->
-        </div><!-- /.wrap -->
-      </div><!-- /#main -->
-
-      <footer role="contentinfo" id="site-footer">
-  <nav role="navigation" class="menu bottom-menu">
-    <ul class="menu-item">
-      
-      
-        
-      
-      <li><a href="http://vitess.io/" >Home</a></li>
-      
-      
-        
-      
-      <li><a href="http://vitess.io/getting-started/" >Getting Started</a></li>
-      
-      
-        
-      
-      <li><a href="http://vitess.io/about/" >About</a></li>
-      
-      
-        
-      
-      <li><a href="http://vitess.io/faq/" >FAQ</a></li>
-      
-      
-        
-      
-      <li><a href="http://vitess.io/terms/" >Terms</a></li>
-      
-    </ul>
   </nav>
-  <p class="copyright">&#169; 2015 <a href="http://vitess.io">Vitess</a> powered by <a href="http://www.google.com">Google Inc</a>.</p>
+</div>
+
+<!--
+<section class="stage">
+  <div class="container"><div class="container">
+    <h1><abbr>Vitess</abbr></h1>
+    <h2>A set of servers and tools meant to facilitate scaling of MySQL databases for the web.</h2>
+  </div></div>
+</section>
+-->
+
+
+<div class="page-lead" style="background-image:url(http://vitess.io/images/wood-texture-1600x800.jpg)">
+  <div class="wrap page-lead-content stage">
+    <h1><abbr>Vitess</abbr></h1>
+    <h2>A set of servers and tools meant to facilitate scaling of MySQL databases for the web.</h2>
+    <span class="home-page-buttons"><a href="http://vitess.io/overview/" class="btn-inverse">Start Using Vitess</a> &nbsp; or &nbsp; <a href="https://github.com/youtube/vitess" class="btn-inverse">View on GitHub</a></span>
+  </div><!-- /.page-lead-content -->
+</div><!-- /.page-lead -->
+
+
+<main class="clear">
+  <div class="container">
+
+    <h2 id="overview">Overview</h2>
+
+<p>Vitess is a storage platform for scaling MySQL. It is optimized to run as
+effectively in cloud architectures as it does on dedicated hardware. It combines
+many important features of MySQL with the scalability of a NoSQL database.</p>
+
+<blockquote>
+<p><strong>Scalability</strong></p>
+
+<ul>
+<li>Eliminates high memory overhead of MySQL connections</li>
+<li>Lets your database grow without adding sharding logic to your application</li>
+<li>Provides built-in sharding</li>
+<li>Supports live resharding with minimal read-only downtime</li>
+</ul>
+</blockquote>
+
+<!-- -->
+
+<blockquote>
+<p><strong>Performance</strong></p>
+
+<ul>
+<li>Automatically rewrites queries that hurt database performance</li>
+<li>Uses caching mechanism on proxy server to mediate queries and prevent
+duplicate queries from simultaneously reaching your database</li>
+</ul>
+</blockquote>
+
+<!-- -->
+
+<blockquote>
+<p><strong>Manageability</strong></p>
+
+<ul>
+<li>Uses a lock server like ZooKeeper or etcd to track and administer servers,
+letting your application be blissfully ignorant of database topology</li>
+<li>Automatically handles functions like master failover and backups, minimizing
+any necessary downtime</li>
+</ul>
+</blockquote>
+
+<h2 id="history">History</h2>
+
+<p>Vitess has been a fundamental component of YouTube infrastructure since 2011.
+This section briefly summarizes the sequence of events that led to Vitess&#39;
+creation:</p>
+
+<ol>
+<li> YouTube&#39;s MySQL database reached a point when peak traffic would soon
+exceed the database&#39;s serving capacity. To temporarily alleviate the
+problem, YouTube created a master database for write traffic and a
+replica database for read traffic.</li>
+<li> With demand for cat videos at an all-time high, read-only traffic was
+still high enough to overload the replica database. So YouTube added
+more replicas, again providing a temporary solution.</li>
+<li> Eventually, write traffic became too high for the master database to
+handle, requiring YouTube to shard data to handle incoming traffic.
+(Sharding would have also become necessary if the overall size of the
+database became too large for a single MySQL instance.)</li>
+<li> YouTube&#39;s application layer was modified so that before executing any
+database operation, the code could identify the right database shard
+to receive that particular query.</li>
+</ol>
+
+<p style="text-align: left;">
+Vitess let YouTube remove that logic from the source code, introducing
+a proxy between the application and the database to route and manage
+database interactions. Since then, YouTube has scaled its user base
+by a factor of more than 50, greatly increasing its capacity to serve
+pages, process newly uploaded videos, and more. Even more importantly,
+Vitess is a platform that continues to scale.
+</p>
+
+<h2 id="features">Features</h2>
+
+<p style="text-align: left;">Let's quickly summarize a few key Vitess features:
+</p>
+
+<ul>
+<li><p><strong>Connection pooling</strong><br>
+Each MySQL connection has a memory overhead, which is around 256KB
+in the default MySQL configuration in addition to a significant CPU
+overhead associated with obtaining the connection. Vitess&#39; BSON-based
+protocol creates very lightweight connections (around 32KB per
+connection), enabling Vitess servers to easily handle thousands of
+connections. Vitess uses Go&#39;s awesome concurrency support to map
+these connections to a pool of MySQL connections.<br><br></p></li>
+<li><p><strong>Shard management</strong><br>
+As your database grows, you will likely want to implement
+horizontal sharding. But MySQL doesn&#39;t natively support sharding,
+so you will need to write the sharding code yourself and add
+sharding logic to your app.<br><br>
+Vitess enables sharding with minimal read-only downtime. For
+example, it supports split replication, dividing the replication
+stream so that a future shard master only gets statements that
+could affect rows in its new shard. Vitess can also accommodate
+a custom sharding scheme that you already have in place.
+<br><br></p></li>
+<li><p><strong>Workflow management</strong><br>
+Vitess helps you manage the lifecycle of your database instances
+by automatically handling various scenarios like master failover
+and replication. Vitess also keeps track of all of the metadata
+about the cluster configuration so that the cluster view is always
+up-to-date and consistent for different clients. What&#39;s more,
+your app doesn&#39;t need to keep track of the database topology
+as it changes.</p></li>
+</ul>
+
+
+  </div>
+</main>
+
+<section class="home-promo">
+  <div class="container">
+    <ul class="list-centered list--reset clear">
+      <li class="g-medium--half g-medium--last g-wide--1 g-wide--last theme--spf">
+        <a class="themed" href="/overview/">
+          <span class="icon-circle--large themed--background"><i class="icon icon-lessons"></i></span>
+          <h3 class="large">Learn More</h3>
+          <p></p>
+        </a>
+      </li>
+      <li class="g-medium--half g-medium--last g-wide--1 g-wide--last theme--spf">
+        <a class="themed" href="/getting-started/">
+          <span class="icon-circle--large themed--background"><i class="icon icon-performance"></i></span>
+          <h3 class="large">Get started on Kubernetes</h3>
+          <p></p>
+        </a>
+      </li>
+      <li class="g-medium--half g-medium--last g-wide--1 g-wide--last theme--spf">
+        <a class="themed" href="https://github.com/youtube/vitess/">
+          <span class="icon-circle--large themed--background"><i class="icon icon-google-dev"></i></span>
+          <h3 class="large">Get it on GitHub</h3>
+          <p></p>
+        </a>
+      </li>
+    </ul>
+  </div>
+</section>
+
+
+<footer>
+  <div class="container">
+    <p class="small">&copy; 2015 Google. Licensed under <a href="http://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>.</p>
+  </div>
 </footer>
 
-    </div>
+<script src="/assets/scripts/main.js"></script>
 
-    <script src="http://vitess.io/js/vendor/jquery-1.9.1.min.js"></script>
-    <script src="http://vitess.io/js/main.js"></script>
-    <script>
+<script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
   })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-  ga('create', 'UA-60219601-1', 'auto');
-  ga('send', 'pageview');
+  if (window.location.hostname == 'youtube.github.io') {
+    ga('create', 'UA-60219601-1', 'auto');
+    ga('send', 'pageview');
+  }
 </script>
 
-  </body>
-
+</body>
 </html>
+

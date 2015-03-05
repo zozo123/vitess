@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Vitess - VitessOverview</title>
+<meta name="description" content="A set of servers and tools that facilitate scaling of MySQL databases for the web.">
+
+<link rel="canonical" href="http://vitess.io/doc/VitessOverview/">
+
+<!-- Add to homescreen for Chrome on Android -->
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="icon" sizes="196x196" href="/images/touch/chrome-touch-icon-196x196.png">
+
+<!-- Add to homescreen for Safari on iOS -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Vitess">
+
+<!-- Tile icon for Win8 (144x144 + tile color) -->
+<meta name="msapplication-TileImage" content="/images/touch/ms-touch-icon-144x144-precomposed.png">
+<meta name="msapplication-TileColor" content="#3372DF">
+
+<link rel="stylesheet" href="/assets/vendor/styles/wsk.css">
+<link rel="stylesheet" href="/css/main.css">
+<link rel="stylesheet" href="/css/extra.css">
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,600,900|Roboto+Condensed:300,300italic,400,700">
+
+</head>
+<body class="">
+
+<header id="app-bar" class="app-bar promote-layer">
+  <div class="app-bar-container">
+    <button id="menu" class="menu" title="Menu"></button>
+    <h1 class="logo"><a href="/">Vitess</a></h1>
+    <section class="app-bar-actions">
+      <a href="#"><i class="icon icon-chevron-up"></i> Top</a>
+    </section>
+  </div>
+</header>
+
+<div class="navdrawer">
+  <nav id="nav" class="navdrawer-container promote-layer">
+    <h4>Navigation</h4>
+    
+<ul>
+  
+    <li >
+      <a href="http://vitess.io//"></a>
+    </li>
+  
+    <li >
+      <a href="http://vitess.io/overview/">Overview</a>
+    </li>
+  
+    <li >
+      <a href="http://vitess.io/getting-started/">Getting Started</a>
+    </li>
+  
+  <li><a href="https://github.com/youtube/vitess">GitHub</a></li>
+</ul>
+
+  </nav>
+</div>
+
+<main class="clear">
+
+  <header class="page-header container">
+    <h2 class="xxlarge text-divider">VitessOverview</h2>
+    
+  </header>
+
+  <div class="container">
+    <p>Vitess is a database solution for scaling MySQL. It&#39;s architected to run as
+effectively in a public or private cloud architecture as it does on dedicated
+hardware. It combines and extends many important MySQL features with the
+scalability of a NoSQL database. Vitess has been serving all YouTube database
+traffic since 2011.</p>
+
+<h3 id="vitess-on-kubernetes">Vitess on Kubernetes</h3>
+
+<p>Kubernetes is an open-source orchestration system for Docker containers, and Vitess is the logical storage engine choice for Kubernetes users.</p>
+
+<p>Kubernetes handles scheduling onto nodes in a compute cluster, actively manages workloads on those nodes, and groups containers comprising an application for easy management and discovery. Using Kubernetes, you can easily create and manage a Vitess cluster, out of the box.</p>
+
+<h2 id="comparisons-to-other-storage-options">Comparisons to other storage options</h2>
+
+<p>The following sections compare Vitess to two common alternatives, a vanilla MySQL implementation and a NoSQL implementation.</p>
+
+<h3 id="vitess-vs.-vanilla-mysql">Vitess vs. Vanilla MySQL</h3>
+
+<p>Vitess improves a vanilla MySQL implementation in several ways:</p>
+
+<table class="comparison">
+  <tr>
+    <th>Vanilla MySQL</th>
+    <th>Vitess</th>
+  </tr>
+  <tr>
+    <td>Every MySQL connection has a memory overhead that ranges between 256KB and almost 3MB, depending on which MySQL release you're using. As your user base grows, you need to add RAM to support additional connections, but the RAM does not contribute to faster queries. In addition, there is a significant CPU cost associated with obtaining the connections.</td>
+    <td>Vitess' BSON-based protocol creates very lightweight connections that are around 32KB. Vitess' connection pooling feature uses Go's concurrency support to map these lightweight connections to a small pool of MySQL connections. As such, Vitess can easily handle thousands of connections.</td>
+  </tr>
+  <tr>
+    <td>Poorly written queries, such as those that don't set a LIMIT, can negatively impact database performance for all users.</td>
+    <td>Vitess employs a SQL parser that uses a configurable set of rules to rewrite queries that might hurt database performance.</td>
+  </tr>
+  <tr>
+    <td>Sharding is a process of partitioning your data to improve scalability and performance. MySQL lacks native sharding support, requiring you to write sharding code and embed sharding logic in your application.</td>
+    <td>Vitess uses range-based sharding. It supports both horizontal and vertical resharding, completing most data transitions with just a few seconds of read-only downtime. Vitess can even accommodate a custom sharding scheme that you already have in place.</td>
+  </tr>
+  <tr>
+    <td>A MySQL cluster using replication for availability has a master database and a few replicas. If the master fails, a replica should become the new master. This requires you to manage the database lifecycle and communicate the current system state to your application.</td>
+    <td>Vitess helps to manage the lifecycle of your database scenarios. It supports and automatically handles various scenarios, including master failover and data backups.</td>
+  </tr>
+  <tr>
+    <td>A MySQL cluster can have custom database configurations for different workloads, like a master database for writes, fast read-only replicas for web clients, slower read-only replicas for batch jobs, and so forth. If the database has horizontal sharding, the setup is repeated for each shard, and the app needs baked-in logic to know how to find the right database.</td>
+    <td>Vitess uses a topology backed by a consistent data store, like etcd or ZooKeeper. This means the cluster view is always up-to-date and consistent for different clients. Vitess also provides a proxy that routes queries efficiently to the most appropriate MySQL instance.</td>
+  </tr>
+</table>
+
+<h3 id="vitess-vs.-nosql">Vitess vs. NoSQL</h3>
+
+<p>If you&#39;re considering a NoSQL solution primarily because of concerns about the scalability of MySQL, Vitess might be a more appropriate choice for your application. While NoSQL provides great support for unstructured data, Vitess still offers several benefits not available in NoSQL datastores:</p>
+
+<table class="comparison">
+  <tr>
+    <th>NoSQL</th>
+    <th>Vitess</th>
+  </tr>
+  <tr>
+    <td>NoSQL databases do not define relationships between database tables, and only support a subset of the SQL language.</td>
+    <td>Vitess is not a simple key-value store. It supports complex query semantics such as where clauses, JOINS, aggregation functions, and more.</td>
+  </tr>
+  <tr>
+    <td>NoSQL datastores do not support transactions.</td>
+    <td>Vitess supports transactions within a shard. We are also exploring the feasibility of supporting cross-shard transactions using 2PC.</td>
+  </tr>
+  <tr>
+    <td>NoSQL solutions have custom APIs, leading to custom architectures, applications, and tools.</td>
+    <td>Vitess adds very little variance to MySQL, a database that most people are already accustomed to working with.</td>
+  </tr>
+  <tr>
+    <td>NoSQL solutions provide limited support for database indexes compared to MySQL.</td>
+    <td>Vitess allows you to use all of MySQL's indexing functionality to optimize query performance.</td>
+  </tr>
+</table>
+
+<h2 id="features">Features</h2>
+
+<ul>
+<li><p><strong>Performance</strong></p>
+
+<ul>
+<li>Connection pooling - Scale front-end connections while optimizing MySQL performance.</li>
+<li>Query de-duping – Reuse results of an in-flight query for any identical requests received while the in-flight query was still executing.</li>
+<li>Transaction manager – Limit number of concurrent transactions and manage deadlines to optimize overall throughput.</li>
+<li>Rowcache – Maintain a row-based cache (using memcached) to more efficiently field queries that require random access by primary key, very useful for OLTP workloads. (The MySQL buffer cache is optimized for range scans over indices and tables.). This can replace a custom caching layer implementation at the application layer.<br><br></li>
+</ul></li>
+<li><p><strong>Protection</strong></p>
+
+<ul>
+<li>Query rewriting and sanitation – Add limits and avoid non-deterministic updates.</li>
+<li>Query blacklisting – Customize rules to prevent potentially problematic queries from hitting your database.</li>
+<li>Query killer – Terminate queries that take too long to return data.</li>
+<li>Table ACLs – Specify access control lists (ACLs) for tables based on the connected user.</li>
+</ul></li>
+<li><p><strong>Monitoring</strong></p>
+
+<ul>
+<li>Performance analysis: Tools let you monitor, diagnose, and analyze your database performance.</li>
+<li>Query streaming – Use a list of incoming queries to serve OLAP workloads.</li>
+<li>Update stream – A server streams the list of rows changing in the database, which can be used as a mechanism to propagate changes to other data stores.</li>
+</ul></li>
+<li><p><strong>Topology Management Tools</strong></p>
+
+<ul>
+<li>Master management tools (handles reparenting)</li>
+<li>Web-based management GUI</li>
+<li>Designed to work in multiple data centers / regions</li>
+</ul></li>
+<li><p><strong>Sharding</strong></p>
+
+<ul>
+<li>Virtually seamless dynamic re-sharding</li>
+<li>Vertical and Horizontal sharding support</li>
+<li>Built-in range-based, or application-defined sharding support</li>
+</ul></li>
+</ul>
+
+<h2 id="architecture">Architecture</h2>
+
+<p>The Vitess platform consists of a number of server processes, command-line utilities, and web-based utilities, backed by a consistent metadata store.</p>
+
+<p>Depending on the current state of your application, you could arrive at a full Vitess implementation through a number of different process flows. For example, if you&#39;re building a service from scratch, your first step with Vitess would be to define your database topology. However, if you need to scale your existing database, you&#39;d likely start by deploying a connection proxy.</p>
+
+<p>The diagram below illustrates Vitess&#39; components:</p>
+
+<p><img src="https://raw.githubusercontent.com/youtube/vitess/master/doc/VitessOverview.png" alt="Diagram showing Vitess implementation"></p>
+
+<h3 id="topology">Topology</h3>
+
+<p>The topology is a metadata store that contains information about running servers, the sharding scheme, and the <a href="https://github.com/youtube/vitess/blob/master/doc/ReplicationGraph">replication graph</a>.  The topology is backed by a consistent data store.  You can explore the topology using <strong>vtctl</strong> (command-line) and <strong>vtctld</strong> (web).</p>
+
+<p>In Kubernetes, the data store is <a href="https://github.com/coreos/etcd">etcd</a>.  Vitess source code also ships with <a href="http://zookeeper.apache.org/">Apache ZooKeeper</a> support.</p>
+
+<h3 id="vttablet">vttablet</h3>
+
+<p><strong>vttablet</strong> is a server that sits in front of a MySQL database. It is a newer version of and provides all of the same benefits as vtocc, including connection pooling, query rewriting, and query de-duping. In addition, vttablet executes management tasks that vtctl initiates. It also provides streaming services that are used for [filtered replication] and data export.</p>
+
+<p>A Vitess implementation has one vttablet for each MySQL instance.</p>
+
+<p>A lightweight Vitess implementation uses a smart connection proxy that serves queries for a single MySQL database. Running the proxy server in front of your MySQL database and changing your app to use the Vitess client instead of your MySQL driver provides Vitess&#39; connection pooling feature.</p>
+
+<h3 id="vtgate">vtgate</h3>
+
+<p><strong>vtgate</strong> is a light proxy server that routes traffic to the correct vttablet. To do so, vtgate considers the sharding scheme, required latency, and the availability of the tablets and their underlying MySQL instances. This allows the client to be very simple since it only needs to be able to find a vtgate instance.</p>
+
+<h3 id="vtctl">vtctl</h3>
+
+<p><strong>vtctl</strong> is a command-line tool used to administer a Vitess cluster. It allows a human or application to easily interact with a Vitess implementation. Using vtctl, you can identify master and replica databases, create tables, initiate failovers, perform sharding (and resharding) operations, and so forth.</p>
+
+  </div>
+
+</main>
+
+
+<footer>
+  <div class="container">
+    <p class="small">&copy; 2015 Google. Licensed under <a href="http://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>.</p>
+  </div>
+</footer>
+
+<script src="/assets/scripts/main.js"></script>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  if (window.location.hostname == 'youtube.github.io') {
+    ga('create', 'UA-60219601-1', 'auto');
+    ga('send', 'pageview');
+  }
+</script>
+
+</body>
+</html>
+
