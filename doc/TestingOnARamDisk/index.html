@@ -1,225 +1,79 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>TestingOnARamDisk • Vitess</title>
-    <meta name="description" content="Testing On A Ramdisk
+<html lang="en" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-The integration_test testsuite contains tests that may time-out if run against a slow disk. If your workspace lives on hard disk (as opposed to SSD), it is recommended that you run tests using a ramdisk.
+<title>Vitess - TestingOnARamDisk</title>
+<meta name="description" content="A set of servers and tools that facilitate scaling of MySQL databases for the web.">
 
-Setup
+<link rel="canonical" href="http://vitess.io/doc/TestingOnARamDisk/">
 
-First, set up a normal vitess development environment by running bootstrap.sh and sourcing dev.env (see GettingStarted). Then overwrite the testing temporary directories and make a 4GiB (smaller sizes may work, if you&#39;re constrained on RAM) ramdisk at the location of your choice (this example uses /tmp/vt):
-export TEST_TMPDIR=/tmp/vt
+<!-- Add to homescreen for Chrome on Android -->
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="icon" sizes="196x196" href="/images/touch/chrome-touch-icon-196x196.png">
 
-mkdir ${TEST_TMPDIR}
-sudo mount -t tmpfs -o size=4g tmpfs ${TEST_TMPDIR}
+<!-- Add to homescreen for Safari on iOS -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Vitess">
 
-export VTDATAROOT=${TEST_TMPDIR}
-export TEST_UNDECLARED_OUTPUTS_DIR=${TEST_TMPDIR}
+<!-- Tile icon for Win8 (144x144 + tile color) -->
+<meta name="msapplication-TileImage" content="/images/touch/ms-touch-icon-144x144-precomposed.png">
+<meta name="msapplication-TileColor" content="#3372DF">
 
-You can now run tests (either individually or as part of make test) normally.
+<link rel="stylesheet" href="/assets/vendor/styles/wsk.css">
+<link rel="stylesheet" href="/css/main.css">
+<link rel="stylesheet" href="/css/extra.css">
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,600,900|Roboto+Condensed:300,300italic,400,700">
 
-Teardown
+</head>
+<body class="">
 
-When you are done testing, you can remove the ramdisk by unmounting it and then removing the directory:
-sudo umount ${TEST_TMPDIR}
-rmdir ${TEST_TMPDIR}
-">
-    <meta name="keywords" content="">
-    
-    
-    	<!-- Twitter Cards -->
-	<meta name="twitter:title" content="TestingOnARamDisk">
-	<meta name="twitter:description" content="Testing On A Ramdisk
-
-The integration_test testsuite contains tests that may time-out if run against a slow disk. If your workspace lives on hard disk (as opposed to SSD), it is recommended that you run tests using a ramdisk.
-
-Setup
-
-First, set up a normal vitess development environment by running bootstrap.sh and sourcing dev.env (see GettingStarted). Then overwrite the testing temporary directories and make a 4GiB (smaller sizes may work, if you&#39;re constrained on RAM) ramdisk at the location of your choice (this example uses /tmp/vt):
-export TEST_TMPDIR=/tmp/vt
-
-mkdir ${TEST_TMPDIR}
-sudo mount -t tmpfs -o size=4g tmpfs ${TEST_TMPDIR}
-
-export VTDATAROOT=${TEST_TMPDIR}
-export TEST_UNDECLARED_OUTPUTS_DIR=${TEST_TMPDIR}
-
-You can now run tests (either individually or as part of make test) normally.
-
-Teardown
-
-When you are done testing, you can remove the ramdisk by unmounting it and then removing the directory:
-sudo umount ${TEST_TMPDIR}
-rmdir ${TEST_TMPDIR}
-">
-	
-	
-	
-	<meta name="twitter:card" content="summary">
-	<meta name="twitter:image" content="http://vitess.io/images/120x120.gif">
-	
-	<!-- Open Graph -->
-	<meta property="og:locale" content="en_US">
-	<meta property="og:type" content="article">
-	<meta property="og:title" content="TestingOnARamDisk">
-	<meta property="og:description" content="Testing On A Ramdisk
-
-The integration_test testsuite contains tests that may time-out if run against a slow disk. If your workspace lives on hard disk (as opposed to SSD), it is recommended that you run tests using a ramdisk.
-
-Setup
-
-First, set up a normal vitess development environment by running bootstrap.sh and sourcing dev.env (see GettingStarted). Then overwrite the testing temporary directories and make a 4GiB (smaller sizes may work, if you&#39;re constrained on RAM) ramdisk at the location of your choice (this example uses /tmp/vt):
-export TEST_TMPDIR=/tmp/vt
-
-mkdir ${TEST_TMPDIR}
-sudo mount -t tmpfs -o size=4g tmpfs ${TEST_TMPDIR}
-
-export VTDATAROOT=${TEST_TMPDIR}
-export TEST_UNDECLARED_OUTPUTS_DIR=${TEST_TMPDIR}
-
-You can now run tests (either individually or as part of make test) normally.
-
-Teardown
-
-When you are done testing, you can remove the ramdisk by unmounting it and then removing the directory:
-sudo umount ${TEST_TMPDIR}
-rmdir ${TEST_TMPDIR}
-">
-	<meta property="og:url" content="http://vitess.io/doc/TestingOnARamDisk/">
-	<meta property="og:site_name" content="Vitess">
-
-    <link rel="canonical" href="http://vitess.io/doc/TestingOnARamDisk/">
-
-    <link href="http://vitess.io/sitemap.xml" type="application/xml" rel="sitemap" title="Sitemap">
-
-    <meta name="HandheldFriendly" content="True">
-    <meta name="MobileOptimized" content="320">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="cleartype" content="on">
-
-    <style>
-    .sliding-menu-content {
-      top: 0;
-      right: 0;
-      text-align: center;
-      visibility: hidden;
-      height: 100%;
-      width: 100%;
-      -webkit-transform: translateX(100%);
-      -moz-transform: translateX(100%);
-      -ms-transform: translateX(100%);
-      -o-transform: translateX(100%);
-      transform: translateX(100%);
-    }
-    </style>
-
-    <link rel="stylesheet" href="http://vitess.io/css/main.css">
-    <!-- HTML5 Shiv and Media Query Support for IE -->
-    <!--[if lt IE 9]>
-      <script src="http://vitess.io/js/vendor/html5shiv.min.js"></script>
-      <script src="http://vitess.io/js/vendor/respond.min.js"></script>
-    <![endif]-->
-
-  </head>
-
-  <body>
-    <header id="masthead">
-  <div class="inner-wrap">
-    <a href="http://vitess.io/" class="site-title">Vitess</a>
-    <nav role="navigation" class="menu top-menu">
-        <ul class="menu-item">
-	<li class="home"><a href="/">Vitess</a></li>
-	
-    
-        
-    
-    <li><a href="http://vitess.io/getting-started/" >Getting Started</a></li>
-  
-    
-        
-    
-    <li><a href="http://vitess.io/doc/" >Documentation</a></li>
-  
-    
-        
-    
-    <li><a href="http://vitess.io/about/" >About</a></li>
-  
-    
-        
-    
-    <li><a href="http://vitess.io/faq/" >FAQ</a></li>
-  
-</ul>
-    </nav>
+<header id="app-bar" class="app-bar promote-layer">
+  <div class="app-bar-container">
+    <button id="menu" class="menu" title="Menu"></button>
+    <h1 class="logo"><a href="/">Vitess</a></h1>
+    <section class="app-bar-actions">
+      <a href="#"><i class="icon icon-chevron-up"></i> Top</a>
+    </section>
   </div>
 </header>
 
-    <nav role="navigation" class="js-menu sliding-menu-content">
-	<ul class="menu-item">
-		<li>
-      
-        
-      
-			<a href="http://vitess.io/getting-started/"><img src="http://vitess.io/images/400x250.gif" alt="teaser" class="teaser"></a>
-			<a href="http://vitess.io/getting-started/" class="title">Getting Started</a>
-			<p class="excerpt">Everything you need to know to get started with Vitess.</p>
-		</li><li>
-      
-        
-      
-			<a href="http://vitess.io/doc/"><img src="http://vitess.io/images/400x250.gif" alt="teaser" class="teaser"></a>
-			<a href="http://vitess.io/doc/" class="title">Documentation</a>
-			<p class="excerpt">Vitess Docs.</p>
-		</li><li>
-      
-        
-      
-			<a href="http://vitess.io/about/"><img src="http://vitess.io/images/400x250.gif" alt="teaser" class="teaser"></a>
-			<a href="http://vitess.io/about/" class="title">About</a>
-			<p class="excerpt">All about Vitess.</p>
-		</li><li>
-      
-        
-      
-			<a href="http://vitess.io/faq/"><img src="http://vitess.io/images/400x250.gif" alt="teaser" class="teaser"></a>
-			<a href="http://vitess.io/faq/" class="title">FAQ</a>
-			<p class="excerpt">Vitess Faq.</p>
-		</li>
-	</ul>
-</nav>
-<button type="button" class="js-menu-trigger sliding-menu-button menulines-button x2" role="button" aria-label="Toggle Navigation">
-	<span class="menulines"></span>
-</button>
-
-<div class="js-menu-screen menu-screen"></div>
-
-    <div id="page-wrapper">
-      <!--[if lt IE 9]><div class="upgrade notice-danger"><strong>Your browser is quite old!</strong> Why not <a href="http://whatbrowser.org/">upgrade to a newer one</a> to better enjoy this site?</div><![endif]-->
-
-      <div id="main" role="main">
-  <article class="wrap" itemscope itemtype="http://schema.org/Article">
+<div class="navdrawer">
+  <nav id="nav" class="navdrawer-container promote-layer">
+    <h4>Navigation</h4>
     
-    
-  <nav class="breadcrumbs">
-    <span itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
-      <a href="http://vitess.io" itemprop="url">
-        <span itemprop="title">Home</span>
-      </a> › 
-    <span itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
-      <a href="http://vitess.io/doc/" itemprop="url">
-        <span itemprop="title">Doc</span>
-      </a>
-    </span>
+<ul>
+  
+    <li >
+      <a href="http://vitess.io//"></a>
+    </li>
+  
+    <li >
+      <a href="http://vitess.io/overview/">Overview</a>
+    </li>
+  
+    <li >
+      <a href="http://vitess.io/getting-started/">Getting Started</a>
+    </li>
+  
+  <li><a href="https://github.com/youtube/vitess">GitHub</a></li>
+</ul>
+
   </nav>
+</div>
 
+<main class="clear">
 
-    <div class="inner-wrap">
-      <nav class="toc"></nav>
-      <div id="content" class="page-content" itemprop="articleBody">
-	<h1 id="testing-on-a-ramdisk">Testing On A Ramdisk</h1>
+  <header class="page-header container">
+    <h2 class="xxlarge text-divider">TestingOnARamDisk</h2>
+    
+  </header>
+
+  <div class="container">
+    <h1 id="testing-on-a-ramdisk">Testing On A Ramdisk</h1>
 
 <p>The <code>integration_test</code> testsuite contains tests that may time-out if run against a slow disk. If your workspace lives on hard disk (as opposed to <a href="http://en.wikipedia.org/wiki/Solid-state_drive">SSD</a>), it is recommended that you run tests using a <a href="http://en.wikipedia.org/wiki/RAM_drive">ramdisk</a>.</p>
 
@@ -242,108 +96,30 @@ sudo mount -t tmpfs -o <span class="nv">size</span><span class="o">=</span>4g tm
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">sudo umount <span class="k">${</span><span class="nv">TEST_TMPDIR</span><span class="k">}</span>
 rmdir <span class="k">${</span><span class="nv">TEST_TMPDIR</span><span class="k">}</span>
 </code></pre></div>
-	<hr />
-	<footer class="page-footer">
-	  
+  </div>
+
+</main>
 
 
-<div class="author-image">
-	<img src="http://vitess.io/images/" alt="Vitess Team">
-</div>
-<div class="author-content">
-	<h3 class="author-name" >Written by <a href="https://github.com/youtube/vitess" itemprop="author">Vitess Team</a></h3>
-	<p class="author-bio"></p>
-</div>
-
-	  <div class="inline-btn">
-	<a class="btn-social twitter" href="https://twitter.com/intent/tweet?text=TestingOnARamDisk&amp;url=http://vitess.io/doc/TestingOnARamDisk/&amp;via=" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i> Share on Twitter</a>
-	<a class="btn-social facebook" href="https://www.facebook.com/sharer/sharer.php?u=http://vitess.io/doc/TestingOnARamDisk/" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i> Share on Facebook</a>
-	<a class="btn-social google-plus"  href="https://plus.google.com/share?url=http://vitess.io/doc/TestingOnARamDisk/" target="_blank"><i class="fa fa-google-plus" aria-hidden="true"></i> Share on Google+</a>
-</div>
-
-	  <div class="page-meta">
-	<p>Updated <time datetime="2015-01-01T00:00:00Z" itemprop="datePublished">January 01, 2015</time></p>
-</div>
-
-	</footer>
-	<aside>
-	  
-	</aside>
-      </div>
-    </div>
-  </article>
-</div>
-
-
-      <footer role="contentinfo" id="site-footer">
-  <nav role="navigation" class="menu bottom-menu">
-    <ul class="menu-item">
-      
-      
-        
-      
-      <li><a href="http://vitess.io/" >Home</a></li>
-      
-      
-        
-      
-      <li><a href="http://vitess.io/getting-started/" >Getting Started</a></li>
-      
-      
-        
-      
-      <li><a href="http://vitess.io/about/" >About</a></li>
-      
-      
-        
-      
-      <li><a href="http://vitess.io/faq/" >FAQ</a></li>
-      
-      
-        
-      
-      <li><a href="http://vitess.io/terms/" >Terms</a></li>
-      
-    </ul>
-  </nav>
-  <p class="copyright">&#169; 2015 <a href="http://vitess.io">Vitess</a> powered by <a href="http://www.google.com">Google Inc</a>.</p>
+<footer>
+  <div class="container">
+    <p class="small">&copy; 2015 Google. Licensed under <a href="http://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>.</p>
+  </div>
 </footer>
 
-    </div>
+<script src="/assets/scripts/main.js"></script>
 
-    <script src="http://vitess.io/js/vendor/jquery-1.9.1.min.js"></script>
-    <script src="http://vitess.io/js/main.js"></script>
-    
-    
-    <script type="text/javascript">
-      $('.toc').toc({
-        'selectors': 'h2', //elements to use as headings
-        'container': '.page-content', //element to find all selectors in
-        'smoothScrolling': true, //enable or disable smooth scrolling on click
-        'prefix': 'toc', //prefix for anchor tags and class names
-        'onHighlight': function(el) {}, //called when a new section is highlighted 
-        'highlightOnScroll': true, //add class to heading that is currently in focus
-        'highlightOffset': 100, //offset to trigger the next headline
-        'anchorName': function(i, heading, prefix) { //custom function for anchor name
-          return prefix+i;
-        },
-        'headerText': function(i, heading, $heading) { //custom function building the header-item text
-          return $heading.text();
-        },
-        'itemClass': function(i, heading, $heading, prefix) { //custom function for item class
-          return $heading[0].tagName.toLowerCase();
-        }
-      });
-    </script>
-    
-    <script>
+<script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
   })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-  ga('create', 'UA-60219601-1', 'auto');
-  ga('send', 'pageview');
+  if (window.location.hostname == 'youtube.github.io') {
+    ga('create', 'UA-60219601-1', 'auto');
+    ga('send', 'pageview');
+  }
 </script>
 
-  </body>
+</body>
 </html>
+
