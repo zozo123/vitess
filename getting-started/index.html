@@ -105,7 +105,7 @@ workspace can be found at
 <h2 id="build-and-install-vtctlclient">Build and install <code>vtctlclient</code></h2>
 
 <p>The <code>vtctlclient</code> tool issues commands to Vitess.</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>go get git￼￼hub.com/youtube/vitess/go/cmd/vtctlclient
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>go get github.com/youtube/vitess/go/cmd/vtctlclient
 </code></pre></div>
 <p>This command downloads and builds the Vitess source code at:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$GOPATH</span>/src/github.com/youtube/vitess/
@@ -161,10 +161,10 @@ when bringing up your Kubernetes cluster later in this guide.</p></li>
 <ol>
 <li><p>Set the <code>KUBECTL</code> environment variable to point to the
 <code>gcloud</code> command:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span><span class="nb">export </span><span class="nv">KUBECTL</span><span class="o">=</span><span class="s1">&#39;gcloud preview container kubectl&#39;</span>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span><span class="nb">export </span><span class="nv">KUBECTL</span><span class="o">=</span><span class="s1">&#39;gcloud alpha container kubectl&#39;</span>
 </code></pre></div></li>
-<li><p>Enable preview features in the <code>gcloud</code> tool:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>gcloud components update preview
+<li><p>Enable alpha features in the <code>gcloud</code> tool:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>gcloud components update alpha
 </code></pre></div></li>
 <li><p>If you did not complete the <a href="https://cloud.google.com/compute/docs/quickstart#setup">GCE quickstart guide</a>, set
 your default project ID by running the following command.
@@ -180,7 +180,7 @@ that your installation will use:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>gcloud config <span class="nb">set </span>compute/zone us-central1-b
 </code></pre></div></li>
 <li><p>Create a Kubernetes cluster:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>gcloud preview container clusters create example --machine-type n1-standard-1 --num-nodes 3
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>gcloud alpha container clusters create example --machine-type n1-standard-1 --num-nodes 3
 </code></pre></div></li>
 <li><p>While the cluster is starting, you will be prompted several
 times for the passphrase you created while setting up Google
@@ -439,14 +439,17 @@ provides more detail about how the app server interacts with Vitess.</p>
 
 <p>The following command tears down the Container Engine cluster. It is
 necessary to stop the virtual machines running on the Cloud platform.</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>gcloud preview container clusters delete example
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>gcloud alpha container clusters delete example
 </code></pre></div>
 <p>And these commands clean up other entities created for this example.
 They are suggested to prevent conflicts that might occur if you
 don&#39;t run them and then rerun this example in a different mode.</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>gcloud compute forwarding-rules delete vtctld
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>gcloud compute forwarding-rules delete k8s-example-default-vtctld
+<span class="nv">$ </span>gcloud compute forwarding-rules delete k8s-example-default-guestbook
 <span class="nv">$ </span>gcloud compute firewall-rules delete vtctld
-<span class="nv">$ </span>gcloud compute target-pools delete vtctld
+<span class="nv">$ </span>gcloud compute firewall-rules delete guestbook
+<span class="nv">$ </span>gcloud compute target-pools delete k8s-example-default-vtctld
+<span class="nv">$ </span>gcloud compute target-pools delete k8s-example-default-guestbook
 </code></pre></div>
 <h2 id="troubleshooting">Troubleshooting</h2>
 

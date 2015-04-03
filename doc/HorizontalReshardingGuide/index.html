@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Vitess - HorizontalReshardingGuide</title>
+<meta name="description" content="A set of servers and tools that facilitate scaling of MySQL databases for the web.">
+
+<link rel="canonical" href="http://vitess.io/doc/HorizontalReshardingGuide/">
+
+<!-- Add to homescreen for Chrome on Android -->
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="icon" sizes="196x196" href="/images/touch/chrome-touch-icon-196x196.png">
+
+<!-- Add to homescreen for Safari on iOS -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Vitess">
+
+<!-- Tile icon for Win8 (144x144 + tile color) -->
+<meta name="msapplication-TileImage" content="/images/touch/ms-touch-icon-144x144-precomposed.png">
+<meta name="msapplication-TileColor" content="#3372DF">
+
+<link rel="stylesheet" href="/assets/vendor/styles/wsk.css">
+<link rel="stylesheet" href="/css/main.css">
+<link rel="stylesheet" href="/css/extra.css">
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,600,900|Roboto+Condensed:300,300italic,400,700">
+
+</head>
+<body class="">
+
+<header id="app-bar" class="app-bar promote-layer">
+  <div class="app-bar-container">
+    <button id="menu" class="menu" title="Menu"></button>
+    <h1 class="logo"><a href="/">Vitess</a></h1>
+    <section class="app-bar-actions">
+      <a href="#"><i class="icon icon-chevron-up"></i> Top</a>
+    </section>
+  </div>
+</header>
+
+<div class="navdrawer">
+  <nav id="nav" class="navdrawer-container promote-layer">
+    <h4>Navigation</h4>
+    
+<ul>
+  
+    <li >
+      <a href="http://vitess.io//"></a>
+    </li>
+  
+    <li >
+      <a href="http://vitess.io/overview/">Overview</a>
+    </li>
+  
+    <li >
+      <a href="http://vitess.io/getting-started/">Getting Started</a>
+    </li>
+  
+  <li><a href="https://github.com/youtube/vitess">GitHub</a></li>
+</ul>
+
+  </nav>
+</div>
+
+<main class="clear">
+
+  <header class="page-header container">
+    <h2 class="xxlarge text-divider">HorizontalReshardingGuide</h2>
+    
+  </header>
+
+  <div class="container">
+    <h1 id="horizontal-resharding-guide">Horizontal resharding guide</h1>
+
+<p>This is a step-by-step guide to splitting a single-sharded keyspace into two. The same general instructions can also be used for resharding an already sharded keyspace.</p>
+
+<h2 id="preparing-the-source-shard">Preparing the source shard</h2>
+
+<h6 id="note:-this-step-can-be-skipped-if-your-keyspace-already-has-multiple-shards.">Note: This step can be skipped if your keyspace already has multiple shards.</h6>
+
+<p>Let’s assume that you’ve already got a keyspace up and running, with a single shard (the default case). For example, you might have the following keyspace/shard: <code>test_keyspace/0</code>. It’s also a requirement that you have at least one (but preferably two) rdonly tablets for the source shard.</p>
+
+<p>The first thing that we need to do is add a column to the soon-to-be-sharded keyspace which will be used as the &quot;sharding key&quot;. This column will tell Vitess which shard a particular row of data should go to. You can add the column by running an alter on the unsharded keyspace - probably by running something like:</p>
+
+<p><code>vtctl ApplySchemaKeyspace -simple -sql=&quot;alter table &lt;table name&gt; add keyspace_id&quot; test_keyspace</code></p>
+
+<p>for each table in the keyspace. Once the column is added everywhere, each row needs to be backfilled with the appropriate keyspace ID.</p>
+
+<p>Once we have a column that we can use as the sharding key, we need to tell Vitess what we’ll use as the sharding key for a particular keyspace. This can be done with, for example:</p>
+
+<p><code>vtctl SetKeyspaceShardingInfo test_keyspace keyspace_id uint64</code></p>
+
+<h2 id="preparing-the-destination-shards">Preparing the destination shards</h2>
+
+<p>Create destination shards and tablets just like the source shard was created. For example, you might have <code>test_keyspace/-80</code> and <code>test_keyspace/80-</code>, if you were splitting the original shard into two shards.</p>
+
+<p>You will need to make sure that each destination shard has a master tablet, and at least one (but preferably two) rdonly tablets. It is necessary to reparent each destination shard, after creating the master tablet, to choose a master. This can be done by, for example:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">vtctl ReparentShard -force test_keyspace/-80 &lt;master tablet alias&gt;
+vtctl ReparentShard -force test_keyspace/80- &lt;master tablet alias&gt;
+</code></pre></div>
+<p>At this point, the destination shards should be created, but do not have any data, and will not be serving any traffic.</p>
+
+<h2 id="cloning-the-data-into-the-destination-shards">Cloning the data into the destination shards</h2>
+
+<p>Before copying the data from the source to the destination, it’s necessary to copy the schema to each destination shard. This can be done easily by running, for example:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">vtctl CopySchemaShard &lt;source rdonly tablet alias&gt; test_keyspace/-80
+vtctl CopySchemaShard &lt;source rdonly tablet alias&gt; test_keyspace/80-
+</code></pre></div>
+<p>Next, we will copy the data from the source shard and split it into the correct destination shards. This is done by running a vtworker process, which does the following:</p>
+
+<ol>
+<li>Finds an rdonly tablet on the source shard and &quot;freezes&quot; it in place. This prevents the data from changing while it is being copied. However, it also means that the rdonly tablet is removed from the serving graph, as live updates to the source shard will not propagate to it. This is why it’s recommended to have at least two rdonly tablets on the source shard.</li>
+<li>Does a (concurrent) full scan of each source shard table.</li>
+<li>Looks at each source row’s sharding key, and chooses the appropriate destination shard.</li>
+<li>Streams the data to the correct destination shard master.</li>
+</ol>
+
+<p>The vtworker can be started by, for example:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">vtworker --min_healthy_rdonly_endpoints 1 SplitClone --cell=test --strategy=-populate_blp_checkpoint test_keyspace/0
+</code></pre></div>
+<p>The worker will take some time, depending on how large your dataset is that needs to be copied.</p>
+
+<p>Once it returns successfully, the destination shards should have the correct data, but still won’t be serving any traffic. The source rdonly that was used will not be returned to the serving graph automatically. The following command can be run to change its type from spare to rdonly, and have it start catching up on replication:</p>
+
+<p><code>vtctl ChangeSlaveType &lt;rdonly tablet alias&gt; rdonly</code></p>
+
+<p>The destination shards will also now be running <a href="Resharding.md#filtered-replication">filtered replication</a>.</p>
+
+<h2 id="running-a-diff-of-the-data-to-verify-accuracy">Running a diff of the data to verify accuracy</h2>
+
+<h6 id="note:-this-step-is-optional,-but-highly-recommended.">Note: This step is optional, but highly recommended.</h6>
+
+<p>Now that the data has been copied (up to a certain point in time) to the destination shard, we will still want to do a couple of things before serving data from the destination shard:</p>
+
+<ol>
+<li>Catch up on <a href="Resharding.md#filtered-replication">filtered replication</a>. Since we copied the data from a frozen point in time, we will need to now wait for the data changes that were applied to the source shard to propagate to the destination shards. This should happen automatically, but will take some time (depending on how long the copy took, and how many data changes there were since then). It should also be possible to see the state of filtered replication by viewing the status page of a destination master tablet in your browser. For example: <code>http://localhost:&lt;destination master tablet port&gt;/debug/status</code> will show a SecondsBehindMaster column in the Binlog Player table.</li>
+<li>Compare a destination shard to the source shard, and make sure that the data on each side matches. This is a safeguard to catch potential problems that may have occurred during the copying process (for example, if the sharding key was changed for a particular row after the copy step was run).</li>
+</ol>
+
+<p>The vtworker process has a diff command which can accomplish both of the above steps. It does the following (for each destination shard):</p>
+
+<ol>
+<li>Finds a healthy rdonly tablet in the source shard, and a healthy rdonly tablet in the destination shard.</li>
+<li>Removes both tablets from the serving graph, as they will be used to compare data between them.</li>
+<li>Pauses filtered replication on the destination master tablet.</li>
+<li>Pauses replication on the source rdonly tablet, at a position higher than the destination master’s filtered replication position.</li>
+<li>Resumes the destination master’s filtered replication</li>
+<li>Catches up the destination rdonly to the exact same position as the source rdonly, and then stops replication on it.</li>
+<li>Compares schema between the source and destination</li>
+<li>Streams data from both source and destination (with the same sharding key constraints), and verifies that it’s equal</li>
+</ol>
+
+<p>A single SplitDiff vtworker can be run by, for example:</p>
+
+<p><code>vtworker -min_healthy_rdonly_endpoints=1 --cell=test SplitDiff test_keyspace/-80</code></p>
+
+<p>After completion, the source and destination rdonly tablets need to be put back into the serving graph:
+<code>
+vtctl ChangeSlaveType &lt;source rdonly tablet alias&gt; rdonly
+vtctl ChangeSlaveType &lt;destination rdonly tablet alias&gt; rdonly
+</code></p>
+
+<p>If the diff is successful on the first destination shard, it should be be repeated on the next one. It is recommended to not run multiple diffs in parallel, unless you are willing to remove multiple rdonly tablets from the source shard at the same time:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">vtworker -min_healthy_rdonly_endpoints=1 --cell=test SplitDiff test_keyspace/80-
+vtctl ChangeSlaveType &lt;source rdonly tablet alias&gt; rdonly
+vtctl ChangeSlaveType &lt;destination rdonly tablet alias&gt; rdonly
+</code></pre></div>
+<h2 id="serve-data-from-the-destination-shards">Serve data from the destination shards</h2>
+
+<p>Now that you’ve verified the destination shards have the data you want, we can start serving traffic from the destination shards.</p>
+
+<p>The safest way to do this is to migrate read only traffic first, and only migrate masters once the read only traffic is stabilized. Migrating the master traffic is not reversible without data inconsistencies, so it’s best to be careful.</p>
+
+<p>When ready, you can migrate each tier of traffic with the following commands:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">vtctl MigrateServedTypes test_keyspace/0 rdonly
+vtctl MigrateServedTypes test_keyspace/0 replica
+vtctl MigrateServedTypes test_keyspace/0 master
+</code></pre></div>
+<p>If something goes wrong during the migration of read only traffic, those can be reverted:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">vtctl MigrateServedTypes -reverse test_keyspace/0 rdonly
+vtctl MigrateServedTypes -reverse test_keyspace/0 replica
+</code></pre></div>
+<h2 id="scrap-the-source-shard">Scrap the source shard</h2>
+
+<p>If all the above steps were successful, it’s safe to remove the source shard (which should no longer be in use):
+- For each tablet in the source shard: <code>vtctl ScrapTablet &lt;source tablet alias&gt;</code>
+- For each tablet in the source shard: <code>vtctl DeleteTablet &lt;source tablet alias&gt;</code>
+- Rebuild the serving graph: <code>vtctl RebuildKeyspaceGraph test_keyspace</code>
+- Delete the source shard: <code>vtctl DeleteShard test_keyspace/0</code></p>
+
+  </div>
+
+</main>
+
+
+<footer>
+  <div class="container">
+    <p class="small">&copy; 2015 Google. Licensed under <a href="http://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>.</p>
+  </div>
+</footer>
+
+<script src="/assets/scripts/main.js"></script>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  if (window.location.hostname == 'youtube.github.io') {
+    ga('create', 'UA-60219601-1', 'auto');
+    ga('send', 'pageview');
+  }
+</script>
+
+</body>
+</html>
+

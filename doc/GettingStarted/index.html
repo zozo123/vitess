@@ -75,7 +75,14 @@
   <div class="container">
     <h1 id="getting-started">Getting Started</h1>
 
-<p>If you run into issues or have questions, you can use our mailing list: <a href="mailto:vitess@googlegroups.com">vitess@googlegroups.com</a>.</p>
+<p>This guide describes how to build Vitess manually.
+If you prefer, you can instead build with our
+<a href="https://github.com/youtube/vitess/blob/master/Dockerfile">Dockerfile</a>,
+or use an
+<a href="https://registry.hub.docker.com/repos/vitess/">Automated Build</a>.</p>
+
+<p>If you run into issues or have questions, please post on our
+<a href="https://groups.google.com/forum/#!forum/vitess">forum</a>.</p>
 
 <h2 id="dependencies">Dependencies</h2>
 
@@ -115,8 +122,12 @@ and make sure the &quot;etcd&quot; command is on your path.</p>
 If the mysql_config command from libmariadbclient-dev is not on the PATH,
 you&#39;ll need to <em>export VT_MYSQL_ROOT=/path/to/mariadb</em> before running bootstrap.sh,
 where mysql_config is found at /path/to/mariadb/<strong>bin</strong>/mysql_config.</p>
+
+<p>Also note that the bootstrap script needs to download some dependencies,
+so if your machine requires a proxy to access the internet, you&#39;ll need to
+set the usual environment variables (e.g. http_proxy, https_proxy, no_proxy).</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nb">cd</span> <span class="nv">$WORKSPACE</span>
-sudo apt-get install make automake libtool memcached python-dev python-mysqldb libssl-dev g++ mercurial git pkg-config bison curl
+sudo apt-get install make automake libtool memcached python-dev python-virtualenv python-mysqldb libssl-dev g++ mercurial git pkg-config bison curl unzip
 git clone https://github.com/youtube/vitess.git src/github.com/youtube/vitess
 <span class="nb">cd </span>src/github.com/youtube/vitess
 <span class="nb">export </span><span class="nv">MYSQL_FLAVOR</span><span class="o">=</span>MariaDB

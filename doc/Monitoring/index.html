@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Vitess - Monitoring</title>
+<meta name="description" content="A set of servers and tools that facilitate scaling of MySQL databases for the web.">
+
+<link rel="canonical" href="http://vitess.io/doc/Monitoring/">
+
+<!-- Add to homescreen for Chrome on Android -->
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="icon" sizes="196x196" href="/images/touch/chrome-touch-icon-196x196.png">
+
+<!-- Add to homescreen for Safari on iOS -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Vitess">
+
+<!-- Tile icon for Win8 (144x144 + tile color) -->
+<meta name="msapplication-TileImage" content="/images/touch/ms-touch-icon-144x144-precomposed.png">
+<meta name="msapplication-TileColor" content="#3372DF">
+
+<link rel="stylesheet" href="/assets/vendor/styles/wsk.css">
+<link rel="stylesheet" href="/css/main.css">
+<link rel="stylesheet" href="/css/extra.css">
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,600,900|Roboto+Condensed:300,300italic,400,700">
+
+</head>
+<body class="">
+
+<header id="app-bar" class="app-bar promote-layer">
+  <div class="app-bar-container">
+    <button id="menu" class="menu" title="Menu"></button>
+    <h1 class="logo"><a href="/">Vitess</a></h1>
+    <section class="app-bar-actions">
+      <a href="#"><i class="icon icon-chevron-up"></i> Top</a>
+    </section>
+  </div>
+</header>
+
+<div class="navdrawer">
+  <nav id="nav" class="navdrawer-container promote-layer">
+    <h4>Navigation</h4>
+    
+<ul>
+  
+    <li >
+      <a href="http://vitess.io//"></a>
+    </li>
+  
+    <li >
+      <a href="http://vitess.io/overview/">Overview</a>
+    </li>
+  
+    <li >
+      <a href="http://vitess.io/getting-started/">Getting Started</a>
+    </li>
+  
+  <li><a href="https://github.com/youtube/vitess">GitHub</a></li>
+</ul>
+
+  </nav>
+</div>
+
+<main class="clear">
+
+  <header class="page-header container">
+    <h2 class="xxlarge text-divider">Monitoring</h2>
+    
+  </header>
+
+  <div class="container">
+    <h1 id="vitess-monitoring">Vitess Monitoring</h1>
+
+<p>This page explains the current state of Vitess metrics monitoring, and potential future work in the area.</p>
+
+<h2 id="current-state-of-monitoring">Current state of monitoring</h2>
+
+<p>There are currently three main ways that a Vitess cluster can be monitored. Depending on your needs, you can use any of the following methods:</p>
+
+<h3 id="1.-vitess-status-pages">1. Vitess status pages</h3>
+
+<p>The status HTML pages of various Vitess components can be accessed by pointing your browser to <code>http://&lt;host&gt;:&lt;port&gt;/debug/status</code>. The status pages will often display some basic, but useful, information for monitoring. For example, the status page of a vttablet will show the QPS graph for the past few minutes.</p>
+
+<p>Viewing a status page can be useful since it works out of the box, but it only provides very basic monitoring capabilities.</p>
+
+<h3 id="2.-pull-based-metrics-system">2. Pull-based metrics system</h3>
+
+<p>Vitess uses Go’s <a href="http://golang.org/pkg/expvar/">expvar package</a> to expose various metrics, with the expectation that a user can configure a pull-based metrics system to ingest those metrics. Metrics are published to <code>http://&lt;host&gt;:&lt;port&gt;/debug/vars</code> as JSON key-value pairs, which should be easy for any metrics system to parse.</p>
+
+<p>Scraping Vitess variables is a good way to integrate Vitess into an existing monitoring system, and is useful for building up detailed monitoring dashboards. It is also the officially supported way for monitoring Vitess.</p>
+
+<h3 id="3.-push-based-metrics-system">3. Push-based metrics system</h3>
+
+<p>Vitess also includes support for push-based metrics systems via plug-ins. Each Vitess component would need to be run with the <code>--emit_stats</code> flag.</p>
+
+<p>By default, the stats_emit_period is 60s, so each component will push stats to the the selected backend every minute. This is configurable via the <code>--stats_emit_period</code> flag.</p>
+
+<p>Vitess has a preliminary plug-in to support InfluxDB as a push-based metrics backend. However, there is very limited support at this time, as InfluxDB itself is going through various API breaking changes.</p>
+
+<p>It should be fairly straightforward to write your own plug-in, if you want to support a different backend. The plug-in package simply needs to implement the <code>PushBackend</code> interface of the <code>stats</code> package. For an example, you can see the <a href="https://github.com/youtube/vitess/blob/master/go/stats/influxdbbackend/influxdb_backend.go">InfluxDB plugin</a>.</p>
+
+<p>Once you’ve written the backend plug-in, you also need to register the plug-in from within all the relevant Vitess binaries. An example of how to do this can be seen in <a href="https://github.com/youtube/vitess/pull/469">this pull request</a>.</p>
+
+<p>You can then specify that Vitess should publish stats to the backend that you’re targeting by using the <code>--stats_backend</code> flag.</p>
+
+<p>Connecting Vitess to a push-based metrics system can be useful if you’re already running a push-based system that you would like to integrate into. More discussion on using a push vs pull based monitoring system can be seen here: <a href="http://www.boxever.com/push-vs-pull-for-monitoring">http://www.boxever.com/push-vs-pull-for-monitoring</a></p>
+
+<h2 id="monitoring-with-kubernetes">Monitoring with Kubernetes</h2>
+
+<p>The existing methods for integrating metrics are not supported in a Kubernetes environment by the Vitess team yet, but are on the roadmap for the future. However, it should be possible to get the InfluxDB backend working with Kubernetes, similar to how <a href="https://github.com/GoogleCloudPlatform/kubernetes/tree/master/cluster/addons/cluster-monitoring">Heapster for Kubernetes works</a>.</p>
+
+<p>In the meantime, if you run into issues or have questions, please post on our <a href="https://groups.google.com/forum/#!forum/vitess">forum</a>.</p>
+
+  </div>
+
+</main>
+
+
+<footer>
+  <div class="container">
+    <p class="small">&copy; 2015 Google. Licensed under <a href="http://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>.</p>
+  </div>
+</footer>
+
+<script src="/assets/scripts/main.js"></script>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  if (window.location.hostname == 'youtube.github.io') {
+    ga('create', 'UA-60219601-1', 'auto');
+    ga('send', 'pageview');
+  }
+</script>
+
+</body>
+</html>
+

@@ -6,11 +6,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>http://vitess.io/doc/ZookeeperData/</loc>
-    <lastmod>2015-01-01T00:00:00-08:00</lastmod>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>http://vitess.io/doc/VitessOverview/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
     <priority>0.8</priority>
@@ -26,17 +21,17 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>http://vitess.io/doc/TopologyService/</loc>
+    <lastmod>2015-01-01T00:00:00-08:00</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>http://vitess.io/doc/Tools/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>http://vitess.io/doc/TestingOnARamDisk/</loc>
-    <lastmod>2015-01-01T00:00:00-08:00</lastmod>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>http://vitess.io/doc/ServingGraph/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
     <priority>0.8</priority>
   </url>
@@ -51,11 +46,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>http://vitess.io/doc/ReplicationGraph/</loc>
-    <lastmod>2015-01-01T00:00:00-08:00</lastmod>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>http://vitess.io/doc/Reparenting/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
     <priority>0.8</priority>
@@ -66,7 +56,17 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>http://vitess.io/doc/Monitoring/</loc>
+    <lastmod>2015-01-01T00:00:00-08:00</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>http://vitess.io/doc/LifeOfAQuery/</loc>
+    <lastmod>2015-01-01T00:00:00-08:00</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>http://vitess.io/doc/HorizontalReshardingGuide/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
     <priority>0.8</priority>
   </url>
@@ -97,43 +97,43 @@
   </url>
   <url>
     <loc>http://vitess.io/about/</loc>
-    <lastmod>2015-03-11T11:02:04-07:00</lastmod>
+    <lastmod>2015-04-03T15:24:45-07:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>http://vitess.io/doc/</loc>
-    <lastmod>2015-03-11T11:02:04-07:00</lastmod>
+    <lastmod>2015-04-03T15:24:45-07:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>http://vitess.io/faq/</loc>
-    <lastmod>2015-03-11T11:02:04-07:00</lastmod>
+    <lastmod>2015-04-03T15:24:45-07:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>http://vitess.io/overview/</loc>
-    <lastmod>2015-03-11T11:02:04-07:00</lastmod>
+    <lastmod>2015-04-03T15:24:45-07:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>http://vitess.io/getting-started/</loc>
-    <lastmod>2015-03-11T11:02:04-07:00</lastmod>
+    <lastmod>2015-04-03T15:24:45-07:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>http://vitess.io/</loc>
-    <lastmod>2015-03-11T11:02:04-07:00</lastmod>
+    <lastmod>2015-04-03T15:24:45-07:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>http://vitess.io/terms/</loc>
-    <lastmod>2015-03-11T11:02:04-07:00</lastmod>
+    <lastmod>2015-04-03T15:24:45-07:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>

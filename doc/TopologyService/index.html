@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Vitess - TopologyService</title>
+<meta name="description" content="A set of servers and tools that facilitate scaling of MySQL databases for the web.">
+
+<link rel="canonical" href="http://vitess.io/doc/TopologyService/">
+
+<!-- Add to homescreen for Chrome on Android -->
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="icon" sizes="196x196" href="/images/touch/chrome-touch-icon-196x196.png">
+
+<!-- Add to homescreen for Safari on iOS -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Vitess">
+
+<!-- Tile icon for Win8 (144x144 + tile color) -->
+<meta name="msapplication-TileImage" content="/images/touch/ms-touch-icon-144x144-precomposed.png">
+<meta name="msapplication-TileColor" content="#3372DF">
+
+<link rel="stylesheet" href="/assets/vendor/styles/wsk.css">
+<link rel="stylesheet" href="/css/main.css">
+<link rel="stylesheet" href="/css/extra.css">
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,600,900|Roboto+Condensed:300,300italic,400,700">
+
+</head>
+<body class="">
+
+<header id="app-bar" class="app-bar promote-layer">
+  <div class="app-bar-container">
+    <button id="menu" class="menu" title="Menu"></button>
+    <h1 class="logo"><a href="/">Vitess</a></h1>
+    <section class="app-bar-actions">
+      <a href="#"><i class="icon icon-chevron-up"></i> Top</a>
+    </section>
+  </div>
+</header>
+
+<div class="navdrawer">
+  <nav id="nav" class="navdrawer-container promote-layer">
+    <h4>Navigation</h4>
+    
+<ul>
+  
+    <li >
+      <a href="http://vitess.io//"></a>
+    </li>
+  
+    <li >
+      <a href="http://vitess.io/overview/">Overview</a>
+    </li>
+  
+    <li >
+      <a href="http://vitess.io/getting-started/">Getting Started</a>
+    </li>
+  
+  <li><a href="https://github.com/youtube/vitess">GitHub</a></li>
+</ul>
+
+  </nav>
+</div>
+
+<main class="clear">
+
+  <header class="page-header container">
+    <h2 class="xxlarge text-divider">TopologyService</h2>
+    
+  </header>
+
+  <div class="container">
+    <h1 id="topology-service">Topology Service</h1>
+
+<p>This document describes the Topology Service, a key part of the Vitess architecture. This service is exposed to all Vitess processes, and is used to store small pieces of configuration data about the Vitess cluster, and provide cluster-wide locks. It also supports watches, which we will use soon.</p>
+
+<p>Concretely, the Topology Service features are implemented by a <a href="http://en.wikipedia.org/wiki/Distributed_lock_manager">Lock Server</a>, referred to as Topology Server in the rest of this document. We use a plug-in implementation and we support multiple Lock Servers (ZooKeeper, etcd, …) as backends for the service.</p>
+
+<h2 id="requirements-and-usage">Requirements and Usage</h2>
+
+<p>The Topology Service is used to store information about the Keyspaces, the Shards, the Tablets, the Replication Graph, and the Serving Graph. We store small data structures (a few hundred bytes) per object.</p>
+
+<p>The main contract for the Topology Server is to be very highly available and consistent. It is understood it will come at a higher latency cost and very low throughput.</p>
+
+<p>We never use the Topology Server as an RPC mechanism, nor as a storage system for logs. We never depend on the Topology Server being responsive and fast to serve every query.</p>
+
+<p>The Topology Server must also support a Watch interface, to signal when certain conditions occur on a node. This is used for instance to know when servers come online or go offline.</p>
+
+<h3 id="global-vs-local">Global vs Local</h3>
+
+<p>We differentiate two instances of the Topology Server: the global instance, and the per-cell local instance:
+The global instance is used to store global data about the topology that doesn’t change very often, for instance information about Keyspaces and Shards. The data is independent of individual instances and cells, and needs to survive a cell going down entirely.
+There is one local instance per cell, that contains cell-specific information, and also rolled-up data from the global + local cell to make it easier for clients to find the data. The Vitess clients should not use the global topology instance, but instead the rolled-up data in the local topology server.</p>
+
+<p>The global instance can go down for a while and not impact the local cells (an exception to that is if a reparent needs to be processed, it might not work). If a local instance goes down, it only affects the local tablets in that instance (and then the cell is usually in bad shape, and should not be used).</p>
+
+<h3 id="recovery">Recovery</h3>
+
+<p>If a local Topology Server dies and is not recoverable, it can be wiped out. All the tablets in that cell then need to be restarted so they re-initialize their topology records (but they won’t lose any MySQL data).</p>
+
+<p>If the global Topology Server dies and is not recoverable, this is more of a problem. All the Keyspace / Shard objects have to be re-created. Then the cells should recover.</p>
+
+<h2 id="global-data">Global Data</h2>
+
+<p>This section describes the data structures stored in the global instance of the topology server.</p>
+
+<h3 id="keyspace">Keyspace</h3>
+
+<p>The Keyspace object contains various information, mostly about sharding: how is this Keyspace sharded, what is the name of the sharding key column, is this Keyspace serving data yet, how to split incoming queries, …</p>
+
+<p>An entire Keyspace can be locked. We use this during resharding for instance, when we change which Shard is serving what inside a Keyspace. That way we guarantee only one operation changes the keyspace data concurrently.</p>
+
+<h3 id="shard">Shard</h3>
+
+<p>A Shard contains a subset of the data for a Keyspace. The Shard record in the global topology contains:
+- the MySQL Master tablet alias for this shard
+- the sharding key range covered by this Shard inside the Keyspace
+- the tablet types this Shard is serving (master, replica, batch, …), per cell if necessary.
+- if during filtered replication, the source shards this shard is replicating from
+- the list of cells that have tablets in this shard
+- shard-global tablet controls, like blacklisted tables no tablet should serve in this shard</p>
+
+<p>A Shard can be locked. We use this during operations that affect either the Shard record, or multiple tablets within a Shard (like reparenting), so multiple jobs don’t concurrently alter the data.</p>
+
+<h3 id="vschema-data">VSchema Data</h3>
+
+<p>(experimental) The VSchema data contains sharding and routing information for the <a href="http://vitess.io/doc/VTGateV3">VTGate V3</a> API.</p>
+
+<h2 id="local-data">Local Data</h2>
+
+<p>This section describes the data structures stored in the local instance (per cell) of the topology server.</p>
+
+<h3 id="tablets">Tablets</h3>
+
+<p>The Tablet record has a lot of information about a single vttablet process running inside a tablet (along with the MySQL process):
+- the Tablet Alias (cell+unique id) that uniquely identifies the Tablet
+- the Hostname, IP address and port map of the Tablet
+- the current Tablet type (master, replica, batch, spare, …)
+- which Keyspace / Shard the tablet is part of
+- the health map for the Tablet (if in degraded mode)
+- the sharding Key Range served by this Tablet
+- user-specified tag map (to store per installation data for instance)</p>
+
+<p>A Tablet record is created before a tablet can be running (either by <code>vtctl InitTablet</code> or by passing the <code>init_*</code> parameters to vttablet). The only way a Tablet record will be updated is one of:
+- The vttablet process itself owns the record while it is running, and can change it.
+- At init time, before the tablet starts
+- After shutdown, when the tablet gets scrapped or deleted.
+- If a tablet becomes unresponsive, it may be forced to spare to remove it from the serving graph (such as when reparenting away from a dead master, by the <code>vtctl ReparentShard</code> action).</p>
+
+<h3 id="replication-graph">Replication Graph</h3>
+
+<p>The Replication Graph allows us to find Tablets in a given Cell / Keyspace / Shard. It used to contain information about which Tablet is replicating from which other Tablet, but that was too complicated to maintain. Now it is just a list of Tablets.</p>
+
+<h3 id="serving-graph">Serving Graph</h3>
+
+<p>The Serving Graph is what the clients use to find which EndPoints to send queries to. It is a roll-up of global data and local data. Clients only open a small number of these objects and get all they need quickly.</p>
+
+<h4 id="srvkeyspace">SrvKeyspace</h4>
+
+<p>It is the local representation of a Keyspace. It contains information on what shard to use for getting to the data (but not information about each individual shard):
+- the partitions map is keyed by the tablet type (master, replica, batch, …) and the values are list of shards to use for serving.
+- it also contains the global Keyspace fields, copied for fast access.</p>
+
+<p>It can be rebuilt by running <code>vtctl RebuildKeyspaceGraph</code>. It is not automatically rebuilt when adding new tablets in a cell, as this would cause too much overhead and is only needed once per cell/keyspace. It may also be changed during horizontal and vertical splits.</p>
+
+<h4 id="srvshard">SrvShard</h4>
+
+<p>It is the local representation of a Shard. It contains information on details internal to this Shard only, but not to any tablet running in this shard:
+- the name and sharding Key Range for this Shard.
+- the cell that has the master for this Shard.</p>
+
+<p>It is possible to lock a SrvShard object, to massively update all EndPoints in it.</p>
+
+<p>It can be rebuilt (along with all the EndPoints in this Shard) by running <code>vtctl RebuildShardGraph</code>.</p>
+
+<h4 id="endpoints">EndPoints</h4>
+
+<p>For each possible serving type (master, replica, batch), in each Cell / Keyspace / Shard, we maintain a rolled-up EndPoint list. Each entry in the list has information about one Tablet:
+- the Tablet Uid
+- the Host on which the Tablet resides
+- the port map for that Tablet
+- the health map for that Tablet</p>
+
+<h2 id="workflows-involving-the-topology-server">Workflows Involving the Topology Server</h2>
+
+<p>The Topology Server is involved in many Vitess workflows.</p>
+
+<p>When a Tablet is initialized, we create the Tablet record, and add the Tablet to the Replication Graph. If it is the master for a Shard, we update the global Shard record as well (we may also update the SrvShard objects in all cells if this master is in a different cell). When the Tablet is changed to be serving (its type is changed to master, replica or batch), it is also added to the Serving Graph.</p>
+
+<p>Administration tools need to find the tablets for a given Keyspace / Shard:
+first we get the list of Cells that have Tablets for the Shard (global topology Shard record has these)
+then we use the Replication Graph for that Cell / Keyspace / Shard to find all the tablets
+then we can read each tablet record.</p>
+
+<p>When a Shard is reparented, we need to update the global Shard record with the new master alias. If the cell the master is in has changed, we also need to change the SrvShard records in all cells. And obviously the master EndPoints list will change.</p>
+
+<p>Finding a tablet to serve the data is fairly easy: the client needs to read the SrvKeyspace object to find which shard to use, then it can directly read the EndPoints. To access the master remotely, the client may read the SrvShard to find the master cell, and get the EndPoints there.</p>
+
+<p>During resharding events, we also change the topology a lot. An horizontal split will change the global Shard records, and the local SrvKeyspace records. A vertical split will change the global Keyspace records, and the local SrvKeyspace records.</p>
+
+<h2 id="implementations">Implementations</h2>
+
+<p>The Topology Server interface is defined in our code in go/vt/topo/server.go and we also have a set of unit tests for it in go/vt/topo/test.</p>
+
+<p>This part describes the two implementations we have, and their specific behavior.</p>
+
+<h3 id="zookeeper">ZooKeeper</h3>
+
+<p>Our ZooKeeper implementation is based on a configuration file that describes where the global and each local cell ZK instances are. When adding a cell, all processes that may access that cell should be restarted with the new configuration file.</p>
+
+<p>The global cell typically has around 5 servers, distributed one in each cell. The local cells typically have 3 or 5 servers, in different server racks / sub-networks for higher resiliency. For our integration tests, we use a single ZK server that serves both global and local cells.</p>
+
+<p>We sometimes store both data and sub-directories in a path (for a keyspace for instance). We use JSON to encode the data.</p>
+
+<p>For locking, we use an auto-incrementing file name in the <code>/action</code> subdirectory of the object directory. We also move them to <code>/actionlogs</code> when the lock is released. And we have a purge process to clear the old locks (which should be run on a crontab, typically).</p>
+
+<p>Note the paths used to store global and per-cell data do not overlap, so a single ZK can be used for both global and local ZKs. This is however not recommended, for reliability reasons.</p>
+
+<ul>
+<li>Keyspace: <code>/zk/global/vt/keyspaces/&lt;keyspace&gt;</code></li>
+<li>Shard: <code>/zk/global/vt/keyspaces/&lt;keyspace&gt;/shards/&lt;shard&gt;</code></li>
+<li>Tablet: <code>/zk/&lt;cell&gt;/vt/tablets/&lt;uid&gt;</code></li>
+<li>Replication Graph: <code>/zk/&lt;cell&gt;/vt/replication/&lt;keyspace&gt;/&lt;shard&gt;</code></li>
+<li>SrvKeyspace: <code>/zk/&lt;cell&gt;/vt/ns/&lt;keyspace&gt;</code></li>
+<li>SrvShard: <code>/zk/&lt;cell&gt;/vt/ns/&lt;keyspace&gt;/&lt;shard&gt;</code></li>
+<li>EndPoints: <code>/zk/&lt;cell&gt;/vt/ns/&lt;keyspace&gt;/&lt;shard&gt;/&lt;tablet type&gt;</code></li>
+</ul>
+
+<p>We provide the &#39;zk&#39; utility for easy access to the topology data in ZooKeeper. For instance:
+```</p>
+
+<h1 id="note:-you-need-to-source-zookeeper-client-config-file,-like-so:">NOTE: You need to source zookeeper client config file, like so:</h1>
+
+<h1 id="export-zk_client_config=/path/to/zk/client.conf">export ZK_CLIENT_CONFIG=/path/to/zk/client.conf</h1>
+
+<p>$ zk ls /zk/global/vt/keyspaces/user
+action
+actionlog
+shards
+```</p>
+
+<h3 id="etcd">Etcd</h3>
+
+<p>Our etcd implementation is based on a command-line parameter that gives the location(s) of the global etcd server. Then we query the path <code>/vt/cells</code> and each file in there is named after a cell, and contains the list of etcd servers for that cell.</p>
+
+<p>We use the <code>_Data</code> filename to store the data, JSON encoded.</p>
+
+<p>For locking, we store a <code>_Lock</code> file with various contents in the directory that contains the object to lock.</p>
+
+<p>We use the following paths:
+- Keyspace: <code>/vt/keyspaces/&lt;keyspace&gt;/_Data</code>
+- Shard: <code>/vt/keyspaces/&lt;keyspace&gt;/&lt;shard&gt;/_Data</code>
+- Tablet: <code>/vt/tablets/&lt;cell&gt;-&lt;uid&gt;/_Data</code>
+- Replication Graph: <code>/vt/replication/&lt;keyspace&gt;/&lt;shard&gt;/_Data</code>
+- SrvKeyspace: <code>/vt/ns/&lt;keyspace&gt;/_Data</code>
+- SrvShard: <code>/vt/ns/&lt;keyspace&gt;/&lt;shard&gt;/_Data</code>
+- EndPoints: <code>/vt/ns/&lt;keyspace&gt;/&lt;shard&gt;/&lt;tablet type&gt;</code></p>
+
+  </div>
+
+</main>
+
+
+<footer>
+  <div class="container">
+    <p class="small">&copy; 2015 Google. Licensed under <a href="http://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>.</p>
+  </div>
+</footer>
+
+<script src="/assets/scripts/main.js"></script>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  if (window.location.hostname == 'youtube.github.io') {
+    ga('create', 'UA-60219601-1', 'auto');
+    ga('send', 'pageview');
+  }
+</script>
+
+</body>
+</html>
+
