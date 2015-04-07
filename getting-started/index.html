@@ -222,7 +222,7 @@ vitess/examples/kubernetes<span class="nv">$ </span>./etcd-up.sh
 and the other is for the test cell. You can check the status
 of the <a href="https://github.com/GoogleCloudPlatform/kubernetes/blob/master/docs/pods.md">pods</a>
 in the cluster by running:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$KUBECTL</span> get pods
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ $KUBECTL</span> get pods
 </code></pre></div>
 <p><br>It may take a while for each Kubernetes minion to download the
 Docker images the first time it needs them. While the images
@@ -276,8 +276,8 @@ to the <code>vtctld</code> service on your Kubernetes cluster.<br><br></p>
 <p>When you call <code>vtctlclient</code>, the command includes
 the IP address and port for your <code>vtctld</code> service.
 To avoid having to enter that for each command, create an alias
-called <codekvtctl</code>:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span><span class="nb">alias </span><span class="nv">kvtctl</span><span class="o">=</span><span class="s1">&#39;vtctlclient -server VTCTLD_IP_ADDRESS:15000&#39;</span>
+called <code>kvtctl</code> that points to the address from above:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span><span class="nb">alias </span><span class="nv">kvtctl</span><span class="o">=</span><span class="s1">&#39;vtctlclient -server 104.154.64.12:15000&#39;</span>
 </code></pre></div>
 <p><br>Now, running <code>kvtctl</code> will test your connection to
 <code>vtctld</code> and also list the <code>vtctlclient</code>
