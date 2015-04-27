@@ -97,9 +97,9 @@
 
 <p>Create destination shards and tablets just like the source shard was created. For example, you might have <code>test_keyspace/-80</code> and <code>test_keyspace/80-</code>, if you were splitting the original shard into two shards.</p>
 
-<p>You will need to make sure that each destination shard has a master tablet, and at least one (but preferably two) rdonly tablets. It is necessary to reparent each destination shard, after creating the master tablet, to choose a master. This can be done by, for example:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">vtctl ReparentShard -force test_keyspace/-80 &lt;master tablet alias&gt;
-vtctl ReparentShard -force test_keyspace/80- &lt;master tablet alias&gt;
+<p>You will need to make sure that each destination shard has a master tablet, and at least one (but preferably two) rdonly tablets. It is necessary to initialize the MySQL replication in each destination shard, after creating the master tablet, to choose a master. This can be done by, for example:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">vtctl InitShardMaster -force test_keyspace/-80 &lt;master tablet alias&gt;
+vtctl InitShardMaster -force test_keyspace/80- &lt;master tablet alias&gt;
 </code></pre></div>
 <p>At this point, the destination shards should be created, but do not have any data, and will not be serving any traffic.</p>
 
