@@ -368,6 +368,10 @@ and the other two are replicas.<br><br></p>
 <p>You can also run this command on the command line to see the
 same data:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>kvtctl ListAllTablets <span class="nb">test</span>
+<span class="c"># The command&#39;s output is shown below:</span>
+<span class="c"># test-0000000100 test_keyspace 0 master MASTER_IP:15002 MASTER_IP:3306 []</span>
+<span class="c"># test-0000000101 test_keyspace 0 replica REPLICA_IP:15002 REPLICA_IP:3306 []</span>
+<span class="c"># test-0000000102 test_keyspace 0 replica REPLICA_IP:15002 REPLICA_IP:3306 []</span>
 </code></pre></div></li>
 <li><p><strong>Create a table</strong></p>
 
@@ -387,10 +391,6 @@ PRIMARY KEY<span class="o">(</span>id<span class="o">)</span>
 properly on a given tablet, where <code>test-0000000100</code>
 is a tablet ID as listed in step 4 or step 7:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">kvtctl GetSchema <span class="nb">test</span>-0000000100
-<span class="c"># The command&#39;s output is shown below:</span>
-<span class="c"># test-0000000100 test_keyspace 0 master MASTER_IP:15002 MASTER_IP:3306 []</span>
-<span class="c"># test-0000000101 test_keyspace 0 replica REPLICA_IP:15002 REPLICA_IP:3306 []</span>
-<span class="c"># test-0000000102 test_keyspace 0 replica REPLICA_IP:15002 REPLICA_IP:3306 []</span>
 </code></pre></div></li>
 <li><p><strong>Start <code>vtgate</code></strong></p>
 
