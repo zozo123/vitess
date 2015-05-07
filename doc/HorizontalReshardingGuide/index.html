@@ -119,7 +119,7 @@ vtctl CopySchemaShard &lt;source rdonly tablet alias&gt; test_keyspace/80-
 </ol>
 
 <p>The vtworker can be started by, for example:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">vtworker --min_healthy_rdonly_endpoints 1 SplitClone --cell=test --strategy=-populate_blp_checkpoint test_keyspace/0
+<div class="highlight"><pre><code class="language-text" data-lang="text">vtworker --min_healthy_rdonly_endpoints 1 --cell=test SplitClone --strategy=-populate_blp_checkpoint test_keyspace/0
 </code></pre></div>
 <p>The worker will take some time, depending on how large your dataset is that needs to be copied.</p>
 
