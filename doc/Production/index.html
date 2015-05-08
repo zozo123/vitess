@@ -78,9 +78,8 @@
 <p>Setting up vitess in production will depend on many factors.
 Here are some initial considerations:
 * <em>Global Transaction IDs</em>: Vitess requires a version of MySQL
-that supports GTIDs, such as Google MySQL 5.1+, MariaDB 10.0+,
-or MySQL 5.6+. We currently support Google MySQL and MariaDB,
-with plans to add MySQL 5.6.
+that supports GTIDs.
+We currently support MariaDB 10.0 and MySQL 5.6.
 * <em>Firewalls</em>: Vitess tools and servers assume that they
 can open direct TCP connection to each other. If you have
 firewalls between your servers, you may have to add exceptions
@@ -88,7 +87,6 @@ to allow these communications.
 * <em>Authentication</em>: If you need authentication, you
 need to setup SASL, which is supported by Vitess.
 * <em>Encryption:</em> Vitess RPC servers support SSL.
-TODO: Document how to setup SSL.
 * <em>MySQL permissions</em>: Vitess currently assumes that all
 application clients have uniform permissions.
 The connection pooler opens a number of connections under
@@ -100,26 +98,15 @@ Python and Go.
 It&#39;s not too hard to add support for more languages,
 and we are open to contributions in this area.</p>
 
-<h2 id="setting-up-zookeeper">Setting up Zookeeper</h2>
+<h2 id="deploying-in-kubernetes">Deploying in Kubernetes</h2>
 
-<h3 id="global-zk-setup">Global zk setup</h3>
+<p>See the <a href="http://vitess.io/getting-started/">Getting Started</a> guide.</p>
 
-<p>TODO: Explain</p>
+<h2 id="deploying-on-bare-metal">Deploying on bare metal</h2>
 
-<h3 id="local-zk-setup">Local zk setup</h3>
-
-<p>TODO: Explain</p>
-
-<h2 id="launch-vttablets">Launch vttablets</h2>
-
-<p>vttablet is designed to run on the same machine as mysql.
-You&#39;ll need to launch one instance of vttablet for every MySQL instance you want to track.</p>
-
-<p>TODO: Specify order and command-line arguments</p>
-
-<h2 id="launch-vtgate(s)">Launch vtgate(s)</h2>
-
-<p>TODO: Explain</p>
+<p>See the
+<a href="https://github.com/youtube/vitess/tree/master/examples/local">Local Setup</a>
+scripts for examples of how to bring up a Vitess cluster manually.</p>
 
   </div>
 
