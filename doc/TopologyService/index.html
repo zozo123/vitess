@@ -115,13 +115,16 @@ There is one local instance per cell, that contains cell-specific information, a
 
 <h3 id="shard">Shard</h3>
 
-<p>A Shard contains a subset of the data for a Keyspace. The Shard record in the global topology contains:
-- the MySQL Master tablet alias for this shard
-- the sharding key range covered by this Shard inside the Keyspace
-- the tablet types this Shard is serving (master, replica, batch, …), per cell if necessary.
-- if during filtered replication, the source shards this shard is replicating from
-- the list of cells that have tablets in this shard
-- shard-global tablet controls, like blacklisted tables no tablet should serve in this shard</p>
+<p>A Shard contains a subset of the data for a Keyspace. The Shard record in the global topology contains:</p>
+
+<ul>
+<li>the MySQL Master tablet alias for this shard</li>
+<li>the sharding key range covered by this Shard inside the Keyspace</li>
+<li>the tablet types this Shard is serving (master, replica, batch, …), per cell if necessary.</li>
+<li>if during filtered replication, the source shards this shard is replicating from</li>
+<li>the list of cells that have tablets in this shard</li>
+<li>shard-global tablet controls, like blacklisted tables no tablet should serve in this shard</li>
+</ul>
 
 <p>A Shard can be locked. We use this during operations that affect either the Shard record, or multiple tablets within a Shard (like reparenting), so multiple jobs don’t concurrently alter the data.</p>
 
@@ -135,20 +138,26 @@ There is one local instance per cell, that contains cell-specific information, a
 
 <h3 id="tablets">Tablets</h3>
 
-<p>The Tablet record has a lot of information about a single vttablet process running inside a tablet (along with the MySQL process):
-- the Tablet Alias (cell+unique id) that uniquely identifies the Tablet
-- the Hostname, IP address and port map of the Tablet
-- the current Tablet type (master, replica, batch, spare, …)
-- which Keyspace / Shard the tablet is part of
-- the health map for the Tablet (if in degraded mode)
-- the sharding Key Range served by this Tablet
-- user-specified tag map (to store per installation data for instance)</p>
+<p>The Tablet record has a lot of information about a single vttablet process running inside a tablet (along with the MySQL process):</p>
 
-<p>A Tablet record is created before a tablet can be running (either by <code>vtctl InitTablet</code> or by passing the <code>init_*</code> parameters to vttablet). The only way a Tablet record will be updated is one of:
-- The vttablet process itself owns the record while it is running, and can change it.
-- At init time, before the tablet starts
-- After shutdown, when the tablet gets scrapped or deleted.
-- If a tablet becomes unresponsive, it may be forced to spare to remove it from the serving graph (such as when reparenting away from a dead master, by the <code>vtctl ReparentShard</code> action).</p>
+<ul>
+<li>the Tablet Alias (cell+unique id) that uniquely identifies the Tablet</li>
+<li>the Hostname, IP address and port map of the Tablet</li>
+<li>the current Tablet type (master, replica, batch, spare, …)</li>
+<li>which Keyspace / Shard the tablet is part of</li>
+<li>the health map for the Tablet (if in degraded mode)</li>
+<li>the sharding Key Range served by this Tablet</li>
+<li>user-specified tag map (to store per installation data for instance)</li>
+</ul>
+
+<p>A Tablet record is created before a tablet can be running (either by <code>vtctl InitTablet</code> or by passing the <code>init_*</code> parameters to vttablet). The only way a Tablet record will be updated is one of:</p>
+
+<ul>
+<li>The vttablet process itself owns the record while it is running, and can change it.</li>
+<li>At init time, before the tablet starts</li>
+<li>After shutdown, when the tablet gets scrapped or deleted.</li>
+<li>If a tablet becomes unresponsive, it may be forced to spare to remove it from the serving graph (such as when reparenting away from a dead master, by the <code>vtctl ReparentShard</code> action).</li>
+</ul>
 
 <h3 id="replication-graph">Replication Graph</h3>
 
@@ -160,17 +169,23 @@ There is one local instance per cell, that contains cell-specific information, a
 
 <h4 id="srvkeyspace">SrvKeyspace</h4>
 
-<p>It is the local representation of a Keyspace. It contains information on what shard to use for getting to the data (but not information about each individual shard):
-- the partitions map is keyed by the tablet type (master, replica, batch, …) and the values are list of shards to use for serving.
-- it also contains the global Keyspace fields, copied for fast access.</p>
+<p>It is the local representation of a Keyspace. It contains information on what shard to use for getting to the data (but not information about each individual shard):</p>
+
+<ul>
+<li>the partitions map is keyed by the tablet type (master, replica, batch, …) and the values are list of shards to use for serving.</li>
+<li>it also contains the global Keyspace fields, copied for fast access.</li>
+</ul>
 
 <p>It can be rebuilt by running <code>vtctl RebuildKeyspaceGraph</code>. It is not automatically rebuilt when adding new tablets in a cell, as this would cause too much overhead and is only needed once per cell/keyspace. It may also be changed during horizontal and vertical splits.</p>
 
 <h4 id="srvshard">SrvShard</h4>
 
-<p>It is the local representation of a Shard. It contains information on details internal to this Shard only, but not to any tablet running in this shard:
-- the name and sharding Key Range for this Shard.
-- the cell that has the master for this Shard.</p>
+<p>It is the local representation of a Shard. It contains information on details internal to this Shard only, but not to any tablet running in this shard:</p>
+
+<ul>
+<li>the name and sharding Key Range for this Shard.</li>
+<li>the cell that has the master for this Shard.</li>
+</ul>
 
 <p>It is possible to lock a SrvShard object, to massively update all EndPoints in it.</p>
 
@@ -178,11 +193,14 @@ There is one local instance per cell, that contains cell-specific information, a
 
 <h4 id="endpoints">EndPoints</h4>
 
-<p>For each possible serving type (master, replica, batch), in each Cell / Keyspace / Shard, we maintain a rolled-up EndPoint list. Each entry in the list has information about one Tablet:
-- the Tablet Uid
-- the Host on which the Tablet resides
-- the port map for that Tablet
-- the health map for that Tablet</p>
+<p>For each possible serving type (master, replica, batch), in each Cell / Keyspace / Shard, we maintain a rolled-up EndPoint list. Each entry in the list has information about one Tablet:</p>
+
+<ul>
+<li>the Tablet Uid</li>
+<li>the Host on which the Tablet resides</li>
+<li>the port map for that Tablet</li>
+<li>the health map for that Tablet</li>
+</ul>
 
 <h2 id="workflows-involving-the-topology-server">Workflows Involving the Topology Server</h2>
 
@@ -250,14 +268,17 @@ shards
 
 <p>For locking, we store a <code>_Lock</code> file with various contents in the directory that contains the object to lock.</p>
 
-<p>We use the following paths:
-- Keyspace: <code>/vt/keyspaces/&lt;keyspace&gt;/_Data</code>
-- Shard: <code>/vt/keyspaces/&lt;keyspace&gt;/&lt;shard&gt;/_Data</code>
-- Tablet: <code>/vt/tablets/&lt;cell&gt;-&lt;uid&gt;/_Data</code>
-- Replication Graph: <code>/vt/replication/&lt;keyspace&gt;/&lt;shard&gt;/_Data</code>
-- SrvKeyspace: <code>/vt/ns/&lt;keyspace&gt;/_Data</code>
-- SrvShard: <code>/vt/ns/&lt;keyspace&gt;/&lt;shard&gt;/_Data</code>
-- EndPoints: <code>/vt/ns/&lt;keyspace&gt;/&lt;shard&gt;/&lt;tablet type&gt;</code></p>
+<p>We use the following paths:</p>
+
+<ul>
+<li>Keyspace: <code>/vt/keyspaces/&lt;keyspace&gt;/_Data</code></li>
+<li>Shard: <code>/vt/keyspaces/&lt;keyspace&gt;/&lt;shard&gt;/_Data</code></li>
+<li>Tablet: <code>/vt/tablets/&lt;cell&gt;-&lt;uid&gt;/_Data</code></li>
+<li>Replication Graph: <code>/vt/replication/&lt;keyspace&gt;/&lt;shard&gt;/_Data</code></li>
+<li>SrvKeyspace: <code>/vt/ns/&lt;keyspace&gt;/_Data</code></li>
+<li>SrvShard: <code>/vt/ns/&lt;keyspace&gt;/&lt;shard&gt;/_Data</code></li>
+<li>EndPoints: <code>/vt/ns/&lt;keyspace&gt;/&lt;shard&gt;/&lt;tablet type&gt;</code></li>
+</ul>
 
   </div>
 

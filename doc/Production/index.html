@@ -76,27 +76,30 @@
     <h1 id="production-setup">Production setup</h1>
 
 <p>Setting up vitess in production will depend on many factors.
-Here are some initial considerations:
-* <em>Global Transaction IDs</em>: Vitess requires a version of MySQL
+Here are some initial considerations:</p>
+
+<ul>
+<li><em>Global Transaction IDs</em>: Vitess requires a version of MySQL
 that supports GTIDs.
-We currently support MariaDB 10.0 and MySQL 5.6.
-* <em>Firewalls</em>: Vitess tools and servers assume that they
+We currently support MariaDB 10.0 and MySQL 5.6.</li>
+<li><em>Firewalls</em>: Vitess tools and servers assume that they
 can open direct TCP connection to each other. If you have
 firewalls between your servers, you may have to add exceptions
-to allow these communications.
-* <em>Authentication</em>: If you need authentication, you
-need to setup SASL, which is supported by Vitess.
-* <em>Encryption:</em> Vitess RPC servers support SSL.
-* <em>MySQL permissions</em>: Vitess currently assumes that all
+to allow these communications.</li>
+<li><em>Authentication</em>: If you need authentication, you
+need to setup SASL, which is supported by Vitess.</li>
+<li><em>Encryption:</em> Vitess RPC servers support SSL.</li>
+<li><em>MySQL permissions</em>: Vitess currently assumes that all
 application clients have uniform permissions.
 The connection pooler opens a number of connections under
 the same user (vt_app), and rotates them for all requests.
 Vitess management tasks use a different user name (vt_dba),
-which is assumed to have all administrative privileges.
-* <em>Client Language</em>: We currently support
+which is assumed to have all administrative privileges.</li>
+<li><em>Client Language</em>: We currently support
 Python and Go.
 It&#39;s not too hard to add support for more languages,
-and we are open to contributions in this area.</p>
+and we are open to contributions in this area.</li>
+</ul>
 
 <h2 id="deploying-in-kubernetes">Deploying in Kubernetes</h2>
 

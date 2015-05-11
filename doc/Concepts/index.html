@@ -107,20 +107,26 @@ eventual consistency guarantees), run data analysis tools that take a long time 
 
 <h3 id="tablet">Tablet</h3>
 
-<p>A tablet is a single server that runs:
-- a MySQL instance
-- a vttablet instance
-- a local row cache instance
-- an other per-db process that is necessary for operational purposes</p>
+<p>A tablet is a single server that runs:</p>
+
+<ul>
+<li>a MySQL instance</li>
+<li>a vttablet instance</li>
+<li>a local row cache instance</li>
+<li>an other per-db process that is necessary for operational purposes</li>
+</ul>
 
 <p>It can be idle (not assigned to any keyspace), or assigned to a keyspace/shard. If it becomes unhealthy, it is usually changed to scrap.</p>
 
-<p>It has a type. The commonly used types are:
-- master: for the mysql master, RW database.
-- replica: for a mysql slave that serves read-only traffic, with guaranteed low replication latency.
-- rdonly: for a mysql slave that serves read-only traffic for backend processing jobs (like map-reduce type jobs). It has no real guaranteed replication latency.
-- spare: for a mysql slave not used at the moment (hot spare).
-- experimental, schema, lag, backup, restore, checker, ... : various types for specific purposes.</p>
+<p>It has a type. The commonly used types are:</p>
+
+<ul>
+<li>master: for the mysql master, RW database.</li>
+<li>replica: for a mysql slave that serves read-only traffic, with guaranteed low replication latency.</li>
+<li>rdonly: for a mysql slave that serves read-only traffic for backend processing jobs (like map-reduce type jobs). It has no real guaranteed replication latency.</li>
+<li>spare: for a mysql slave not used at the moment (hot spare).</li>
+<li>experimental, schema, lag, backup, restore, checker, ... : various types for specific purposes.</li>
+</ul>
 
 <p>Only master, replica and rdonly are advertised in the Serving Graph.</p>
 
@@ -189,12 +195,15 @@ they are allowed to send queries to.</p>
 <p>There is one local instance of that service per Cell (Data Center). The goal is to transparently support a Cell going down. When that happens, we assume the client traffic is drained out of that Cell, and the system can survive
 using the remaining Cells. (a Zookeeper instance running on 3 or 5 hosts locally is a good configuration).</p>
 
-<p>The data is partitioned as follows:
-- Keyspaces: global instance
-- Shards: global instance
-- Tablets: local instances
-- Serving Graph: local instances
-- Replication Graph: the master alias is in the global instance, the master-slave map is in the local cells.</p>
+<p>The data is partitioned as follows:</p>
+
+<ul>
+<li>Keyspaces: global instance</li>
+<li>Shards: global instance</li>
+<li>Tablets: local instances</li>
+<li>Serving Graph: local instances</li>
+<li>Replication Graph: the master alias is in the global instance, the master-slave map is in the local cells.</li>
+</ul>
 
 <p>Clients are designed to just read the local Serving Graph, therefore they only need the local instance to be up.</p>
 

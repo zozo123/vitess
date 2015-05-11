@@ -160,15 +160,18 @@ useful for analysis and troubleshooting.</p>
 
 <h2 id="execute-functions">Execute functions</h2>
 
-<p>There are three Execute functions:
-* <strong>Execute</strong>: This is an OLTP execute function that is expected to return a limited set
-  of rows. If the number of rows exceeds the max allowed limit, an error is returned.
-* <strong>BatchExecute</strong> executes a set of OLTP statements as a single round-trip request. If you
-  are affected by network latency, this function can be used to group your requests.
-  You can call this function from within a transaction, or you can begin and commit a
-  transaction from within a batch.
-* <strong>StreamExecute</strong>: This function is used for returning large result sets that could
-  potentially require full table scans.</p>
+<p>There are three Execute functions:</p>
+
+<ul>
+<li><strong>Execute</strong>: This is an OLTP execute function that is expected to return a limited set
+of rows. If the number of rows exceeds the max allowed limit, an error is returned.</li>
+<li><strong>BatchExecute</strong> executes a set of OLTP statements as a single round-trip request. If you
+are affected by network latency, this function can be used to group your requests.
+You can call this function from within a transaction, or you can begin and commit a
+transaction from within a batch.</li>
+<li><strong>StreamExecute</strong>: This function is used for returning large result sets that could
+potentially require full table scans.</li>
+</ul>
 
 <h2 id="command-line-arguments">Command line arguments</h2>
 
@@ -180,32 +183,38 @@ of what they mean:</p>
 <p>There are four types of db-config parameters. db-config-app-* specify the connection parameters
 that will be used to serve the app. The &#39;repl&#39; parameters will be used by the rowcache to connect
 to the server as a replica to fetch binlog events for invalidation. The &#39;dba&#39; and &#39;filtered&#39;
-parameters are only used when running as vttablet.
-* <strong>db-config-app-charset=&quot;utf8&quot;</strong>: Only utf8 or latin1 are currently supported.
-* <strong>db-config-app-dbname=&quot;&quot;</strong>: Name of the MySQL database to serve queries for.
-* <strong>db-config-app-keyspace=&quot;&quot;</strong>: It’s recommended that this value be set to the same as dbname. Clients connecting to vtocc will need to specify the keyspace name, which will be used as sanity check.
-* <strong>db-config-app-uname=&quot;vt_app&quot;</strong>: Set this to the username vtocc should connect as.
-* <strong>db-config-app-unixsocket=&quot;&quot;</strong>: Socket file name. This is the recommended mode of connection (vs host-port).
-* <strong>db-credentials-server=&quot;file&quot;</strong>: db credentials server type (use &#39;file&#39; for the file implementation).
-* <strong>db-credentials-file</strong>: Specifies the file where db credentials are stored.</p>
+parameters are only used when running as vttablet.</p>
+
+<ul>
+<li><strong>db-config-app-charset=&quot;utf8&quot;</strong>: Only utf8 or latin1 are currently supported.</li>
+<li><strong>db-config-app-dbname=&quot;&quot;</strong>: Name of the MySQL database to serve queries for.</li>
+<li><strong>db-config-app-keyspace=&quot;&quot;</strong>: It’s recommended that this value be set to the same as dbname. Clients connecting to vtocc will need to specify the keyspace name, which will be used as sanity check.</li>
+<li><strong>db-config-app-uname=&quot;vt_app&quot;</strong>: Set this to the username vtocc should connect as.</li>
+<li><strong>db-config-app-unixsocket=&quot;&quot;</strong>: Socket file name. This is the recommended mode of connection (vs host-port).</li>
+<li><strong>db-credentials-server=&quot;file&quot;</strong>: db credentials server type (use &#39;file&#39; for the file implementation).</li>
+<li><strong>db-credentials-file</strong>: Specifies the file where db credentials are stored.</li>
+</ul>
 
 <p>TODO: Document the rest of the flags.</p>
 
 <h4 id="query-server-parameters">Query server parameters</h4>
 
-<p>All timeout related parameters below are specified in seconds. A value of zero means never.
-* <strong>port=0</strong>: Server port.
-* <strong>queryserver-config-idle-timeout=1800</strong>: vtocc has many connection pools to connect to mysql. If any connection in the pool has been idle for longer than the specified time, then vtocc discards the connection and creates a new one instead. This value should be less than the MySQL idle timeout.
-* <strong>queryserver-config-max-result-size=10000</strong>: vtocc adds a limit clause to all unbounded queries. If the result returned exceeds this number, it returns an error instead.
-* <strong>queryserver-config-pool-size=16</strong>: This is the generic read pool. This pool gets used if you issue read queries outside of transactions.
-* <strong>queryserver-config-query-cache-size=5000</strong>: This is the number of unique query strings that vtocc caches. You can start off with the default value and adjust up or down based on what you see.
-* <strong>queryserver-config-query-timeout=0</strong>: This timeout specifies how long a query is allowed to run before it’s killed.
-* <strong>queryserver-config-schema-reload-time=1800</strong>: This specifies how often the schema is reloaded by vtocc. If you rollout schema changes to a live serving database, you can be sure that it has been read by vtocc after the reload time has elapsed. If needed, there are ways to make vtocc reload the schema immediately.
-* <strong>queryserver-config-stream-buffer-size=32768</strong>: This is the buffer size for streaming queries.
-* <strong>queryserver-config-stream-pool-size=750</strong>: Connection pool size for streaming queries.
-* <strong>queryserver-config-strict-mode=true</strong>: If this is turned off, vtocc allows all DMLs and does not enforce MySQL&#39;s <code>STRICT_TRANS_TABLES</code>. This setting can be turned off for migration purposes if the database is not already configured with these settings.
-* <strong>queryserver-config-transaction-cap=20</strong>: This value limits the number of allowed concurrent transactions.
-* <strong>queryserver-config-transaction-timeout=30</strong>: The amount of time to allow a transaction to complete before killing it.</p>
+<p>All timeout related parameters below are specified in seconds. A value of zero means never.</p>
+
+<ul>
+<li><strong>port=0</strong>: Server port.</li>
+<li><strong>queryserver-config-idle-timeout=1800</strong>: vtocc has many connection pools to connect to mysql. If any connection in the pool has been idle for longer than the specified time, then vtocc discards the connection and creates a new one instead. This value should be less than the MySQL idle timeout.</li>
+<li><strong>queryserver-config-max-result-size=10000</strong>: vtocc adds a limit clause to all unbounded queries. If the result returned exceeds this number, it returns an error instead.</li>
+<li><strong>queryserver-config-pool-size=16</strong>: This is the generic read pool. This pool gets used if you issue read queries outside of transactions.</li>
+<li><strong>queryserver-config-query-cache-size=5000</strong>: This is the number of unique query strings that vtocc caches. You can start off with the default value and adjust up or down based on what you see.</li>
+<li><strong>queryserver-config-query-timeout=0</strong>: This timeout specifies how long a query is allowed to run before it’s killed.</li>
+<li><strong>queryserver-config-schema-reload-time=1800</strong>: This specifies how often the schema is reloaded by vtocc. If you rollout schema changes to a live serving database, you can be sure that it has been read by vtocc after the reload time has elapsed. If needed, there are ways to make vtocc reload the schema immediately.</li>
+<li><strong>queryserver-config-stream-buffer-size=32768</strong>: This is the buffer size for streaming queries.</li>
+<li><strong>queryserver-config-stream-pool-size=750</strong>: Connection pool size for streaming queries.</li>
+<li><strong>queryserver-config-strict-mode=true</strong>: If this is turned off, vtocc allows all DMLs and does not enforce MySQL&#39;s <code>STRICT_TRANS_TABLES</code>. This setting can be turned off for migration purposes if the database is not already configured with these settings.</li>
+<li><strong>queryserver-config-transaction-cap=20</strong>: This value limits the number of allowed concurrent transactions.</li>
+<li><strong>queryserver-config-transaction-timeout=30</strong>: The amount of time to allow a transaction to complete before killing it.</li>
+</ul>
 
 <h4 id="logging-parameters">Logging parameters</h4>
 

@@ -157,12 +157,10 @@ vtctl CopySchemaShard &lt;source rdonly tablet alias&gt; test_keyspace/80-
 
 <p><code>vtworker -min_healthy_rdonly_endpoints=1 --cell=test SplitDiff test_keyspace/-80</code></p>
 
-<p>After completion, the source and destination rdonly tablets need to be put back into the serving graph:
-<code>
-vtctl ChangeSlaveType &lt;source rdonly tablet alias&gt; rdonly
+<p>After completion, the source and destination rdonly tablets need to be put back into the serving graph:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">vtctl ChangeSlaveType &lt;source rdonly tablet alias&gt; rdonly
 vtctl ChangeSlaveType &lt;destination rdonly tablet alias&gt; rdonly
-</code></p>
-
+</code></pre></div>
 <p>If the diff is successful on the first destination shard, it should be be repeated on the next one. It is recommended to not run multiple diffs in parallel, unless you are willing to remove multiple rdonly tablets from the source shard at the same time:</p>
 <div class="highlight"><pre><code class="language-text" data-lang="text">vtworker -min_healthy_rdonly_endpoints=1 --cell=test SplitDiff test_keyspace/80-
 vtctl ChangeSlaveType &lt;source rdonly tablet alias&gt; rdonly
@@ -185,11 +183,14 @@ vtctl MigrateServedTypes -reverse test_keyspace/0 replica
 </code></pre></div>
 <h2 id="scrap-the-source-shard">Scrap the source shard</h2>
 
-<p>If all the above steps were successful, it’s safe to remove the source shard (which should no longer be in use):
-- For each tablet in the source shard: <code>vtctl ScrapTablet &lt;source tablet alias&gt;</code>
-- For each tablet in the source shard: <code>vtctl DeleteTablet &lt;source tablet alias&gt;</code>
-- Rebuild the serving graph: <code>vtctl RebuildKeyspaceGraph test_keyspace</code>
-- Delete the source shard: <code>vtctl DeleteShard test_keyspace/0</code></p>
+<p>If all the above steps were successful, it’s safe to remove the source shard (which should no longer be in use):</p>
+
+<ul>
+<li>For each tablet in the source shard: <code>vtctl ScrapTablet &lt;source tablet alias&gt;</code></li>
+<li>For each tablet in the source shard: <code>vtctl DeleteTablet &lt;source tablet alias&gt;</code></li>
+<li>Rebuild the serving graph: <code>vtctl RebuildKeyspaceGraph test_keyspace</code></li>
+<li>Delete the source shard: <code>vtctl DeleteShard test_keyspace/0</code></li>
+</ul>
 
   </div>
 

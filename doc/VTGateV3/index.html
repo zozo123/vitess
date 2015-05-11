@@ -327,9 +327,12 @@
 
 <p>Keyspaces can be on a left navbar. Once you select the keyspaces, it will display the the rest of the three components in one column each.</p>
 
-<p>The schema editor will sanity check the JSON file for inconsistencies and flag them using various color codes:
-* Red: This schema file will not compile until you fix the issue. If you hover the mouse over such items, the tooltip should tell you why. For example, a table referring to a class that doesn&#39;t exist is an incorrect vschema.
-* Yellow: Even though the file will compile, things don’t look consistent. For example, if a table is not referring to a vindex it’s supposed to own, that’s a warning.</p>
+<p>The schema editor will sanity check the JSON file for inconsistencies and flag them using various color codes:</p>
+
+<ul>
+<li>Red: This schema file will not compile until you fix the issue. If you hover the mouse over such items, the tooltip should tell you why. For example, a table referring to a class that doesn&#39;t exist is an incorrect vschema.</li>
+<li>Yellow: Even though the file will compile, things don’t look consistent. For example, if a table is not referring to a vindex it’s supposed to own, that’s a warning.</li>
+</ul>
 
 <p>Once you’ve performed all the edits, the output will be a JSON, and it will be shown as a diff against the original one. Once you’re satisfied, you go into the ‘Save’ workflow.</p>
 
@@ -351,12 +354,15 @@
 
 <h3 id="monitoring-and-diagnostics">Monitoring and diagnostics</h3>
 
-<p>We have the opportunity to mimic many of vttablet’s features that have helped us in the past:
-* /queryz (will display query plans and their stats)
-* /schemaz (will display the vschema)
-* /querylogz
-* /debug/ urls that serve the above data in JSON format
-* streamlog</p>
+<p>We have the opportunity to mimic many of vttablet’s features that have helped us in the past:</p>
+
+<ul>
+<li>/queryz (will display query plans and their stats)</li>
+<li>/schemaz (will display the vschema)</li>
+<li>/querylogz</li>
+<li>/debug/ urls that serve the above data in JSON format</li>
+<li>streamlog</li>
+</ul>
 
 <h2 id="future-improvements">Future improvements</h2>
 
@@ -386,14 +392,20 @@
 
 <h3 id="post-processing">Post-processing</h3>
 
-<p>Ideally, we’d like to cover the entire SQL grammar and semantics. However, we know that it’s an endeavour with diminishing returns. On the other hand, there’s still a lot of ground to cover before we can reach that point. Here’s a proposed laundry list that we have to tick in order to reach the comfort zone:
-* Joins
-  * Identify joins that have trivial routing: These are joins where you’d get the same result back if you scattered the join statement to the various shards vs. if you sent the statement to a single database that contained all the data.
-  * Cross-keyspace join: Simple join where you load data from one keyspace and use the results to look up another table.
-* aggregations &amp; group by: We need to support the most common such functions like count, sum, etc.
-* order by: We should be able to support most order by queries using a merge-sort algorithm. Initially, we can support this for numeric and binary columns. We can consider adding unicode sorting if there is a demand for it.
-* limit clauses.
-* Subqueries</p>
+<p>Ideally, we’d like to cover the entire SQL grammar and semantics. However, we know that it’s an endeavour with diminishing returns. On the other hand, there’s still a lot of ground to cover before we can reach that point. Here’s a proposed laundry list that we have to tick in order to reach the comfort zone:</p>
+
+<ul>
+<li>Joins
+
+<ul>
+<li>Identify joins that have trivial routing: These are joins where you’d get the same result back if you scattered the join statement to the various shards vs. if you sent the statement to a single database that contained all the data.</li>
+<li>Cross-keyspace join: Simple join where you load data from one keyspace and use the results to look up another table.</li>
+</ul></li>
+<li>aggregations &amp; group by: We need to support the most common such functions like count, sum, etc.</li>
+<li>order by: We should be able to support most order by queries using a merge-sort algorithm. Initially, we can support this for numeric and binary columns. We can consider adding unicode sorting if there is a demand for it.</li>
+<li>limit clauses.</li>
+<li>Subqueries</li>
+</ul>
 
 <h3 id="live-vindex-creation">Live vindex creation</h3>
 
@@ -403,21 +415,30 @@
 
 <h2 id="project-information">Project Information</h2>
 
-<p>A good chunk of the work described in the doc is already complete. The parts that are yet to be done are:
-* Schema editor
-  * Remove hard coding of vindex types
-  * Upload/download file
-  * JSON diff
-  * Import keyspace &amp; table info from topo &amp; vttablet
-  * Testing
-  * Add label ACL restrictions
-* VTGate
-  * ExecuteBatch
-  * DDL
-  * Schema change notification
-  * Audit of error messages
-* More comprehensive integration tests
-* Monitoring</p>
+<p>A good chunk of the work described in the doc is already complete. The parts that are yet to be done are:</p>
+
+<ul>
+<li>Schema editor
+
+<ul>
+<li>Remove hard coding of vindex types</li>
+<li>Upload/download file</li>
+<li>JSON diff</li>
+<li>Import keyspace &amp; table info from topo &amp; vttablet</li>
+<li>Testing</li>
+<li>Add label ACL restrictions</li>
+</ul></li>
+<li>VTGate
+
+<ul>
+<li>ExecuteBatch</li>
+<li>DDL</li>
+<li>Schema change notification</li>
+<li>Audit of error messages</li>
+</ul></li>
+<li>More comprehensive integration tests</li>
+<li>Monitoring</li>
+</ul>
 
 <h2 id="caveats">Caveats</h2>
 
