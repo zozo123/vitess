@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en-US">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width" />
+      <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Vitess - Key Concepts</title>
+<meta name="description" content="Understand common terms used in Vitess.">
+
+<link rel="canonical" href="http://vitess.io/overview/concepts.html">
+
+<!-- Add to homescreen for Chrome on Android -->
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="icon" sizes="196x196" href="/images/touch/chrome-touch-icon-196x196.png">
+
+<!-- Add to homescreen for Safari on iOS -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Vitess">
+
+<!-- Tile icon for Win8 (144x144 + tile color) -->
+<meta name="msapplication-TileImage" content="/images/touch/ms-touch-icon-144x144-precomposed.png">
+<meta name="msapplication-TileColor" content="#3372DF">
+
+      <link rel="stylesheet" href="/assets/vendor/styles/wsk.css">
+<link rel="stylesheet" href="/css/main.css">
+<link rel="stylesheet" href="/css/extra.css">
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,600,900|Roboto+Condensed:300,300italic,400,700">
+
+      <link rel="stylesheet" href="/css/components.css">
+      <link rel="stylesheet" href="/css/responsee.css">
+      <!-- CUSTOM STYLE -->
+      <link rel="stylesheet" href="/css/template-style.css">
+      <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700,800&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+      <script type="text/javascript" src="/assets/scripts/jquery-1.8.3.min.js"></script>
+      <script type="text/javascript" src="/assets/scripts/jquery-ui.min.js"></script>    
+      <script type="text/javascript" src="/assets/scripts/modernizr.js"></script>
+      <script type="text/javascript" src="/assets/scripts/responsee.js"></script>
+      <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+      <![endif]-->
+   </head>
+   <body class="size-1140">
+      <header id="app-bar" class="app-bar promote-layer">
+         <div class="line">
+            <div class="app-bar-container">
+               <button id="menu" class="menu" title="Menu"></button>
+               <h1 class="logo"><a href="/">Vitess</a></h1>
+               <section class="app-bar-actions">
+                  <a href="#"><i class="icon icon-chevron-up"></i> Top</a>
+               </section>
+            </div>
+            <div class="navdrawer">
+              <nav id="nav" class="navdrawer-container promote-layer">
+                <h4>Navigation</h4>
+                
+<ul>
+  
+    <li >
+      <a href="http://vitess.io//"></a>
+    </li>
+  
+    <li >
+      <a href="http://vitess.io/overview/">Overview</a>
+    </li>
+  
+    <li >
+      <a href="http://vitess.io/getting-started/">Getting Started</a>
+    </li>
+  
+  <li><a href="https://github.com/youtube/vitess">GitHub</a></li>
+</ul>
+
+              </nav>
+            </div>
+         </div>
+      </header>
+      <!-- ASIDE NAV AND CONTENT -->
+      <div class="line">
+         <div class="box  margin-bottom">
+            <div class="margin">
+               <!-- ASIDE NAV 2 -->
+               <nav class="scrolling-nav" style="margin:0">
+               <aside class="s-12">
+                  <div class="aside-nav">
+                     <div class="aside-nav-header">Overview</div>
+                     <ul>
+                        <li><a href="/overview/">What is Vitess</a></li>
+                        <li><a href="/overview/concepts.html">Key Concepts</a></li>
+                     </ul>
+                     <div class="aside-nav-header">Getting Started</div>
+                     <ul>
+                        <li><a href="/getting-started/">Run Vitess on Kubernetes</a></li>
+                        <li><a href="/getting-started/local-instance.html">Run Vitess Locally</a></li>
+                     </ul>
+                     <div class="aside-nav-header">User Guide</div>
+                     <ul>
+                        <li><a href="/user-guide/sharding.html">Sharding</a>
+                          <ul>
+                            <li><a href="/user-guide/horizontal-sharding.html">Horizontal Sharding (Codelab)</a></li>
+                          </ul>
+                        </li>
+<!--
+                        <li><a href="/user-guide/schema-management.html">Schema Management</a></li>
+                        <li><a href="/user-guide/reparenting.html">Reparenting</a></li>
+                        <li><a href="/user-guide/storage.html">Storage</a></li>
+                        <li><a href="/user-guide/api.html">Using the API</a></li>
+-->
+                     </ul>
+<!--
+                     <div class="aside-nav-header">Architecture</div>
+                     <ul>
+                        <li><a href="/architecture/life-of-a-query.html">Life of a Query</a></li>
+                        <li><a href="/architecture/topology-service.html">Topology Service</a></li>
+                     </ul>
+
+                     <div class="aside-nav-header">Maintenance</div>
+                     <ul>
+                        <li><a href="/maintenance/monitoring.html">Monitoring</a></li>
+                        <li><a href="/maintenance/testing.html">Testing</a></li>
+                     </ul>
+-->
+                     <div class="aside-nav-header">Reference</div>
+                     <ul>
+                        <li><a href="/reference/vtctl.html">vtctl Reference</a></li>
+<!--
+                        <li><a href="/reference/api.html">API Reference</a></li>
+                        <li><a href="/reference/client-libraries/">Client Libraries</a></li>
+-->
+                     </ul>
+<!--
+                     <div class="aside-nav-header">Other Resources</div>
+                     <ul>
+                        <li><a href="/resources/presentations.html">Presentations</a></li>
+                        <li class="last"><a href="/resources/roadmap.html">Roadmap</a></li>
+                     </ul>
+                  </div>
+-->
+               </aside>
+               </nav>
+               <!-- CONTENT -->
+               <section class="s-12 l-9">
+                 <main class="clear">
+
+  <header class="page-header container">
+    <h2 class="xxlarge text-divider">Key Concepts</h2>
+    
+      <p class="page-header__excerpt g-wide--push-1 g-wide--pull-1" style="padding-bottom: 32px;">
+        Understand common terms used in Vitess.
+      </p>
+    
+  </header>
+
+  <div class="container">
+    <h1 id="concepts">Concepts</h1>
+
+<p>Vitess uses the following concepts and terms:</p>
+
+<ul>
+<li><a href="#keyspace">keyspace</a></li>
+<li><a href="#shard">shard</a></li>
+<li><a href="#tablet">tablet</a></li>
+<li><a href="#keyspace-id">keyspace ID</a></li>
+<li><a href="#shard-graph">shard graph</a></li>
+<li><a href="#replication-graph">replication graph</a></li>
+<li><a href="#serving-graph">serving graph</a></li>
+<li><a href="#topology-service">topology service</a></li>
+<li><a href="#cell-(data-center)">cell (data center)</a></li>
+</ul>
+
+<h2 id="keyspace">Keyspace</h2>
+
+<p>A <em>keyspace</em> is a logical database. In its simplest form, it maps directly
+to a MySQL database name, but it can also map to multiple MySQL databases.</p>
+
+<p>Reading data from a keyspace is like reading from a MySQL database. However,
+depending on the consistency requirements of the read operation, Vitess
+might fetch the data from a master database or from a replica. By routing
+each query to the appropriate database, Vitess allows your code to be
+structured as if it were reading from a single MySQL database.</p>
+
+<p>When a database is
+<a href="http://en.wikipedia.org/wiki/Shard_(database_architecture)">sharded</a>,
+a keyspace maps to multiple MySQL databases. In that case, a read operation
+fetches the necessary data from one of the shards.</p>
+
+<h2 id="keyspace-id">Keyspace id</h2>
+
+<p>A <em>keyspace ID</em> (keyspace_id) is a column that identifies the primary entity
+of a keyspace. For example, a keyspace might identify a user, a video, a
+product, or a purchase. The keyspace ID(s) that you use in your database
+depend on the type of data that you are storing.</p>
+
+<p>To shard a database, all of the tables in a keyspace must contain a
+<code>keyspace_id</code> column. Vitess sharding ensures that all rows that have
+a common keyspace ID are always placed in the same shard.</p>
+
+<p>It is recommended, but not required, for the <code>keyspace_id</code> column
+to be the leading primary key column of all tables in a keyspace.</p>
+
+<p>If you do not intend to shard a database, you do not have to designated a
+keyspace ID. However, you must designate a keyspace ID if you decide to
+shard a currently unsharded database.</p>
+
+<p>A keyspace ID can be an unsigned number or a binary character column
+(<code>unsigned bigint</code> or <code>varbinary</code> in MySQL tables).
+Other data types are not allowed due to ambiguous equality or inequality rules.</p>
+
+<!--
+TODO: keyspace ID rules must be solidified once VTGate features are finalized.
+-->
+
+<h2 id="shard">Shard</h2>
+
+<p>A <em>shard</em> is a division within a keyspace. A shard typically contains one MySQL master and many MySQL slaves.</p>
+
+<p>Each MySQL instance within a shard has the same data or should have the same data, excepting some replication lag. The slaves can serve read-only traffic (with eventual consistency guarantees), execute long-running data analysis tools, or perform administrative tasks (backups, restore, diffs, etc.).</p>
+
+<p>A keyspace that does not use sharding effectively has one shard. Vitess names the shard <code>0</code> by convention. When sharded a keyspace has <code>N</code> shards with non-overlapping data. Usually, <code>N</code> is a power of 2.</p>
+
+<p>Vitess supports <a href="https://github.com/youtube/vitess/blob/master/doc/Resharding.md">dynamic resharding</a>, in which one shard is split into multiple shards for instance. During dynamic resharding, the data in the source shard is split into the destination shards. Then the source shard is deleted.</p>
+
+<h2 id="tablet">Tablet</h2>
+
+<p>A <em>tablet</em> is a single server that runs:</p>
+
+<ul>
+<li>a MySQL instance</li>
+<li>a <code>vttablet</code> instance</li>
+<li>a local row cache instance</li>
+<li>any other database-specific process necessary for operational purposes</li>
+</ul>
+
+<p>A tablet has a status as well as a type. Common statuses and types are listed below:</p>
+
+<ul>
+<li><strong>status</strong>
+
+<ul>
+<li>idle - not assigned to a keyspace</li>
+<li>assigned - designated to a particular shard within a keyspace</li>
+<li>scrap - unhealthy</li>
+</ul></li>
+<li><strong>type</strong>
+
+<ul>
+<li>master - The read-write database that is the MySQL master</li>
+<li>replica - A MySQL slave that serves read-only traffic with guaranteed low replication latency</li>
+<li>rdonly - A MySQL slave that serves read-only traffic for backend processing jobs, such as MapReduce-type jobs. This type of table does not have guaranteed replication latency.</li>
+<li>spare - A MySQL slave that is not currently in use.</li>
+</ul></li>
+</ul>
+
+<p>There are several other tablet types that each serve a specific purpose, including <code>experimental</code>, <code>schema</code>, <code>lag</code>, <code>backup</code>, <code>restore</code>, <code>checker</code>.</p>
+
+<p>Only <code>master</code>, <code>replica</code>, and <code>rdonly</code> tablets are included in the <a href="#serving-graph">serving graph</a>.</p>
+
+<!--
+TODO: Add pointer to complete list of types and explain how to update type?
+-->
+
+<h2 id="shard-graph">Shard graph</h2>
+
+<p>The <em>shard graph</em> maps keyspace IDs to the shards for that keyspace. The shard graph ensures that any given keyspace ID maps to exactly one shard.</p>
+
+<p>Vitess uses range-based sharding. This basically means that the shard graph specifies a per-keyspace list of non-intersecting ranges that cover all possible values of a keyspace ID. As such, Vitess uses a simple, in-memory lookup to identify the appropriate shard for SQL queries.</p>
+
+<p>In general, database sharding is most effective when the assigned <a href="#keyspace-id">keyspace IDs</a> are evenly distributed among shards. With this in mind, a best practice is for keyspace IDs to use hashed key values rather than sequentially incrementing key values. This helps to ensure that assigned keyspace IDs are distributed more randomly among shards.</p>
+
+<p>For example, an application that uses an incrementing UserID as its primary key for user records should use a hashed version of that ID as a keyspace ID. All data related to a particular user would share that keyspace ID and, thus, would be on the same shard.</p>
+
+<h2 id="replication-graph">Replication graph</h2>
+
+<p>The <em>replication graph</em> identifies the relationships between master
+databases and their respective replicas. During a master failover,
+the replication graph enables Vitess to point all existing replicas
+to a newly designated master database so that replication can continue.</p>
+
+<h2 id="serving-graph">Serving graph</h2>
+
+<p>The <em>serving graph</em> represents the list of servers that are available
+to serve queries. Vitess derives the serving graph from the
+<a href="#shard-graph">shard</a> and <a href="#replication-graph">replication</a> graphs.</p>
+
+<p><a href="/overview/#vtgate">VTGate</a> (or another smart client) queries the
+serving graph to determine which servers it can send queries to.</p>
+
+<h2 id="topology-service">Topology Service</h2>
+
+<p>The <em><a href="http://vitess.io/doc/TopologyService">Topology Service</a></em> is a set of backend processes running on different servers. Those servers store topology data and provide a locking service.</p>
+
+<p>The Vitess team does not design or maintain topology servers. The implementation in the Vitess source code tree uses ZooKeeper (Apache) as the locking service. On <a href="/getting-started/">Kubernetes</a>, Vitess uses etcd (CoreOS) as the locking service.</p>
+
+<p>The topology service exists for several reasons:</p>
+
+<ul>
+<li>It stores rules that determine where data is located.</li>
+<li>It ensures that write operations execute successfully.</li>
+<li>It enables Vitess to transparently handle a data center (cell) being unavailable.</li>
+<li>It enables a data center to be taken offline and rebuilt as a unit.</li>
+</ul>
+
+<p>A Vitess implementation has one global instance of the topology service and one local instance of the topology service in each data center, or cell. Vitess clients are designed to only need access to the local serving graph. As such, clients only need the local instance of the topology service to be constantly available.</p>
+
+<ul>
+<li><p><strong>Global instance</strong><br>
+The global instance stores global data that does not change frequently. Specifically, it contains data about keyspaces and shards as well as the master alias of the replication graph.<br><br>
+The global instance is used for some operations, including reparenting and resharding. By design, the global topology server is not used a lot.</p></li>
+<li><p><strong>Local instance</strong><br>
+Each local instance contains information about information specific to the cell where it is located. Specifically, it contains data about tablets in the cell, the serving graph for that cell, and the master-slave map for MySQL instances in that cell.<br><br>
+The local topology server must be available for Vitess to serve data.</p></li>
+</ul>
+
+<!--
+  To ensure reliability, the topology service has multiple server processes running on different servers. Those servers elect a master and perform chorum writes. In ZooKeeper, for a write to succeed, more than half of the servers must acknowledge it. Thus, a typical ZooKeeper configuration consists of either three or five servers, where two (out of three) or three (out of five) servers must agree for a write operation to succeed.
+The instance is the set of servers providing topology services. So, in a Vitess implementation using ZooKeeper, the global and local instances likely consist of three or five servers apiece.
+  To be reliable, the global instance needs to have server processes spread across all regions and cells. Read-only replicas of the global instance can be maintained in each data center (cell).
+-->
+
+<h2 id="cell-(data-center)">Cell (Data Center)</h2>
+
+<p>A <em>cell</em> is a group of servers and network infrastructure collocated in an area. It is typically either a full data center or a subset of a data center. Vitess gracefully handles cell-level failures, such as when a cell is cut off the network.</p>
+
+<p>Each cell in a Vitess implementation has a <a href="#topology-service">local topology server</a>, which is hosted in that cell. The topology server contains most of the information about the Vitess tablets in its cell. This enables a cell to be taken down and rebuilt as a unit.</p>
+
+<p>Vitess limits cross-cell traffic for both data and metadata. While it is useful to also have the ability to route client traffic to individual cells, Vitess does not provide that feature.</p>
+
+  </div>
+
+</main>
+
+               </section>
+            </div>
+         </div>
+         <footer>
+            <div class="s-12">
+               <div style="float: left; display: inline-block; width: 50%;">&copy; 2015 Google. Licensed under <a href="http://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>.</div>
+               <div style="float: right; display: inline-block; text-align: right; width: 50%;">Design and coding based on <a href="http://www.myresponsee.com" title="Responsee - lightweight responsive framework">Responsee</a> framework</div>
+               </div>
+         </footer>
+      </div>
+      <!-- FOOTER -->
+
+      <script src="/assets/scripts/main.js"></script>
+
+      <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  if (window.location.hostname == 'youtube.github.io') {
+    ga('create', 'UA-60219601-1', 'auto');
+    ga('send', 'pageview');
+  }
+</script>
+
+   </body>
+</html>

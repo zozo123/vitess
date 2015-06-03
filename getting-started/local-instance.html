@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en-US">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width" />
+      <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Vitess - Running Vitess on a Local Server</title>
+<meta name="description" content="Learn how to build Vitess on a local server.">
+
+<link rel="canonical" href="http://vitess.io/getting-started/local-instance.html">
+
+<!-- Add to homescreen for Chrome on Android -->
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="icon" sizes="196x196" href="/images/touch/chrome-touch-icon-196x196.png">
+
+<!-- Add to homescreen for Safari on iOS -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Vitess">
+
+<!-- Tile icon for Win8 (144x144 + tile color) -->
+<meta name="msapplication-TileImage" content="/images/touch/ms-touch-icon-144x144-precomposed.png">
+<meta name="msapplication-TileColor" content="#3372DF">
+
+      <link rel="stylesheet" href="/assets/vendor/styles/wsk.css">
+<link rel="stylesheet" href="/css/main.css">
+<link rel="stylesheet" href="/css/extra.css">
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,600,900|Roboto+Condensed:300,300italic,400,700">
+
+      <link rel="stylesheet" href="/css/components.css">
+      <link rel="stylesheet" href="/css/responsee.css">
+      <!-- CUSTOM STYLE -->
+      <link rel="stylesheet" href="/css/template-style.css">
+      <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700,800&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+      <script type="text/javascript" src="/assets/scripts/jquery-1.8.3.min.js"></script>
+      <script type="text/javascript" src="/assets/scripts/jquery-ui.min.js"></script>    
+      <script type="text/javascript" src="/assets/scripts/modernizr.js"></script>
+      <script type="text/javascript" src="/assets/scripts/responsee.js"></script>
+      <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+      <![endif]-->
+   </head>
+   <body class="size-1140">
+      <header id="app-bar" class="app-bar promote-layer">
+         <div class="line">
+            <div class="app-bar-container">
+               <button id="menu" class="menu" title="Menu"></button>
+               <h1 class="logo"><a href="/">Vitess</a></h1>
+               <section class="app-bar-actions">
+                  <a href="#"><i class="icon icon-chevron-up"></i> Top</a>
+               </section>
+            </div>
+            <div class="navdrawer">
+              <nav id="nav" class="navdrawer-container promote-layer">
+                <h4>Navigation</h4>
+                
+<ul>
+  
+    <li >
+      <a href="http://vitess.io//"></a>
+    </li>
+  
+    <li >
+      <a href="http://vitess.io/overview/">Overview</a>
+    </li>
+  
+    <li >
+      <a href="http://vitess.io/getting-started/">Getting Started</a>
+    </li>
+  
+  <li><a href="https://github.com/youtube/vitess">GitHub</a></li>
+</ul>
+
+              </nav>
+            </div>
+         </div>
+      </header>
+      <!-- ASIDE NAV AND CONTENT -->
+      <div class="line">
+         <div class="box  margin-bottom">
+            <div class="margin">
+               <!-- ASIDE NAV 2 -->
+               <nav class="scrolling-nav" style="margin:0">
+               <aside class="s-12">
+                  <div class="aside-nav">
+                     <div class="aside-nav-header">Overview</div>
+                     <ul>
+                        <li><a href="/overview/">What is Vitess</a></li>
+                        <li><a href="/overview/concepts.html">Key Concepts</a></li>
+                     </ul>
+                     <div class="aside-nav-header">Getting Started</div>
+                     <ul>
+                        <li><a href="/getting-started/">Run Vitess on Kubernetes</a></li>
+                        <li><a href="/getting-started/local-instance.html">Run Vitess Locally</a></li>
+                     </ul>
+                     <div class="aside-nav-header">User Guide</div>
+                     <ul>
+                        <li><a href="/user-guide/sharding.html">Sharding</a>
+                          <ul>
+                            <li><a href="/user-guide/horizontal-sharding.html">Horizontal Sharding (Codelab)</a></li>
+                          </ul>
+                        </li>
+<!--
+                        <li><a href="/user-guide/schema-management.html">Schema Management</a></li>
+                        <li><a href="/user-guide/reparenting.html">Reparenting</a></li>
+                        <li><a href="/user-guide/storage.html">Storage</a></li>
+                        <li><a href="/user-guide/api.html">Using the API</a></li>
+-->
+                     </ul>
+<!--
+                     <div class="aside-nav-header">Architecture</div>
+                     <ul>
+                        <li><a href="/architecture/life-of-a-query.html">Life of a Query</a></li>
+                        <li><a href="/architecture/topology-service.html">Topology Service</a></li>
+                     </ul>
+
+                     <div class="aside-nav-header">Maintenance</div>
+                     <ul>
+                        <li><a href="/maintenance/monitoring.html">Monitoring</a></li>
+                        <li><a href="/maintenance/testing.html">Testing</a></li>
+                     </ul>
+-->
+                     <div class="aside-nav-header">Reference</div>
+                     <ul>
+                        <li><a href="/reference/vtctl.html">vtctl Reference</a></li>
+<!--
+                        <li><a href="/reference/api.html">API Reference</a></li>
+                        <li><a href="/reference/client-libraries/">Client Libraries</a></li>
+-->
+                     </ul>
+<!--
+                     <div class="aside-nav-header">Other Resources</div>
+                     <ul>
+                        <li><a href="/resources/presentations.html">Presentations</a></li>
+                        <li class="last"><a href="/resources/roadmap.html">Roadmap</a></li>
+                     </ul>
+                  </div>
+-->
+               </aside>
+               </nav>
+               <!-- CONTENT -->
+               <section class="s-12 l-9">
+                 <main class="clear">
+
+  <header class="page-header container">
+    <h2 class="xxlarge text-divider">Running Vitess on a Local Server</h2>
+    
+      <p class="page-header__excerpt g-wide--push-1 g-wide--pull-1" style="padding-bottom: 32px;">
+        Learn how to build Vitess on a local server.
+      </p>
+    
+  </header>
+
+  <div class="container">
+    <p>You can build Vitess using either <a href="#docker-build">Docker</a> or a
+<a href="#manual-build">manual</a> build process.</p>
+
+<p>If you run into issues or have questions, please post on our
+<a href="https://groups.google.com/forum/#!forum/vitess">forum</a>.</p>
+
+<h2 id="docker-build">Docker Build</h2>
+
+<p>To run Vitess in Docker, use an
+<a href="https://registry.hub.docker.com/repos/vitess/">Automated Build</a>.</p>
+
+<ul>
+<li>The <code>vitess/base</code> image contains a full development
+environment, capable of building Vitess and running integration tests.</li>
+<li>The <code>vitess/lite</code> image contains only the compiled Vitess
+binaries, excluding ZooKeeper. it can run Vitess, but lacks the
+environment needed to build Vitess or run tests.</li>
+</ul>
+
+<p>You can also build Vitess Docker images yourself to include your
+own patches or configuration data. The
+<a href="https://github.com/youtube/vitess/blob/master/Dockerfile">Dockerfile</a>
+in the root of the Vitess tree builds the <code>vitess/base</code> image.
+The <a href="https://github.com/youtube/vitess/tree/master/docker">docker</a>
+subdirectory contains scripts for building other images.</p>
+
+<h2 id="manual-build">Manual Build</h2>
+
+<p>The following sections explain the process for manually building
+Vitess on a local server:</p>
+
+<ul>
+<li>   <a href="#install-dependencies">Install Dependencies</a></li>
+<li>   <a href="#build-vitess">Build Vitess</a></li>
+<li>   <a href="#test-your-vitess-cluster">Test Your Vitess Cluster</a></li>
+<li>   <a href="#start-a-vitess-cluster">Start a Vitess Cluster</a></li>
+<li>   <a href="#run-a-client-application">Run a Client Application</a></li>
+<li>   <a href="#tear-down-the-cluster">Tear Down the Cluster</a></li>
+</ul>
+
+<h3 id="install-dependencies">Install Dependencies</h3>
+
+<p>Vitess runs on either Ubuntu 14.04 (Trusty) or Debian 7.0 (Wheezy). It requires the software and libraries listed below.</p>
+
+<ol>
+<li><p><a href="http://golang.org/doc/install">Install Go 1.3+</a>.</p></li>
+<li><p>Install <a href="https://downloads.mariadb.org/">MariaDB 10.0</a> or
+<a href="http://dev.mysql.com/downloads/mysql">MySQL 5.6</a>. You can use any
+installation method (src/bin/rpm/deb), but be sure to include the client
+development headers (<strong>libmariadbclient-dev</strong> or <strong>libmysqlclient-dev</strong>).
+<br><br>
+The Vitess development team currently tests against MariaDB 10.0.17
+and MySQL 5.6.24.
+<br><br>
+If you are installing MariaDB, note that you must install version 10.0 or
+higher. If you are using <code>apt-get</code>, confirm that your repository
+offers an option to install that version. You can also download the source
+directly from <a href="https://downloads.mariadb.org/mariadb/10.0.16/">mariadb.org</a>.</p></li>
+<li><p>Select a lock service from the options listed below. It is technically
+possible to use another lock server, but plugins currently exist only
+for ZooKeeper and etcd.</p>
+
+<ul>
+<li>ZooKeeper 3.3.5 is included by default.</li>
+<li><a href="https://github.com/coreos/etcd/releases/tag/v0.4.6">Install etcd 0.4.6</a>.
+If you use etcd, remember to include the <code>etcd</code> command
+on your path.</li>
+</ul></li>
+<li><p>Install the following other tools needed to build and run Vitess:</p>
+
+<ul>
+<li>make</li>
+<li>automake</li>
+<li>libtool</li>
+<li>memcached</li>
+<li>python-dev</li>
+<li>python-virtualenv</li>
+<li>python-mysqldb</li>
+<li>libssl-dev</li>
+<li>g++</li>
+<li>mercurial</li>
+<li>git</li>
+<li>pkg-config</li>
+<li>bison</li>
+<li>curl</li>
+<li>unzip<br><br></li>
+</ul>
+
+<p>These can be installed with the following apt-get command:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">sudo apt-get install make automake libtool memcached python-dev python-virtualenv python-mysqldb libssl-dev g++ mercurial git pkg-config bison curl unzip
+</code></pre></div></li>
+<li><p>If you decided to use ZooKeeper in step 3, you also need to install a
+Java Runtime, such as OpenJDK.</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">  sudo apt-get install openjdk-7-jre&lt;/pre&gt;
+</code></pre></div></li>
+</ol>
+
+<h3 id="build-vitess">Build Vitess</h3>
+
+<ol>
+<li><p>Navigate to the directory where you want to download the Vitess
+source code and clone the Vitess Github repo. After doing so,
+navigate to the <strong>src/github.com/youtube/vitess</strong> directory.</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nb">cd</span> <span class="nv">$WORKSPACE</span>
+git clone https://github.com/youtube/vitess.git src/github.com/youtube/vitess
+<span class="nb">cd </span>src/github.com/youtube/vitess
+</code></pre></div></li>
+<li><p>Set the <strong>MYSQL_FLAVOR</strong> environment variable. Choose the appropriate
+value for your database. This value is case-sensitive.</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nb">export </span><span class="nv">MYSQL_FLAVOR</span><span class="o">=</span>MariaDB
+or
+<span class="nb">export </span><span class="nv">MYSQL_FLAVOR</span><span class="o">=</span>MySQL56
+</code></pre></div></li>
+<li><p>If your selected database installed in a location other than <strong>/usr/bin</strong>,
+set the <strong>VT&#95;MYSQL&#95;ROOT</strong> variable to the root directory of your
+MariaDB installation. For example, if MariaDB is installed in
+<strong>/usr/local/mysql</strong>, run the following command.</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nb">export </span><span class="nv">VT_MYSQL_ROOT</span><span class="o">=</span>/usr/local/mysql
+</code></pre></div>
+<p><br>Note that the command indicates that the <strong>mysql</strong> executable should
+be found at <strong>/usr/local/mysql/bin/mysql</strong>.</p></li>
+<li><p>Run <code>mysql_config --version</code> and confirm that you
+are running the correct version of MariaDB or MySQL. The value should
+be <code>10</code> or higher for MariaDB and 5.6.x for MySQL.</p></li>
+<li><p>Build Vitess using the commands below. Note that the
+<code>bootstrap.sh</code> script needs to download some dependencies.
+If your machine requires a proxy to access the Internet, you will need
+to set the usual environment variables (e.g. <code>http_proxy</code>,
+<code>https_proxy</code>, <code>no_proxy</code>).</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">./bootstrap.sh
+<span class="c"># Output of bootstrap.sh is shown below</span>
+<span class="c"># skipping zookeeper build</span>
+<span class="c"># go install golang.org/x/tools/cmd/cover ...</span>
+<span class="c"># Found MariaDB installation in ...</span>
+<span class="c"># skipping bson python build</span>
+<span class="c"># skipping cbson python build</span>
+<span class="c"># creating git pre-commit hooks</span>
+<span class="c">#</span>
+<span class="c"># source dev.env in your shell before building</span>
+<span class="c"># Remaining commands to build Vitess</span>
+. ./dev.env
+make build
+</code></pre></div>
+<p><br>
+If you build Vitess successfully, you can proceed to
+<a href="#start-a-vitess-cluster">start a Vitess cluster</a>.
+If your build attempt fails, see the following section,
+<a href="#test-your-vitess-cluster">Test your Vitess Cluster</a>, for help
+troubleshooting the errors.</p></li>
+</ol>
+
+<h3 id="test-your-vitess-cluster">Test your Vitess Cluster</h3>
+
+<p><strong>Note:</strong> If you are using etcd, set the following environment variable:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nb">export </span><span class="nv">VT_TEST_FLAGS</span><span class="o">=</span><span class="s1">&#39;--topo-server-flavor=etcd&#39;</span>
+</code></pre></div>
+<p>The default <em>make</em> and <em>make test</em> targets contain a full set of tests
+intended to help Vitess developers to verify code changes. Those tests
+simulate a small Vitess cluster by launching many servers on the local
+machine. To do so, they require a lot of resources; a minimum of 8GB RAM
+and SSD is recommended to run the tests.</p>
+
+<p>If you want only to check that Vitess is working in your environment,
+you can run a lighter set of tests:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">make site_test
+</code></pre></div>
+<h4 id="common-test-issues">Common Test Issues</h4>
+
+<p>Attempts to run the full developer test suite (<em>make</em> or <em>make test</em>)
+on an underpowered machine often results in failure. If you still see
+the same failures when running the lighter set of tests (<em>make site_test</em>),
+please let the development team know in the
+<a href="https://groups.google.com/forum/#!forum/vitess">vitess@googlegroups.com</a>
+discussion forum.</p>
+
+<h5 id="node-already-exists,-port-in-use,-etc.">Node already exists, port in use, etc.</h5>
+
+<p>A failed test can leave orphaned processes. If you use the default
+settings, you can use the following commands to identify and kill
+those processes:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">pgrep -f -l <span class="s1">&#39;(vtdataroot|VTDATAROOT)&#39;</span> <span class="c"># list Vitess processes</span>
+pkill -f <span class="s1">&#39;(vtdataroot|VTDATAROOT)&#39;</span> <span class="c"># kill Vitess processes</span>
+</code></pre></div>
+<h5 id="too-many-connections-to-mysql,-or-other-timeouts">Too many connections to MySQL, or other timeouts</h5>
+
+<p>This error often means your disk is too slow. If you don&#39;t have access
+to an SSD, you can try <a href="https://github.com/youtube/vitess/blob/master/doc/TestingOnARamDisk.md">testing against a
+ramdisk</a>.</p>
+
+<h5 id="connection-refused-to-tablet,-mysql-socket-not-found,-etc.">Connection refused to tablet, MySQL socket not found, etc.</h5>
+
+<p>These errors might indicate that the machine ran out of RAM and a server
+crashed when trying to allocate more RAM. Some of the heavier tests
+require up to 8GB RAM.</p>
+
+<h5 id="connection-refused-in-zkctl-test">Connection refused in zkctl test</h5>
+
+<p>This error might indicate that the machine does not have a Java Runtime
+installed, which is a requirement if you are using ZooKeeper as the lock server.</p>
+
+<h5 id="running-out-of-disk-space">Running out of disk space</h5>
+
+<p>Some of the larger tests use up to 4GB of temporary space on disk.</p>
+
+<h3 id="start-a-vitess-cluster">Start a Vitess cluster</h3>
+
+<p>After completing the instructions above to <a href="#build-vitess">build Vitess</a>,
+you can use the example scripts in the Github repo to bring up a Vitess
+cluster on your local machine. These scripts use ZooKeeper as the
+lock service. ZooKeeper is included in the Vitess distribution.</p>
+
+<ol>
+<li><p><strong>Configure environment variables</strong></p>
+
+<p>If you are still in the same terminal window that
+you used to run the build commands, you can skip to the next
+step since the environment variables will already be set.<br><br></p>
+
+<p>Navigate to the directory where you built Vitess
+(<strong>$WORKSPACE/src/github.com/youtube/vitess</strong>) and run the
+following command:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">. ./dev.env
+</code></pre></div>
+<p><br>From that directory, navigate to the directory that contains
+the example scripts:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nb">cd </span>examples/local
+</code></pre></div></li>
+<li><p><strong>Start ZooKeeper</strong></p>
+
+<p>Servers in a Vitess cluster find each other by looking for
+dynamic configuration data stored in a distributed lock
+service. The following script creates a small ZooKeeper cluster:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">./zk-up.sh
+<span class="c"># Starting zk servers...</span>
+<span class="c"># Waiting for zk servers to be ready...</span>
+</code></pre></div>
+<p><br>
+After the ZooKeeper cluster is running, we only need to tell each
+Vitess process how to connect to ZooKeeper. Then, each process can
+find all of the other Vitess processes by coordinating via ZooKeeper.
+<br><br>
+To instruct Vitess processes on how to connect to ZooKeeper, set
+the <code>ZK_CLIENT_CONFIG</code> environment variable to the path
+to the <code>zk-client-conf.json</code> file, which contains the
+ZooKeeper server addresses for each cell.</p></li>
+<li><p><strong>Start vtctld</strong></p>
+
+<p>The <code>vtctld</code> server provides a web interface that
+displays all of the coordination information stored in ZooKeeper.</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">./vtctld-up.sh
+<span class="c"># Starting vtctld</span>
+<span class="c"># Access vtctld at http://localhost:15000</span>
+</code></pre></div>
+<p><br>Open <code><a href="http://localhost:15000">http://localhost:15000</a></code> to verify that
+<code>vtctld</code> is running. There won&#39;t be any information
+there yet, but the menu should come up, which indicates that
+<code>vtctld</code> is running.<br><br></p>
+
+<p><strong>Note:</strong> The <code>vtctld</code> server accepts commands from
+the <code>vtctlclient</code> tool, which administers the Vitess
+cluster. The following command lists the commands that
+<code>vtctlclient</code> supports:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$VTROOT</span>/bin/vtctlclient -server localhost:15000
+</code></pre></div></li>
+<li><p><strong>Start vttablets</strong></p>
+
+<p>The following command brings up three vttablets. Bringing up
+tablets in a previously empty keyspace effectively creates
+a new shard.</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">./vttablet-up.sh
+<span class="c"># Output from vttablet-up.sh is below</span>
+<span class="c"># Starting MySQL for tablet test-0000000100...</span>
+<span class="c"># Starting vttablet for test-0000000100...</span>
+<span class="c"># Access tablet test-0000000100 at http://localhost:15100/debug/status</span>
+<span class="c"># Starting MySQL for tablet test-0000000101...</span>
+<span class="c"># Starting vttablet for test-0000000101...</span>
+<span class="c"># Access tablet test-0000000101 at http://localhost:15101/debug/status</span>
+<span class="c"># Starting MySQL for tablet test-0000000102...</span>
+<span class="c"># Starting vttablet for test-0000000102...</span>
+<span class="c"># Access tablet test-0000000102 at http://localhost:15102/debug/status</span>
+</code></pre></div>
+<p><br>After this command completes, go back to the <code>vtctld</code>
+web page from the previous step and click the <strong>Topology</strong> link.
+You should see the three tablets listed. If you click the address
+of a tablet, you will see the coordination data stored in ZooKeeper.
+From there, if you click the <strong>status</strong> link at the top of the page,
+you will see the debug page generated by the tablet itself.</p></li>
+<li><p><strong>Initialize a keyspace for the shard</strong></p>
+
+<p>Perform a keyspace rebuild to initialize the keyspace for the
+new shard:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$VTROOT</span>/bin/vtctlclient -server localhost:15000 RebuildKeyspaceGraph test_keyspace
+</code></pre></div>
+<p><br>
+<strong>Note:</strong> Most <code>vtctlclient</code> commands yield no output if
+they run successfully.</p></li>
+<li><p><strong>Elect a master vttablet</strong></p>
+
+<p>The <code>vttablet</code> servers are all started as replicas.
+In this step, you designate one of the vttablets to be the master.
+Vitess automatically connects the other replicas&#39; <code>mysqld</code>
+instances so that they start replicating from the master
+<code>mysqld</code> instance.<br><br></p>
+
+<p>Since this is the first time the shard has been started, the
+vttablets are not already doing any replication. As a result,
+the following command uses the <code>-force</code> flag when
+calling the <code>InitShardMaster</code> command so that it
+accepts the change of a replica to be the master.</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$VTROOT</span>/bin/vtctlclient -server localhost:15000 InitShardMaster -force test_keyspace/0 <span class="nb">test</span>-0000000100
+</code></pre></div>
+<p><br>After running this command, go back to the <strong>Topology</strong> page
+in the <code>vtctld</code> web interface. When you refresh the
+page, you should see that one <code>vttablet</code> is the master
+and the other two are replicas.<br><br></p>
+
+<p>You can also run this command on the command line to see the
+same data:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$VTROOT</span>/bin/vtctlclient -server localhost:15000 ListAllTablets <span class="nb">test</span>
+<span class="c"># The command&#39;s output is shown below:</span>
+<span class="c"># test-0000000100 test_keyspace 0 master localhost:15100 localhost:33100 []</span>
+<span class="c"># test-0000000101 test_keyspace 0 replica localhost:15101 localhost:33101 []</span>
+<span class="c"># test-0000000102 test_keyspace 0 replica localhost:15102 localhost:33102 []</span>
+</code></pre></div></li>
+<li><p><strong>Create a table</strong></p>
+
+<p>Create the database table defined in the <i>createtesttable.sql</i>
+file.</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$VTROOT</span>/bin/vtctlclient -server localhost:15000 ApplySchemaKeyspace -simple -sql <span class="s2">&quot;$(cat create_test_table.sql)&quot;</span> test_keyspace
+</code></pre></div>
+<p><br>The SQL to create the table is shown below:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">CREATE TABLE test_table <span class="o">(</span>
+id BIGINT AUTO_INCREMENT,
+msg VARCHAR<span class="o">(</span>250<span class="o">)</span>,
+PRIMARY KEY<span class="o">(</span>id<span class="o">)</span>
+<span class="o">)</span> <span class="nv">Engine</span><span class="o">=</span>InnoDB
+</code></pre></div></li>
+<li><p><strong>Start vtgate</strong></p>
+
+<p>Vitess uses <code>vtgate</code> to route each client query to
+the correct <code>vttablet</code>. This local example runs a
+single <code>vtgate</code> instance, though a real deployment
+would likely run multiple <code>vtgate</code> instances to share
+the load.</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">./vtgate-up.sh
+</code></pre></div></li>
+</ol>
+
+<h3 id="run-a-client-application">Run a Client Application</h3>
+
+<p>The <code>client.py</code> file is a simple sample application
+that connects to <code>vtgate</code> and executes some queries.
+To run it, you need to either:</p>
+
+<ol>
+<li><p>Add the Vitess Python packages to your <code>PYTHONPATH</code><br>
+or</p></li>
+<li><p>Use the <code>client.sh</code> wrapper script, which temporarily
+sets up the environment and then runs <code>client.py</code></p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">./client.sh --server<span class="o">=</span>localhost:15001
+<span class="c"># Output from client.sh is shown below</span>
+<span class="c"># Inserting into master...</span>
+<span class="c"># Reading from master...</span>
+<span class="c"># (1L, &#39;V is for speed&#39;)</span>
+<span class="c"># Reading from replica...</span>
+<span class="c"># (1L, &#39;V is for speed&#39;)</span>
+</code></pre></div></li>
+</ol>
+
+<h3 id="tear-down-the-cluster">Tear down the cluster</h3>
+
+<p>As long as your <code>VTDATAROOT</code> directory is only used
+for this test, you can kill the processes created during this
+test with the following commands:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="c"># Look for processes started during the test</span>
+<span class="nv">$ </span>pgrep -u <span class="nv">$USER</span> -f -l <span class="nv">$VTDATAROOT</span>
+
+<span class="c"># If the list looks correct, kill the processes</span>
+<span class="nv">$ </span>pkill -u <span class="nv">$USER</span> -f <span class="nv">$VTDATAROOT</span>
+</code></pre></div>
+<p>Repeat the <code>pgrep</code> command to make sure all processes
+have been killed and manually kill any remaining processes.</p>
+
+<p>Also clear out the contents of <code>VTDATAROOT</code> before
+starting again:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span><span class="nb">cd</span> <span class="nv">$VTDATAROOT</span>
+<span class="nv">$ </span>/path/to/vtdataroot<span class="nv">$ </span>rm -rf *
+</code></pre></div>
+  </div>
+
+</main>
+
+               </section>
+            </div>
+         </div>
+         <footer>
+            <div class="s-12">
+               <div style="float: left; display: inline-block; width: 50%;">&copy; 2015 Google. Licensed under <a href="http://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>.</div>
+               <div style="float: right; display: inline-block; text-align: right; width: 50%;">Design and coding based on <a href="http://www.myresponsee.com" title="Responsee - lightweight responsive framework">Responsee</a> framework</div>
+               </div>
+         </footer>
+      </div>
+      <!-- FOOTER -->
+
+      <script src="/assets/scripts/main.js"></script>
+
+      <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  if (window.location.hostname == 'youtube.github.io') {
+    ga('create', 'UA-60219601-1', 'auto');
+    ga('send', 'pageview');
+  }
+</script>
+
+   </body>
+</html>

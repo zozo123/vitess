@@ -1,7 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" class="no-js">
-<head>
-<meta charset="utf-8">
+<html lang="en-US">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width" />
+      <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -23,28 +25,38 @@
 <meta name="msapplication-TileImage" content="/images/touch/ms-touch-icon-144x144-precomposed.png">
 <meta name="msapplication-TileColor" content="#3372DF">
 
-<link rel="stylesheet" href="/assets/vendor/styles/wsk.css">
+      <link rel="stylesheet" href="/assets/vendor/styles/wsk.css">
 <link rel="stylesheet" href="/css/main.css">
 <link rel="stylesheet" href="/css/extra.css">
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,600,900|Roboto+Condensed:300,300italic,400,700">
 
-</head>
-<body class="">
-
-<header id="app-bar" class="app-bar promote-layer">
-  <div class="app-bar-container">
-    <button id="menu" class="menu" title="Menu"></button>
-    <h1 class="logo"><a href="/">Vitess</a></h1>
-    <section class="app-bar-actions">
-      <a href="#"><i class="icon icon-chevron-up"></i> Top</a>
-    </section>
-  </div>
-</header>
-
-<div class="navdrawer">
-  <nav id="nav" class="navdrawer-container promote-layer">
-    <h4>Navigation</h4>
-    
+      <link rel="stylesheet" href="/css/components.css">
+      <link rel="stylesheet" href="/css/responsee.css">
+      <!-- CUSTOM STYLE -->
+      <link rel="stylesheet" href="/css/template-style.css">
+      <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700,800&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+      <script type="text/javascript" src="/assets/scripts/jquery-1.8.3.min.js"></script>
+      <script type="text/javascript" src="/assets/scripts/jquery-ui.min.js"></script>    
+      <script type="text/javascript" src="/assets/scripts/modernizr.js"></script>
+      <script type="text/javascript" src="/assets/scripts/responsee.js"></script>
+      <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+      <![endif]-->
+   </head>
+   <body class="size-1140">
+      <header id="app-bar" class="app-bar promote-layer">
+         <div class="line">
+            <div class="app-bar-container">
+               <button id="menu" class="menu" title="Menu"></button>
+               <h1 class="logo"><a href="/">Vitess</a></h1>
+               <section class="app-bar-actions">
+                  <a href="#"><i class="icon icon-chevron-up"></i> Top</a>
+               </section>
+            </div>
+            <div class="navdrawer">
+              <nav id="nav" class="navdrawer-container promote-layer">
+                <h4>Navigation</h4>
+                
 <ul>
   
     <li >
@@ -62,10 +74,76 @@
   <li><a href="https://github.com/youtube/vitess">GitHub</a></li>
 </ul>
 
-  </nav>
-</div>
+              </nav>
+            </div>
+         </div>
+      </header>
+      <!-- ASIDE NAV AND CONTENT -->
+      <div class="line">
+         <div class="box  margin-bottom">
+            <div class="margin">
+               <!-- ASIDE NAV 2 -->
+               <nav class="scrolling-nav" style="margin:0">
+               <aside class="s-12">
+                  <div class="aside-nav">
+                     <div class="aside-nav-header">Overview</div>
+                     <ul>
+                        <li><a href="/overview/">What is Vitess</a></li>
+                        <li><a href="/overview/concepts.html">Key Concepts</a></li>
+                     </ul>
+                     <div class="aside-nav-header">Getting Started</div>
+                     <ul>
+                        <li><a href="/getting-started/">Run Vitess on Kubernetes</a></li>
+                        <li><a href="/getting-started/local-instance.html">Run Vitess Locally</a></li>
+                     </ul>
+                     <div class="aside-nav-header">User Guide</div>
+                     <ul>
+                        <li><a href="/user-guide/sharding.html">Sharding</a>
+                          <ul>
+                            <li><a href="/user-guide/horizontal-sharding.html">Horizontal Sharding (Codelab)</a></li>
+                          </ul>
+                        </li>
+<!--
+                        <li><a href="/user-guide/schema-management.html">Schema Management</a></li>
+                        <li><a href="/user-guide/reparenting.html">Reparenting</a></li>
+                        <li><a href="/user-guide/storage.html">Storage</a></li>
+                        <li><a href="/user-guide/api.html">Using the API</a></li>
+-->
+                     </ul>
+<!--
+                     <div class="aside-nav-header">Architecture</div>
+                     <ul>
+                        <li><a href="/architecture/life-of-a-query.html">Life of a Query</a></li>
+                        <li><a href="/architecture/topology-service.html">Topology Service</a></li>
+                     </ul>
 
-<main class="clear">
+                     <div class="aside-nav-header">Maintenance</div>
+                     <ul>
+                        <li><a href="/maintenance/monitoring.html">Monitoring</a></li>
+                        <li><a href="/maintenance/testing.html">Testing</a></li>
+                     </ul>
+-->
+                     <div class="aside-nav-header">Reference</div>
+                     <ul>
+                        <li><a href="/reference/vtctl.html">vtctl Reference</a></li>
+<!--
+                        <li><a href="/reference/api.html">API Reference</a></li>
+                        <li><a href="/reference/client-libraries/">Client Libraries</a></li>
+-->
+                     </ul>
+<!--
+                     <div class="aside-nav-header">Other Resources</div>
+                     <ul>
+                        <li><a href="/resources/presentations.html">Presentations</a></li>
+                        <li class="last"><a href="/resources/roadmap.html">Roadmap</a></li>
+                     </ul>
+                  </div>
+-->
+               </aside>
+               </nav>
+               <!-- CONTENT -->
+               <section class="s-12 l-9">
+                 <main class="clear">
 
   <header class="page-header container">
     <h2 class="xxlarge text-divider">SchemaManagement</h2>
@@ -126,102 +204,36 @@ validate the master schema matches all the slaves.</p>
  <span class="nx">AfterSchema</span>  <span class="o">*</span><span class="nx">SchemaDefinition</span>
 <span class="p">}</span>
 </code></pre></div>
-<p>The ApplySchema action applies a schema change. It is described by the following structure (also returns a SchemaChangeResult):</p>
-<div class="highlight"><pre><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">SchemaChange</span> <span class="kd">struct</span> <span class="p">{</span>
- <span class="nx">Sql</span>              <span class="kt">string</span>
- <span class="nx">Force</span>            <span class="kt">bool</span>
- <span class="nx">AllowReplication</span> <span class="kt">bool</span>
- <span class="nx">BeforeSchema</span>     <span class="o">*</span><span class="nx">SchemaDefinition</span>
- <span class="nx">AfterSchema</span>      <span class="o">*</span><span class="nx">SchemaDefinition</span>
-<span class="p">}</span>
-</code></pre></div>
-<p>And the associated ApplySchema remote action for a tablet. Then the performed steps are:</p>
+<p>The ApplySchema action applies a schema change to a specified keyspace, the performed steps are:</p>
 
 <ul>
-<li>The database to use is either derived from the tablet dbName if UseVt is false, or is the _vt database. A ‘use dbname’ is prepended to the Sql.</li>
-<li>(if BeforeSchema is not nil) read the schema, make sure it is equal to BeforeSchema. If not equal: if Force is not set, we will abort, if Force is set, we’ll issue a warning and keep going.</li>
-<li>if AllowReplication is false, we’ll disable replication (adding SET sql_log_bin=0 before the Sql).</li>
-<li>We will then apply the Sql command.</li>
-<li>(if AfterSchema is not nil) read the schema again, make sure it is equal to AfterSchema. If not equal: if Force is not set, we will issue an error, if Force is set, we’ll issue a warning.</li>
+<li>It first finds shards belong to this keyspace, including newly added shards in the presence of <a href="Resharding.md">resharding event</a>.</li>
+<li>Validate the sql syntax and reject the schema change if the sql 1) Alter more then 100,000 rows, or 2) The targed table has more then 2,000,000 rows. The rational behind this is that ApplySchema simply applies schema changes to the masters; therefore, a big schema change that takes too much time slows down the replication and may reduce the availability of the overall system.</li>
+<li>Create a temporary database that has the same schema as the targeted table. Apply the sql to it and makes sure it changes table structure.</li>
+<li>Apply the Sql command to the database.</li>
+<li>Read the schema again, make sure it is equal to AfterSchema.</li>
 </ul>
-
-<p>We will return the following information:</p>
-
-<ul>
-<li>whether it worked or not (doh!)</li>
-<li>BeforeSchema</li>
-<li>AfterSchema</li>
-</ul>
-
-<h3 id="use-case-1:-single-tablet-update:">Use case 1: Single tablet update:</h3>
-
-<ul>
-<li>we first do a Preflight (to know what BeforeSchema and AfterSchema will be). This can be disabled, but is not recommended.</li>
-<li>we then do the schema upgrade. We will check BeforeSchema before the upgrade, and AfterSchema after the upgrade.</li>
-</ul>
-
-<h3 id="use-case-2:-single-shard-update:">Use case 2: Single Shard update:</h3>
-
-<ul>
-<li>need to figure out (or be told) if it’s a simple or complex schema update (does it require the shell game?). For now we&#39;ll use a command line flag.</li>
-<li>in any case, do a Preflight on the master, to get the BeforeSchema and AfterSchema values.</li>
-<li>in any case, gather the schema on all databases, to see which ones have been upgraded already or not. This guarantees we can interrupt and restart a schema change. Also, this makes sure no action is currently running on the databases we&#39;re about to change.</li>
-<li>if simple:
-
-<ul>
-<li>nobody has it: apply to master, very similar to a single tablet update.</li>
-<li>some tablets have it but not others: error out</li>
-</ul></li>
-<li>if complex: do the shell game while disabling replication. Skip the tablets that already have it. Have an option to re-parent at the end.
-
-<ul>
-<li>Note the Backup, and Lag servers won&#39;t apply a complex schema change. Only the servers actively in the replication graph will.</li>
-<li>the process can be interrupted at any time, restarting it as a complex schema upgrade should just work.</li>
-</ul></li>
-</ul>
-
-<h3 id="use-case-3:-keyspace-update:">Use case 3: Keyspace update:</h3>
-
-<ul>
-<li>Similar to Single Shard, but the BeforeSchema and AfterSchema values are taken from the first shard, and used in all shards after that.</li>
-<li>We don&#39;t know the new masters to use on each shard, so just skip re-parenting all together.</li>
-</ul>
-
-<p>This translates into the following vtctl commands:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">PreflightSchema {-sql=&lt;sql&gt; || -sql_file=&lt;filename&gt;} &lt;tablet alias&gt;
+<div class="highlight"><pre><code class="language-text" data-lang="text">ApplySchema {-sql=&lt;sql&gt; || -sql_file=&lt;filename&gt;} &lt;keyspace&gt;
 </code></pre></div>
-<p>apply the schema change to a temporary database to gather before and after schema and validate the change. The sql can be inlined or read from a file.
-This will create a temporary database, copy the existing keyspace schema into it, apply the schema change, and re-read the resulting schema.</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">$ echo &quot;create table test_table(id int);&quot; &gt; change.sql
-$ vtctl PreflightSchema -sql_file=change.sql nyc-0002009001
-</code></pre></div><div class="highlight"><pre><code class="language-text" data-lang="text">ApplySchema {-sql=&lt;sql&gt; || -sql_file=&lt;filename&gt;} [-skip_preflight] [-stop_replication] &lt;tablet alias&gt;
-</code></pre></div>
-<p>apply the schema change to the specific tablet (allowing replication by default). The sql can be inlined or read from a file.
-a PreflightSchema operation will first be used to make sure the schema is OK (unless skip_preflight is specified).</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">ApplySchemaShard {-sql=&lt;sql&gt; || -sql_file=&lt;filename&gt;} [-simple] [-new_parent=&lt;tablet alias&gt;] &lt;keyspace/shard&gt;
-</code></pre></div>
-<p>apply the schema change to the specific shard. If simple is specified, we just apply on the live master. Otherwise, we do the shell game and will optionally re-parent.
-if new_parent is set, we will also reparent (otherwise the master won&#39;t be touched at all). Using the force flag will cause a bunch of checks to be ignored, use with care.</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">$ vtctl ApplySchemaShard --sql-file=change.sql -simple vtx/0
-$ vtctl ApplySchemaShard --sql-file=change.sql -new_parent=nyc-0002009002 vtx/0
-</code></pre></div><div class="highlight"><pre><code class="language-text" data-lang="text">ApplySchemaKeyspace {-sql=&lt;sql&gt; || -sql_file=&lt;filename&gt;} [-simple] &lt;keyspace&gt;
-</code></pre></div>
-<p>apply the schema change to the specified shard. If simple is specified, we just apply on the live master. Otherwise we will need to do the shell game. So we will apply the schema change to every single slave.</p>
-
   </div>
 
 </main>
 
+               </section>
+            </div>
+         </div>
+         <footer>
+            <div class="s-12">
+               <div style="float: left; display: inline-block; width: 50%;">&copy; 2015 Google. Licensed under <a href="http://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>.</div>
+               <div style="float: right; display: inline-block; text-align: right; width: 50%;">Design and coding based on <a href="http://www.myresponsee.com" title="Responsee - lightweight responsive framework">Responsee</a> framework</div>
+               </div>
+         </footer>
+      </div>
+      <!-- FOOTER -->
 
-<footer>
-  <div class="container">
-    <p class="small">&copy; 2015 Google. Licensed under <a href="http://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>.</p>
-  </div>
-</footer>
+      <script src="/assets/scripts/main.js"></script>
 
-<script src="/assets/scripts/main.js"></script>
-
-<script>
+      <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
@@ -232,6 +244,5 @@ $ vtctl ApplySchemaShard --sql-file=change.sql -new_parent=nyc-0002009002 vtx/0
   }
 </script>
 
-</body>
+   </body>
 </html>
-
