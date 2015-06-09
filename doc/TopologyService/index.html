@@ -326,17 +326,14 @@ then we can read each tablet record.</p>
 </ul>
 
 <p>We provide the &#39;zk&#39; utility for easy access to the topology data in ZooKeeper. For instance:
-```</p>
-
-<h1 id="note:-you-need-to-source-zookeeper-client-config-file,-like-so:">NOTE: You need to source zookeeper client config file, like so:</h1>
-
-<h1 id="export-zk_client_config=/path/to/zk/client.conf">export ZK_CLIENT_CONFIG=/path/to/zk/client.conf</h1>
-
-<p>$ zk ls /zk/global/vt/keyspaces/user
+<code>
+\# NOTE: You need to source zookeeper client config file, like so:
+\#  export ZK_CLIENT_CONFIG=/path/to/zk/client.conf
+$ zk ls /zk/global/vt/keyspaces/user
 action
 actionlog
 shards
-```</p>
+</code></p>
 
 <h3 id="etcd">Etcd</h3>
 

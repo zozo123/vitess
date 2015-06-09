@@ -483,7 +483,7 @@ same data:</p>
 
 <p>Create the database table defined in the <i>createtesttable.sql</i>
 file.</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$VTROOT</span>/bin/vtctlclient -server localhost:15000 ApplySchemaKeyspace -simple -sql <span class="s2">&quot;$(cat create_test_table.sql)&quot;</span> test_keyspace
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$VTROOT</span>/bin/vtctlclient -server localhost:15000 ApplySchema -sql <span class="s2">&quot;$(cat create_test_table.sql)&quot;</span> test_keyspace
 </code></pre></div>
 <p><br>The SQL to create the table is shown below:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">CREATE TABLE test_table <span class="o">(</span>

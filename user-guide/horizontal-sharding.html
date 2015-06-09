@@ -435,15 +435,7 @@ shard, which should no longer be in use.</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">vtctl ScrapTablet &lt;<span class="nb">source </span>tablet <span class="nb">alias</span>&gt;<span class="sb">`</span>
 vtctl DeleteTablet &lt;<span class="nb">source </span>tablet <span class="nb">alias</span>&gt;<span class="sb">`</span>
 </code></pre></div>
-<h3 id="step-6.2:-rebuild-the-serving-graph">Step 6.2: Rebuild the serving graph</h3>
-
-<p>Run the following command:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh">vtctl RebuildKeyspaceGraph &lt;keyspace name&gt;
-</code></pre></div>
-<p>For this example, the command is:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh">vtctl RebuildKeyspaceGraph user_keyspace
-</code></pre></div>
-<h3 id="step-6.3:-delete-the-source-shard">Step 6.3: Delete the source shard</h3>
+<h3 id="step-6.2:-delete-the-source-shard">Step 6.2: Delete the source shard</h3>
 
 <p>Run the following command:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">vtctl DeleteShard &lt;keyspace name&gt;/&lt;<span class="nb">source </span>shard name&gt;

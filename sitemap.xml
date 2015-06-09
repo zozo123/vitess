@@ -3,163 +3,109 @@
   <url>
     <loc>http://vitess.io/doc/vtocc/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
-    <priority>0.8</priority>
   </url>
   <url>
     <loc>http://vitess.io/doc/vtctlReference/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
-    <priority>0.8</priority>
   </url>
   <url>
     <loc>http://vitess.io/doc/VitessOverview/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
-    <priority>0.8</priority>
   </url>
   <url>
     <loc>http://vitess.io/doc/Vision/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
-    <priority>0.8</priority>
   </url>
   <url>
     <loc>http://vitess.io/doc/VTGateV3/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
-    <priority>0.8</priority>
   </url>
   <url>
     <loc>http://vitess.io/doc/TopologyService/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
-    <priority>0.8</priority>
   </url>
   <url>
     <loc>http://vitess.io/doc/TestingOnARamDisk/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
-    <priority>0.8</priority>
   </url>
   <url>
     <loc>http://vitess.io/doc/Sharding/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
-    <priority>0.8</priority>
   </url>
   <url>
     <loc>http://vitess.io/doc/SchemaManagement/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
-    <priority>0.8</priority>
   </url>
   <url>
     <loc>http://vitess.io/doc/Reparenting/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
-    <priority>0.8</priority>
   </url>
   <url>
     <loc>http://vitess.io/doc/Production/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
-    <priority>0.8</priority>
   </url>
   <url>
     <loc>http://vitess.io/doc/Monitoring/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
-    <priority>0.8</priority>
   </url>
   <url>
     <loc>http://vitess.io/doc/LifeOfAQuery/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
-    <priority>0.8</priority>
   </url>
   <url>
     <loc>http://vitess.io/doc/HorizontalReshardingGuide/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
-    <priority>0.8</priority>
   </url>
   <url>
     <loc>http://vitess.io/doc/GettingStartedKubernetes/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
-    <priority>0.8</priority>
   </url>
   <url>
     <loc>http://vitess.io/doc/GettingStarted/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
-    <priority>0.8</priority>
   </url>
   <url>
     <loc>http://vitess.io/doc/Concepts/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
-    <priority>0.8</priority>
   </url>
   <url>
     <loc>http://vitess.io/doc/BackupAndRestore/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
-    <priority>0.8</priority>
   </url>
   <url>
     <loc>http://vitess.io/overview/concepts.html</loc>
-    <lastmod>2015-06-03T17:21:30-07:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
   </url>
   <url>
     <loc>http://vitess.io/user-guide/horizontal-sharding.html</loc>
-    <lastmod>2015-06-03T17:21:30-07:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
   </url>
   <url>
     <loc>http://vitess.io/about/</loc>
-    <lastmod>2015-06-03T17:21:30-07:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
   </url>
   <url>
     <loc>http://vitess.io/doc/</loc>
-    <lastmod>2015-06-03T17:21:30-07:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
   </url>
   <url>
     <loc>http://vitess.io/overview/</loc>
-    <lastmod>2015-06-03T17:21:30-07:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
   </url>
   <url>
     <loc>http://vitess.io/getting-started/</loc>
-    <lastmod>2015-06-03T17:21:30-07:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
   </url>
   <url>
     <loc>http://vitess.io/terms/</loc>
-    <lastmod>2015-06-03T17:21:30-07:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
   </url>
   <url>
     <loc>http://vitess.io/</loc>
-    <lastmod>2015-06-03T17:21:30-07:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
   </url>
   <url>
     <loc>http://vitess.io/getting-started/local-instance.html</loc>
-    <lastmod>2015-06-03T17:21:30-07:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
   </url>
   <url>
     <loc>http://vitess.io/resources/presentations.html</loc>
-    <lastmod>2015-06-03T17:21:30-07:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
   </url>
   <url>
     <loc>http://vitess.io/user-guide/sharding.html</loc>
-    <lastmod>2015-06-03T17:21:30-07:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
   </url>
   <url>
     <loc>http://vitess.io/reference/vtctl.html</loc>
-    <lastmod>2015-06-03T17:21:30-07:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
   </url>
 </urlset>

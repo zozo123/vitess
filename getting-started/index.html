@@ -460,7 +460,7 @@ same data:</p>
 <p>The <code>vtctlclient</code> tool implements the database schema
 across all tablets in a keyspace. The following command creates
 the table defined in the <em>createtesttable.sql</em> file:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>kvtctl ApplySchemaKeyspace -simple -sql <span class="s2">&quot;$(cat create_test_table.sql)&quot;</span> test_keyspace
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>kvtctl ApplySchema -sql <span class="s2">&quot;$(cat create_test_table.sql)&quot;</span> test_keyspace
 </code></pre></div>
 <p><br>The SQL to create the table is shown below:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">CREATE TABLE test_table <span class="o">(</span>
