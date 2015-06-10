@@ -363,6 +363,16 @@ cluster on your local machine. These scripts use ZooKeeper as the
 lock service. ZooKeeper is included in the Vitess distribution.</p>
 
 <ol>
+<li><p><strong>Check system settings</strong></p>
+
+<p>Some Linux distributions ship with default file descriptor limits
+that are too low for database servers. This issue could show up
+as the database crashing with the message &quot;too many open files&quot;.<br><br></p>
+
+<p>Check the system-wide <code>file-max</code> setting as well as user-specific
+<code>ulimit</code> values. We recommend setting them above 100K to be safe.
+The exact <a href="http://www.cyberciti.biz/faq/linux-increase-the-maximum-number-of-open-files/">procedure</a>
+ may vary depending on your Linux distribution.</p></li>
 <li><p><strong>Configure environment variables</strong></p>
 
 <p>If you are still in the same terminal window that
