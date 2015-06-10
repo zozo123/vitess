@@ -419,7 +419,21 @@ links, you will get a 502 HTTP response.<br><br></p>
 <p>As a workaround, you can proxy over an SSH connection to a
 Kubernetes minion, or you can launch a proxy as a Kubernetes
 service. In the future, we plan to provide proxying via the
-Kubernetes API server without a need for additional setup.</p></li>
+Kubernetes API server without a need for additional setup.<br><br></p>
+
+<p><strong><em>Direct connection to mysqld</em></strong></p>
+
+<p>Since the mysqld within the vttablet pod is only meant to be
+accessed via vttablet, our default bootstrap settings allow
+connections only from localhost.<br><br></p>
+
+<p>If you want to check or manipulate the underlying mysqld,
+you can SSH to the Kubernetes node on which the pod is running.
+Then use <a href="https://docs.docker.com/reference/commandline/cli/#exec">docker exec</a>
+to launch a bash shell inside the mysql container, and connect with:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="c"># For example, while inside the mysql container for pod vttablet-100:</span>
+<span class="nv">$ TERM</span><span class="o">=</span>ansi mysql -u vt_dba -S /vt/vtdataroot/vt_0000000100/mysql.sock
+</code></pre></div></li>
 <li><p><strong>Elect a master vttablet</strong></p>
 
 <p>The vttablets are all started as replicas. In this step, you
