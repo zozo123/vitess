@@ -241,23 +241,15 @@ when bringing up your Kubernetes cluster later in this guide.</p></li>
 <li><p>Enable or update alpha features in the <code>gcloud</code> tool, and install
 the <code>kubectl</code> tool:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>gcloud components update alpha kubectl
-</code></pre></div></li>
-</ol>
-
-<h1 id="check-if-kubectl-is-on-your-path:">Check if kubectl is on your PATH:</h1>
-
-<p>$ which kubectl</p>
-
-<h3 id="example-output:">example output:</h3>
-
-<h1 id="~/google-cloud-sdk/bin/kubectl">~/google-cloud-sdk/bin/kubectl</h1>
-<div class="highlight"><pre><code class="language-text" data-lang="text">    If &lt;code&gt;kubectl&lt;/code&gt; isn&#39;t on your PATH, you can tell our scripts where
-    to find it by setting the &lt;code&gt;KUBECTL&lt;/code&gt; environment variable:
-
-    ``` sh
-$ export KUBECTL=/example/path/to/google-cloud-sdk/bin/kubectl
+</code></pre></div><div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="c"># Check if kubectl is on your PATH:</span>
+<span class="nv">$ </span>which kubectl
+<span class="c">### example output:</span>
+<span class="c"># ~/google-cloud-sdk/bin/kubectl</span>
 </code></pre></div>
-<ol>
+<p>If <code>kubectl</code> isn&#39;t on your PATH, you can tell our scripts where
+to find it by setting the <code>KUBECTL</code> environment variable:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span><span class="nb">export </span><span class="nv">KUBECTL</span><span class="o">=</span>/example/path/to/google-cloud-sdk/bin/kubectl
+</code></pre></div></li>
 <li><p>If you did not complete the <a href="https://cloud.google.com/compute/docs/quickstart#setup">GCE quickstart guide</a>, set
 your default project ID by running the following command.
 Replace <code>PROJECT</code> with the project ID assigned to your
@@ -400,15 +392,9 @@ commands that you can use to administer the Vitess cluster.</p>
 <span class="c"># Tablets:</span>
 <span class="c">#   InitTablet ...</span>
 <span class="c"># ...</span>
+</code></pre></div><div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="c"># Get usage for a specific command:</span>
+<span class="nv">$ </span>kvtctl <span class="nb">help </span>InitTablet
 </code></pre></div></li>
-</ol>
-
-<h1 id="get-usage-for-a-specific-command:">Get usage for a specific command:</h1>
-
-<p>$ kvtctl help InitTablet
-```</p>
-
-<ol>
 <li><p><strong>Start vttablets</strong></p>
 
 <p>Call the following script to launch <code>vttablet</code>
@@ -479,27 +465,15 @@ to launch a bash shell inside the mysql container, and connect with the
 <span class="nv">$ </span>kubectl get pods <span class="p">|</span> grep vttablet-100
 <span class="c">### example output:</span>
 <span class="c"># vttablet-100 [...] 10.64.2.9    k8s-example-3c0115e4-node-x6jc  [...]</span>
+<span class="nv">$ </span>gcloud compute ssh k8s-example-3c0115e4-node-x6jc
+k8s-example-3c0115e4-node-x6jc:~<span class="nv">$ </span>sudo docker ps <span class="p">|</span> grep vttablet-100
+<span class="c">### example output:</span>
+<span class="c"># ef40b4ff08fa   vitess/lite:latest [...]  k8s_mysql.16e2a810_vttablet-100[...]</span>
+k8s-example-3c0115e4-node-x6jc:~<span class="nv">$ </span>sudo docker <span class="nb">exec</span> -ti ef40b4ff08fa bash
+<span class="c"># Now you&#39;re in a shell inside the mysql container.</span>
+<span class="c"># We need to tell the mysql client the username and socket file to use.</span>
+vttablet-100:/# <span class="nv">TERM</span><span class="o">=</span>ansi mysql -u vt_dba -S /vt/vtdataroot/vt_0000000100/mysql.sock
 </code></pre></div></li>
-</ol>
-
-<p>$ gcloud compute ssh k8s-example-3c0115e4-node-x6jc</p>
-
-<p>k8s-example-3c0115e4-node-x6jc:~$ sudo docker ps | grep vttablet-100</p>
-
-<h3 id="example-output:">example output:</h3>
-
-<h1 id="ef40b4ff08fa-vitess/lite:latest-[...]-k8s_mysql.16e2a810_vttablet-100[...]">ef40b4ff08fa   vitess/lite:latest [...]  k8s_mysql.16e2a810_vttablet-100[...]</h1>
-
-<p>k8s-example-3c0115e4-node-x6jc:~$ sudo docker exec -ti ef40b4ff08fa bash</p>
-
-<h1 id="now-you&#39;re-in-a-shell-inside-the-mysql-container.">Now you&#39;re in a shell inside the mysql container.</h1>
-
-<h1 id="we-need-to-tell-the-mysql-client-the-username-and-socket-file-to-use.">We need to tell the mysql client the username and socket file to use.</h1>
-
-<p>vttablet-100:/# TERM=ansi mysql -u vt_dba -S /vt/vtdataroot/vt_0000000100/mysql.sock
-```</p>
-
-<ol>
 <li><p><strong>Elect a master vttablet</strong></p>
 
 <p>The vttablets are all started as replicas. In this step, you
