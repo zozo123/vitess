@@ -310,12 +310,22 @@ field of the kubectl config:</li>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span><span class="nb">cd</span> <span class="nv">$GOPATH</span>/src/github.com/youtube/vitess
 </code></pre></div></li>
 <li><p><strong>Start an etcd cluster:</strong></p>
+
+<p>The Vitess <a href="http://vitess.io/overview/concepts.html#topology-service">topology service</a>
+stores coordination data for all the servers in a Vitess cluster.
+It can store this data in one of several consistent storage systems.
+In this example, we&#39;ll use <a href="https://github.com/coreos/etcd">etcd</a>.
+Note that we need our own etcd clusters, separate from the one used by
+Kubernetes itself.</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span><span class="nb">cd </span>examples/kubernetes
 vitess/examples/kubernetes<span class="nv">$ </span>./etcd-up.sh
 </code></pre></div>
-<p><br>This command creates two clusters. One is for the global cell,
-and the other is for the test cell. You can check the status
-of the <a href="https://github.com/GoogleCloudPlatform/kubernetes/blob/master/docs/pods.md">pods</a>
+<p><br>This command creates two clusters. One is for the
+<a href="http://vitess.io/doc/TopologyService/#global-vs-local">global cell</a>,
+and the other is for a
+<a href="http://vitess.io/overview/concepts.html#cell-(data-center)">local cell</a>
+called <em>test</em>. You can check the status of the
+<a href="https://github.com/GoogleCloudPlatform/kubernetes/blob/master/docs/pods.md">pods</a>
 in the cluster by running:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>kubectl get pods
 </code></pre></div>
@@ -394,11 +404,20 @@ commands that you can use to administer the Vitess cluster.</p>
 <span class="c"># ...</span>
 </code></pre></div><div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="c"># Get usage for a specific command:</span>
 <span class="nv">$ </span>kvtctl <span class="nb">help </span>InitTablet
-</code></pre></div></li>
+</code></pre></div>
+<p><br>See the <a href="http://vitess.io/reference/vtctl.html">vtctl reference</a> for a
+web-formatted version of the <code>vtctl help</code> output.</p></li>
 <li><p><strong>Start vttablets</strong></p>
 
-<p>Call the following script to launch <code>vttablet</code>
-and <code>mysqld</code> in a <a href="https://github.com/GoogleCloudPlatform/kubernetes/blob/master/docs/pods.md">pod</a>:</p>
+<p>A Vitess <a href="http://vitess.io/overview/concepts.html#tablet">tablet</a> is the
+unit of scaling for the database. A tablet consists of the
+<code>vttablet</code> and <code>mysqld</code> processes, running on the same
+host. We enforce this coupling in Kubernetes by putting the respective
+containers for vttablet and mysqld inside a single
+<a href="https://github.com/GoogleCloudPlatform/kubernetes/blob/master/docs/pods.md">pod</a></p>
+
+<p>Run the following script to launch the vttablet pod, which also includes
+mysqld:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./vttablet-up.sh
 <span class="c">### example output:</span>
 <span class="c"># Creating test_keyspace.shard-0 pods in cell test...</span>
@@ -421,8 +440,11 @@ the tablets from the command line using <code>kvtctl</code>:</p>
 <span class="c"># test-0000000101 test_keyspace 0 replica 10.64.1.12:15002 10.64.1.12:3306 []</span>
 <span class="c"># test-0000000102 test_keyspace 0 replica 10.64.2.10:15002 10.64.2.10:3306 []</span>
 </code></pre></div>
-<p><br>By bringing up tablets in a previously empty keyspace, you have
-effectively just created a new shard. To initialize the keyspace for the new
+<p><br>By bringing up tablets in a previously empty
+<a href="http://vitess.io/overview/concepts.html#keyspace">keyspace</a>,
+you have effectively just created a new
+<a href="http://vitess.io/overview/concepts.html#shard">shard</a>.
+To initialize the keyspace for the new
 shard, call the <code>kvtctl RebuildKeyspaceGraph</code> command:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>kvtctl RebuildKeyspaceGraph test_keyspace
 </code></pre></div>
@@ -476,13 +498,13 @@ vttablet-100:/# <span class="nv">TERM</span><span class="o">=</span>ansi mysql -
 </code></pre></div></li>
 <li><p><strong>Elect a master vttablet</strong></p>
 
-<p>The vttablets are all started as replicas. In this step, you
-designate one of the vttablets to be the master. Vitess
+<p>The tablets are all started as replicas. In this step, you
+designate one of the tablets to be the master. Vitess
 automatically connects the other replicas&#39; mysqld instances
 so that they start replicating from the master&#39;s mysqld.<br><br></p>
 
 <p>Since this is the first time the shard has been started,
-the vttablets are not already doing any replication, and the
+the tablets are not already doing any replication, and the
 tablet types are all replica or spare. As a
 result, the following command uses the <code>-force</code>
 flag when calling the <code>InitShardMaster</code> command
@@ -498,7 +520,7 @@ would fail as well.<br><br></p>
 
 <p>After running this command, go back to the <strong>Topology</strong> page
 in the <code>vtctld</code> web interface. When you refresh the
-page, you should see that one <code>vttablet</code> is the master
+page, you should see that one tablet is the master
 and the other two are replicas.<br><br></p>
 
 <p>You can also run this command on the command line to see the
@@ -596,6 +618,10 @@ database. In the meantime, JavaScript on the page continuously polls
 the app server to retrieve a list of GuestBook entries. The app serves
 read-only requests by querying Vitess in &#39;replica&#39; mode, confirming
 that replication is working.</p>
+
+<p>You can also monitor what each tablet is doing by viewing the vttablet status
+page, as described above. For example, you can see the <em>Query Stats</em> change as
+you hit the frontend.</p>
 
 <p>The <a href="https://github.com/youtube/vitess/tree/master/examples/kubernetes/guestbook">GuestBook source code</a>
 provides more detail about how the app server interacts with Vitess.</p>
