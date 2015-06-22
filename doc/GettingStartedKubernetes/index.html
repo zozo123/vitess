@@ -229,7 +229,7 @@ and test the Google Cloud SDK. You will also set your default project
 ID while completing the quickstart. Start with step 2 in the setup
 process.</p>
 
-<p><strong>Note:</strong> During the quickstart, you&#39;ll generate an SSH key for
+<p><br><strong>Note:</strong> During the quickstart, you&#39;ll generate an SSH key for
 Google Compute Engine, and you will be prompted to enter a
 passphrase. You will be prompted for that passphrase several times
 when bringing up your Kubernetes cluster later in this guide.</p></li>
@@ -246,7 +246,7 @@ the <code>kubectl</code> tool:</p>
 <span class="c">### example output:</span>
 <span class="c"># ~/google-cloud-sdk/bin/kubectl</span>
 </code></pre></div>
-<p>If <code>kubectl</code> isn&#39;t on your PATH, you can tell our scripts where
+<p><br>If <code>kubectl</code> isn&#39;t on your PATH, you can tell our scripts where
 to find it by setting the <code>KUBECTL</code> environment variable:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span><span class="nb">export </span><span class="nv">KUBECTL</span><span class="o">=</span>/example/path/to/google-cloud-sdk/bin/kubectl
 </code></pre></div></li>
@@ -351,7 +351,7 @@ commands from <code>vtctlclient</code> to modify the cluster.</p>
 <code>vtctld</code> service is created with the <code>type: NodePort</code>
 option. This creates an
 <a href="https://github.com/GoogleCloudPlatform/kubernetes/blob/master/docs/services.md#external-services">external service</a>
-by exposing a port on each node that forwards to the vtctld service.<br><br></p></li>
+by exposing a port on each node that forwards to the vtctld service.<br></p></li>
 <li><p><strong>Access vtctld</strong></p>
 
 <p>To access the <code>vtctld</code> service from outside
@@ -414,9 +414,9 @@ unit of scaling for the database. A tablet consists of the
 <code>vttablet</code> and <code>mysqld</code> processes, running on the same
 host. We enforce this coupling in Kubernetes by putting the respective
 containers for vttablet and mysqld inside a single
-<a href="https://github.com/GoogleCloudPlatform/kubernetes/blob/master/docs/pods.md">pod</a></p>
+<a href="https://github.com/GoogleCloudPlatform/kubernetes/blob/master/docs/pods.md">pod</a>.</p>
 
-<p>Run the following script to launch the vttablet pod, which also includes
+<p><br>Run the following script to launch the vttablet pod, which also includes
 mysqld:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./vttablet-up.sh
 <span class="c">### example output:</span>
@@ -469,7 +469,7 @@ page for the tablet with ID 100 (recall that our Kubernetes master is
 on public IP 1.2.3.4), you could navigate to:</p>
 <div class="highlight"><pre><code class="language-text" data-lang="text">https://1.2.3.4/api/v1beta3/proxy/namespaces/default/pods/vttablet-100:15002/debug/status
 </code></pre></div>
-<p>In the future, we plan to have vtctld directly link through this proxy from
+<p><br>In the future, we plan to have vtctld directly link through this proxy from
 the <strong>[status]</strong> link.<br><br></p>
 
 <p><strong><em>Direct connection to mysqld</em></strong></p>
