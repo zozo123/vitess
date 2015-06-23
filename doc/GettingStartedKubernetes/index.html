@@ -264,7 +264,7 @@ that your installation will use:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>gcloud config <span class="nb">set </span>compute/zone us-central1-b
 </code></pre></div></li>
 <li><p>Create a Kubernetes cluster:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>gcloud alpha container clusters create example --machine-type n1-standard-1 --num-nodes 3
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>gcloud beta container clusters create example --machine-type n1-standard-1 --num-nodes 3
 </code></pre></div></li>
 <li><p>While the cluster is starting, you will be prompted several
 times for the passphrase you created while setting up Google
@@ -639,7 +639,7 @@ vitess/examples/kubernetes <span class="nv">$ </span>./etcd-down.sh
 </code></pre></div>
 <p>Then tear down the Container Engine cluster itself, which will stop the virtual
 machines running on Compute Engine:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>gcloud alpha container clusters delete example
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>gcloud beta container clusters delete example
 </code></pre></div>
 <p>It&#39;s also a good idea to remove the firewall rules you created, unless you plan
 to use them again soon:</p>
