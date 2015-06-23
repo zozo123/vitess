@@ -155,7 +155,7 @@
 It also gives the steps to start a Kubernetes cluster with
 <a href="https://cloud.google.com/container-engine/">Google Container Engine</a>.</p>
 
-<p>If you already have Kubernetes v0.18+ running in one of the other
+<p>If you already have Kubernetes v0.19+ running in one of the other
 <a href="http://kubernetes.io/gettingstarted/">supported platforms</a>,
 you can skip the <code>gcloud</code> steps.
 The <code>kubectl</code> steps will apply to any Kubernetes cluster.</p>
@@ -270,21 +270,20 @@ that your installation will use:</p>
 times for the passphrase you created while setting up Google
 Compute Engine.</p></li>
 <li><p>The command&#39;s output includes the IP of the Kubernetes master server:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">NAME     ZONE           CLUSTER_API_VERSION  MASTER_IP       MACHINE_TYPE                           NODES  STATUS
-example  us-central1-b  0.18.2               1.2.3.4         n1-standard-1, container-vm-v20150505  3      running
+<div class="highlight"><pre><code class="language-text" data-lang="text">NAME     ZONE           MASTER_VERSION  MASTER_IP     MACHINE_TYPE   STATUS
+example  us-central1-b  0.19.3          1.2.3.4       n1-standard-1  RUNNING
 </code></pre></div>
 <ol>
-<li> Open /static/app/ on the MASTER_IP in a browser over HTTPS
-(e.g. <code><a href="https://1.2.3.4/static/app/">https://1.2.3.4/static/app/</a></code>) to see the Kubernetes
+<li> Open /ui on the MASTER_IP in a browser over <em>HTTPS</em>
+(e.g. <code><a href="https://1.2.3.4/ui">https://1.2.3.4/ui</a></code>) to see the Kubernetes
 dashboard, where you can monitor nodes, services, pods, etc.</li>
 <li> If you see a <code>ERRCERTAUTHORITY_INVALID</code> error
 indicating that the server&#39;s security certificate is not
 trusted by your computer&#39;s operating system, click the
 <strong>Advanced</strong> link and then the link to proceed to the URL.</li>
 <li> You should be prompted to enter a username and password to
-access the requested page. Use <code>admin</code> as the username.
-The randomly-generated password can be found in the <code>token</code>
-field of the kubectl config:</li>
+access the requested page. You can find the randomly-generated password
+with <code>kubectl config view</code>:</li>
 </ol>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>kubectl config view
 <span class="c">### example output:</span>
@@ -296,7 +295,8 @@ field of the kubectl config:</li>
 <span class="c"># users:</span>
 <span class="c"># - name: gke_project_us-central1-b_example</span>
 <span class="c">#   user:</span>
-<span class="c">#     token: randompassword</span>
+<span class="c">#     password: gr8j0Rb11</span>
+<span class="c">#     username: admin</span>
 </code></pre></div></li>
 </ol>
 
@@ -367,7 +367,7 @@ and install and run <code>vtctlclient</code> there.)<br><br></p>
 (not the master):</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>kubectl get -o yaml nodes
 <span class="c">### example output:</span>
-<span class="c"># - apiVersion: v1beta3</span>
+<span class="c"># - apiVersion: v1</span>
 <span class="c">#   kind: Node</span>
 <span class="c"># ...</span>
 <span class="c">#   status:</span>
@@ -467,7 +467,7 @@ only be accessed from within Kubernetes.<br><br></p>
 proxy, provided by the Kubernetes master. For example, to see the status
 page for the tablet with ID 100 (recall that our Kubernetes master is
 on public IP 1.2.3.4), you could navigate to:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">https://1.2.3.4/api/v1beta3/proxy/namespaces/default/pods/vttablet-100:15002/debug/status
+<div class="highlight"><pre><code class="language-text" data-lang="text">https://1.2.3.4/api/v1/proxy/namespaces/default/pods/vttablet-100:15002/debug/status
 </code></pre></div>
 <p><br>In the future, we plan to have vtctld directly link through this proxy from
 the <strong>[status]</strong> link.<br><br></p>
