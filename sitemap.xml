@@ -29,6 +29,10 @@
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
   </url>
   <url>
+    <loc>http://vitess.io/doc/ShardingKubernetes/</loc>
+    <lastmod>2015-01-01T00:00:00-08:00</lastmod>
+  </url>
+  <url>
     <loc>http://vitess.io/doc/Sharding/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
   </url>
@@ -79,13 +83,13 @@
     <loc>http://vitess.io/user-guide/horizontal-sharding.html</loc>
   </url>
   <url>
-    <loc>http://vitess.io/about/</loc>
+    <loc>http://vitess.io/</loc>
   </url>
   <url>
     <loc>http://vitess.io/doc/</loc>
   </url>
   <url>
-    <loc>http://vitess.io/overview/</loc>
+    <loc>http://vitess.io/about/</loc>
   </url>
   <url>
     <loc>http://vitess.io/getting-started/</loc>
@@ -94,13 +98,16 @@
     <loc>http://vitess.io/terms/</loc>
   </url>
   <url>
-    <loc>http://vitess.io/</loc>
+    <loc>http://vitess.io/overview/</loc>
   </url>
   <url>
     <loc>http://vitess.io/getting-started/local-instance.html</loc>
   </url>
   <url>
     <loc>http://vitess.io/resources/presentations.html</loc>
+  </url>
+  <url>
+    <loc>http://vitess.io/user-guide/sharding-kubernetes.html</loc>
   </url>
   <url>
     <loc>http://vitess.io/user-guide/sharding.html</loc>

@@ -101,6 +101,7 @@
                         <li><a href="/user-guide/sharding.html">Sharding</a>
                           <ul>
                             <li><a href="/user-guide/horizontal-sharding.html">Horizontal Sharding (Codelab)</a></li>
+                            <li><a href="/user-guide/sharding-kubernetes.html">Sharding in Kubernetes (Codelab)</a></li>
                           </ul>
                         </li>
 <!--
@@ -268,14 +269,14 @@ that your installation will use:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>gcloud config <span class="nb">set </span>compute/zone us-central1-b
 </code></pre></div></li>
 <li><p>Create a Kubernetes cluster:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>gcloud beta container clusters create example --machine-type n1-standard-1 --num-nodes 3
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>gcloud beta container clusters create example --machine-type n1-standard-4 --num-nodes 5
 </code></pre></div></li>
 <li><p>While the cluster is starting, you will be prompted several
 times for the passphrase you created while setting up Google
 Compute Engine.</p></li>
 <li><p>The command&#39;s output includes the IP of the Kubernetes master server:</p>
 <div class="highlight"><pre><code class="language-text" data-lang="text">NAME     ZONE           MASTER_VERSION  MASTER_IP     MACHINE_TYPE   STATUS
-example  us-central1-b  0.19.3          1.2.3.4       n1-standard-1  RUNNING
+example  us-central1-b  0.19.3          1.2.3.4       n1-standard-4  RUNNING
 </code></pre></div>
 <ol>
 <li> Open /ui on the MASTER_IP in a browser over <em>HTTPS</em>
@@ -431,8 +432,12 @@ mysqld:</p>
 <span class="c"># pods/vttablet-101</span>
 <span class="c"># Creating pod for tablet test-0000000102...</span>
 <span class="c"># pods/vttablet-102</span>
+<span class="c"># Creating pod for tablet test-0000000103...</span>
+<span class="c"># pods/vttablet-103</span>
+<span class="c"># Creating pod for tablet test-0000000104...</span>
+<span class="c"># pods/vttablet-104</span>
 </code></pre></div>
-<p><br>Wait until you see all 3 tablets listed in the <strong>Topology</strong> summary page
+<p><br>Wait until you see all 5 tablets listed in the <strong>Topology</strong> summary page
 for your <code>vtctld</code> instance
 (e.g. <code><a href="http://2.3.4.5:30000/dbtopo">http://2.3.4.5:30000/dbtopo</a></code>).
 This can take some time if a pod was scheduled on a node that needs to
@@ -440,10 +445,19 @@ download the latest Vitess Docker image. You can also check the status of
 the tablets from the command line using <code>kvtctl</code>:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>kvtctl ListAllTablets <span class="nb">test</span>
 <span class="c">### example output:</span>
-<span class="c"># test-0000000100 test_keyspace 0 replica 10.64.2.9:15002 10.64.2.9:3306 []</span>
-<span class="c"># test-0000000101 test_keyspace 0 replica 10.64.1.12:15002 10.64.1.12:3306 []</span>
-<span class="c"># test-0000000102 test_keyspace 0 replica 10.64.2.10:15002 10.64.2.10:3306 []</span>
+<span class="c"># test-0000000100 test_keyspace 0 replica 10.64.1.6:15002 10.64.1.6:3306 []</span>
+<span class="c"># test-0000000101 test_keyspace 0 replica 10.64.2.5:15002 10.64.2.5:3306 []</span>
+<span class="c"># test-0000000102 test_keyspace 0 replica 10.64.0.7:15002 10.64.0.7:3306 []</span>
+<span class="c"># test-0000000103 test_keyspace 0 rdonly 10.64.1.7:15002 10.64.1.7:3306 []</span>
+<span class="c"># test-0000000104 test_keyspace 0 rdonly 10.64.2.6:15002 10.64.2.6:3306 []</span>
 </code></pre></div>
+<p><br>Note that of the 5 tablets, the first 3 were assigned to be
+<strong>replica</strong> type (for serving live web traffic), while the last 2
+were assigned to be <strong>rdonly</strong> type (for offline processing).
+These allocations can be configured in the <code>vttablet-up.sh</code> script.
+See the <a href="http://vitess.io/overview/concepts.html#tablet">tablet</a>
+reference for more about the available tablet types.<br></p>
+
 <p><br>By bringing up tablets in a previously empty
 <a href="http://vitess.io/overview/concepts.html#keyspace">keyspace</a>,
 you have effectively just created a new
@@ -482,7 +496,24 @@ the <strong>[status]</strong> link.<br><br></p>
 meant to be accessed via vttablet, our default bootstrap settings only allow
 connections from localhost.<br><br></p>
 
-<p>If you want to check or manipulate the underlying mysqld,
+<p>If you want to check or manipulate the underlying mysqld, you can issue
+simple queries or commands through <code>vtctlclient</code> like this:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="c"># Send a query to tablet 100 in cell &#39;test&#39;.</span>
+<span class="nv">$ </span>kvtctl ExecuteFetchAsDba <span class="nb">test</span>-0000000100 <span class="s2">&quot;SELECT VERSION()&quot;</span>
+<span class="c">### example output:</span>
+<span class="c"># {</span>
+<span class="c">#   &quot;Fields&quot;: [],</span>
+<span class="c">#   &quot;RowsAffected&quot;: 1,</span>
+<span class="c">#   &quot;InsertId&quot;: 0,</span>
+<span class="c">#   &quot;Rows&quot;: [</span>
+<span class="c">#     [</span>
+<span class="c">#       &quot;10.0.20-MariaDB-1~wheezy-log&quot;</span>
+<span class="c">#     ]</span>
+<span class="c">#   ],</span>
+<span class="c">#   &quot;Err&quot;: null</span>
+<span class="c"># }</span>
+</code></pre></div>
+<p><br>If you need a truly direct connection to mysqld for bulk operations,
 you can SSH to the Kubernetes node on which the pod is running.
 Then use <a href="https://docs.docker.com/reference/commandline/cli/#exec">docker exec</a>
 to launch a bash shell inside the mysql container, and connect with the
@@ -502,14 +533,14 @@ vttablet-100:/# <span class="nv">TERM</span><span class="o">=</span>ansi mysql -
 </code></pre></div></li>
 <li><p><strong>Elect a master vttablet</strong></p>
 
-<p>The tablets are all started as replicas. In this step, you
+<p>The tablets all start as slaves by default. In this step, you
 designate one of the tablets to be the master. Vitess
-automatically connects the other replicas&#39; mysqld instances
+automatically connects the other slaves&#39; mysqld instances
 so that they start replicating from the master&#39;s mysqld.<br><br></p>
 
 <p>Since this is the first time the shard has been started,
 the tablets are not already doing any replication, and the
-tablet types are all replica or spare. As a
+tablet types are all replica or rdonly. As a
 result, the following command uses the <code>-force</code>
 flag when calling the <code>InitShardMaster</code> command
 to be able to promote one instance to master.</p>
@@ -525,15 +556,17 @@ would fail as well.<br><br></p>
 <p>After running this command, go back to the <strong>Topology</strong> page
 in the <code>vtctld</code> web interface. When you refresh the
 page, you should see that one tablet is the master
-and the other two are replicas.<br><br></p>
+and the others are replica or rdonly.<br><br></p>
 
 <p>You can also run this command on the command line to see the
 same data:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>kvtctl ListAllTablets <span class="nb">test</span>
-<span class="c"># The command&#39;s output is shown below:</span>
-<span class="c"># test-0000000100 test_keyspace 0 master MASTER_IP:15002 MASTER_IP:3306 []</span>
-<span class="c"># test-0000000101 test_keyspace 0 replica REPLICA_IP:15002 REPLICA_IP:3306 []</span>
-<span class="c"># test-0000000102 test_keyspace 0 replica REPLICA_IP:15002 REPLICA_IP:3306 []</span>
+<span class="c">### example output:</span>
+<span class="c"># test-0000000100 test_keyspace 0 master 10.64.1.6:15002 10.64.1.6:3306 []</span>
+<span class="c"># test-0000000101 test_keyspace 0 replica 10.64.2.5:15002 10.64.2.5:3306 []</span>
+<span class="c"># test-0000000102 test_keyspace 0 replica 10.64.0.7:15002 10.64.0.7:3306 []</span>
+<span class="c"># test-0000000103 test_keyspace 0 rdonly 10.64.1.7:15002 10.64.1.7:3306 []</span>
+<span class="c"># test-0000000104 test_keyspace 0 rdonly 10.64.2.6:15002 10.64.2.6:3306 []</span>
 </code></pre></div></li>
 <li><p><strong>Create a table</strong></p>
 
@@ -630,12 +663,48 @@ the app server to retrieve a list of GuestBook entries. The app serves
 read-only requests by querying Vitess in &#39;replica&#39; mode, confirming
 that replication is working.</p>
 
-<p>You can also monitor what each tablet is doing by viewing the vttablet status
-page, as described above. For example, you can see the <em>Query Stats</em> change as
-you hit the frontend.</p>
-
+<p>You can also inspect the data stored by the app:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>kvtctl ExecuteFetchAsDba <span class="nb">test</span>-0000000100 <span class="s2">&quot;SELECT * FROM messages&quot;</span>
+<span class="c">### example output:</span>
+<span class="c"># {</span>
+<span class="c">#   &quot;Fields&quot;: [],</span>
+<span class="c">#   &quot;RowsAffected&quot;: 3,</span>
+<span class="c">#   &quot;InsertId&quot;: 0,</span>
+<span class="c">#   &quot;Rows&quot;: [</span>
+<span class="c">#     [</span>
+<span class="c">#       &quot;42&quot;,</span>
+<span class="c">#       &quot;1435441767473414912&quot;,</span>
+<span class="c">#       &quot;9080723075667090943&quot;,</span>
+<span class="c">#       &quot;First!&quot;</span>
+<span class="c">#     ],</span>
+<span class="c">#     [</span>
+<span class="c">#       &quot;42&quot;,</span>
+<span class="c">#       &quot;1435441772740816128&quot;,</span>
+<span class="c">#       &quot;9080723075667090943&quot;,</span>
+<span class="c">#       &quot;Message 2&quot;</span>
+<span class="c">#     ],</span>
+<span class="c">#     [</span>
+<span class="c">#       &quot;42&quot;,</span>
+<span class="c">#       &quot;1435441778454107904&quot;,</span>
+<span class="c">#       &quot;9080723075667090943&quot;,</span>
+<span class="c">#       &quot;Message 3&quot;</span>
+<span class="c">#     ]</span>
+<span class="c">#   ],</span>
+<span class="c">#   &quot;Err&quot;: null</span>
+<span class="c"># }</span>
+</code></pre></div>
 <p>The <a href="https://github.com/youtube/vitess/tree/master/examples/kubernetes/guestbook">GuestBook source code</a>
 provides more detail about how the app server interacts with Vitess.</p>
+
+<h2 id="try-vitess-resharding">Try Vitess resharding</h2>
+
+<p>Now that you have a full Vitess stack running, you may want to go on to the
+<a href="http://vitess.io/user-guide/sharding-kubernetes.html">Sharding in Kubernetes</a>
+guide to try out
+<a href="http://vitess.io/user-guide/sharding.html#resharding">dynamic resharding</a>.</p>
+
+<p>If so, you can skip the tear-down since the sharding guide picks up right here.
+If not, continue to the clean-up steps below.</p>
 
 <h2 id="tear-down-and-clean-up">Tear down and clean up</h2>
 

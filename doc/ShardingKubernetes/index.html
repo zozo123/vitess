@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en-US">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width" />
+      <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Vitess - ShardingKubernetes</title>
+<meta name="description" content="A set of servers and tools that facilitate scaling of MySQL databases for the web.">
+
+<link rel="canonical" href="http://vitess.io/doc/ShardingKubernetes/">
+
+<!-- Add to homescreen for Chrome on Android -->
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="icon" sizes="196x196" href="/images/touch/chrome-touch-icon-196x196.png">
+
+<!-- Add to homescreen for Safari on iOS -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Vitess">
+
+<!-- Tile icon for Win8 (144x144 + tile color) -->
+<meta name="msapplication-TileImage" content="/images/touch/ms-touch-icon-144x144-precomposed.png">
+<meta name="msapplication-TileColor" content="#3372DF">
+
+      <link rel="stylesheet" href="/assets/vendor/styles/wsk.css">
+<link rel="stylesheet" href="/css/main.css">
+<link rel="stylesheet" href="/css/extra.css">
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,600,900|Roboto+Condensed:300,300italic,400,700">
+
+      <link rel="stylesheet" href="/css/components.css">
+      <link rel="stylesheet" href="/css/responsee.css">
+      <!-- CUSTOM STYLE -->
+      <link rel="stylesheet" href="/css/template-style.css">
+      <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700,800&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+      <script type="text/javascript" src="/assets/scripts/jquery-1.8.3.min.js"></script>
+      <script type="text/javascript" src="/assets/scripts/jquery-ui.min.js"></script>    
+      <script type="text/javascript" src="/assets/scripts/modernizr.js"></script>
+      <script type="text/javascript" src="/assets/scripts/responsee.js"></script>
+      <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+      <![endif]-->
+   </head>
+   <body class="size-1140">
+      <header id="app-bar" class="app-bar promote-layer">
+         <div class="line">
+            <div class="app-bar-container">
+               <button id="menu" class="menu" title="Menu"></button>
+               <h1 class="logo"><a href="/">Vitess</a></h1>
+               <section class="app-bar-actions">
+                  <a href="#"><i class="icon icon-chevron-up"></i> Top</a>
+               </section>
+            </div>
+            <div class="navdrawer">
+              <nav id="nav" class="navdrawer-container promote-layer">
+                <h4>Navigation</h4>
+                
+<ul>
+  
+    <li >
+      <a href="//"></a>
+    </li>
+  
+    <li >
+      <a href="/overview/">Overview</a>
+    </li>
+  
+    <li >
+      <a href="/getting-started/">Getting Started</a>
+    </li>
+  
+  <li><a href="https://github.com/youtube/vitess">GitHub</a></li>
+</ul>
+
+              </nav>
+            </div>
+         </div>
+      </header>
+      <!-- ASIDE NAV AND CONTENT -->
+      <div class="line">
+         <div class="box  margin-bottom">
+            <div class="margin">
+               <!-- ASIDE NAV 2 -->
+               <nav class="scrolling-nav" style="margin:0">
+               <aside class="s-12">
+                  <div class="aside-nav">
+                     <div class="aside-nav-header">Overview</div>
+                     <ul>
+                        <li><a href="/overview/">What is Vitess</a></li>
+                        <li><a href="/overview/concepts.html">Key Concepts</a></li>
+                     </ul>
+                     <div class="aside-nav-header">Getting Started</div>
+                     <ul>
+                        <li><a href="/getting-started/">Run Vitess on Kubernetes</a></li>
+                        <li><a href="/getting-started/local-instance.html">Run Vitess Locally</a></li>
+                     </ul>
+                     <div class="aside-nav-header">User Guide</div>
+                     <ul>
+                        <li><a href="/user-guide/sharding.html">Sharding</a>
+                          <ul>
+                            <li><a href="/user-guide/horizontal-sharding.html">Horizontal Sharding (Codelab)</a></li>
+                            <li><a href="/user-guide/sharding-kubernetes.html">Sharding in Kubernetes (Codelab)</a></li>
+                          </ul>
+                        </li>
+<!--
+                        <li><a href="/user-guide/schema-management.html">Schema Management</a></li>
+                        <li><a href="/user-guide/reparenting.html">Reparenting</a></li>
+                        <li><a href="/user-guide/storage.html">Storage</a></li>
+                        <li><a href="/user-guide/api.html">Using the API</a></li>
+-->
+                     </ul>
+<!--
+                     <div class="aside-nav-header">Architecture</div>
+                     <ul>
+                        <li><a href="/architecture/life-of-a-query.html">Life of a Query</a></li>
+                        <li><a href="/architecture/topology-service.html">Topology Service</a></li>
+                     </ul>
+
+                     <div class="aside-nav-header">Maintenance</div>
+                     <ul>
+                        <li><a href="/maintenance/monitoring.html">Monitoring</a></li>
+                        <li><a href="/maintenance/testing.html">Testing</a></li>
+                     </ul>
+-->
+                     <div class="aside-nav-header">Reference</div>
+                     <ul>
+                        <li><a href="/reference/vtctl.html">vtctl Reference</a></li>
+<!--
+                        <li><a href="/reference/api.html">API Reference</a></li>
+                        <li><a href="/reference/client-libraries/">Client Libraries</a></li>
+-->
+                     </ul>
+<!--
+                     <div class="aside-nav-header">Other Resources</div>
+                     <ul>
+                        <li><a href="/resources/presentations.html">Presentations</a></li>
+                        <li class="last"><a href="/resources/roadmap.html">Roadmap</a></li>
+                     </ul>
+                  </div>
+-->
+               </aside>
+               </nav>
+               <!-- CONTENT -->
+               <section class="s-12 l-9">
+                 <main class="clear">
+
+  <header class="page-header container">
+    <h2 class="xxlarge text-divider">ShardingKubernetes</h2>
+    
+  </header>
+
+  <div class="container">
+    <p>This guide will walk through the process of sharding an existing unsharded
+Vitess <a href="http://vitess.io/overview/concepts.html#keyspace">keyspace</a> in Kubernetes.</p>
+
+<h2 id="prerequisites">Prerequisites</h2>
+
+<p>We begin by assuming you&#39;ve completed the
+<a href="http://vitess.io/getting-started/">Getting Started on Kubernetes</a> guide, and
+have left the cluster running.</p>
+
+<h2 id="overview">Overview</h2>
+
+<p>We will follow a process similar to the one in the general
+<a href="http://vitess.io/user-guide/horizontal-sharding.html">Horizontal Sharding</a>
+guide, except that here we&#39;ll give the exact commands you&#39;ll need to do it for
+the example Vitess cluster in Kubernetes.</p>
+
+<p>Since Vitess makes <a href="http://vitess.io/user-guide/sharding.html">sharding</a>
+transparent to the app layer, the
+<a href="https://github.com/youtube/vitess/tree/master/examples/kubernetes/guestbook">Guestbook</a>
+sample app will stay live throughout the
+<a href="http://vitess.io/user-guide/sharding.html#resharding">resharding</a> process,
+confirming that the Vitess cluster continues to serve without downtime.</p>
+
+<h2 id="configure-sharding-information">Configure sharding information</h2>
+
+<p>The first step is to tell Vitess the name and type of our
+<a href="http://vitess.io/overview/concepts.html#keyspace-id">keyspace_id</a> column:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>kvtctl SetKeyspaceShardingInfo test_keyspace keyspace_id uint64
+</code></pre></div>
+<p>This column was added in the original
+<a href="https://github.com/youtube/vitess/blob/master/examples/kubernetes/create_test_table.sql">schema</a>
+for the unsharded example, although it was unnecessary there.
+As a result, the Guestbook app is already sharding-ready,
+so we don&#39;t need to change anything at the app layer to shard the database.</p>
+
+<p>If the app hadn&#39;t originally been sharding-ready, we would need to alter
+the tables to add the <em>keyspace_id</em> column, back-fill it with a suitable hash
+of the sharding key, and include the <em>keyspace_id</em> in each query sent to VTGate.</p>
+
+<p>See the <a href="http://vitess.io/user-guide/sharding.html#range-based-sharding">sharding guide</a>
+and the <a href="https://github.com/youtube/vitess/blob/master/examples/kubernetes/guestbook/main.py">Guestbook source</a>
+for more about how this column is used.</p>
+
+<h2 id="bring-up-tablets-for-new-shards">Bring up tablets for new shards</h2>
+
+<p>In the unsharded example, you started tablets for a shard
+named <em>0</em> in <em>test_keyspace</em>, written as <em>test_keyspace/0</em>.
+Now you&#39;ll start tablets for two additional shards,
+named <em>test_keyspace/-80</em> and <em>test_keyspace/80-</em>:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./sharded-vttablet-up.sh
+<span class="c">### example output:</span>
+<span class="c"># Creating test_keyspace.shard--80 pods in cell test...</span>
+<span class="c"># ...</span>
+<span class="c"># Creating test_keyspace.shard-80- pods in cell test...</span>
+<span class="c"># ...</span>
+</code></pre></div>
+<p>Since the sharding key in the Guestbook app is the page number,
+this will result in half the pages going to each shard,
+since <em>0x80</em> is the midpoint of the
+<a href="http://vitess.io/user-guide/sharding.html#key-ranges-and-partitions">sharding key range</a>.</p>
+
+<p>These new shards will run in parallel with the original shard during the
+transition, but actual traffic will be served only by the original shard
+until we tell it to switch over.</p>
+
+<p>Check the <code>vtctld</code> <strong>Topology</strong> page, or the output of <code>kvtctl ListAllTablets test</code>,
+to see when the tablets are ready. There should be 5 tablets in each shard.</p>
+
+<p>Once the tablets are ready, initialize replication by electing the first master
+for each of the new shards:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>kvtctl InitShardMaster -force test_keyspace/-80 <span class="nb">test</span>-0000000200
+<span class="nv">$ </span>kvtctl InitShardMaster -force test_keyspace/80- <span class="nb">test</span>-0000000300
+</code></pre></div>
+<p>Now there should be a total of 15 tablets, with one master each:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>kvtctl ListAllTablets <span class="nb">test</span>
+<span class="c">### example output:</span>
+<span class="c"># test-0000000100 test_keyspace 0 master 10.64.3.4:15002 10.64.3.4:3306 []</span>
+<span class="c"># ...</span>
+<span class="c"># test-0000000200 test_keyspace -80 master 10.64.0.7:15002 10.64.0.7:3306 []</span>
+<span class="c"># ...</span>
+<span class="c"># test-0000000300 test_keyspace 80- master 10.64.0.9:15002 10.64.0.9:3306 []</span>
+<span class="c"># ...</span>
+</code></pre></div>
+<h2 id="copy-data-from-original-shard">Copy data from original shard</h2>
+
+<p>The new tablets start out empty, so we need to copy everything from the
+original shard to the two new ones, starting with the schema:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>kvtctl CopySchemaShard test_keyspace/0 test_keyspace/-80
+<span class="nv">$ </span>kvtctl CopySchemaShard test_keyspace/0 test_keyspace/80-
+</code></pre></div>
+<p>Since the amount of data to copy can be very large, we use a special
+batch process called <code>vtworker</code> to stream the data from a single source
+to multiple destinations, routing each row based on its <em>keyspace_id</em>:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./sharded-vtworker.sh SplitClone --strategy<span class="o">=</span>-populate_blp_checkpoint test_keyspace/0
+<span class="c">### example output:</span>
+<span class="c"># Creating vtworker pod in cell test...</span>
+<span class="c"># pods/vtworker</span>
+<span class="c"># Following vtworker logs until termination...</span>
+<span class="c"># I0627 23:57:51.118768      10 vtworker.go:99] Starting worker...</span>
+<span class="c"># ...</span>
+<span class="c"># State: done</span>
+<span class="c"># Success:</span>
+<span class="c"># messages: copy done, copied 3 rows</span>
+<span class="c"># Deleting vtworker pod...</span>
+<span class="c"># pods/vtworker</span>
+</code></pre></div>
+<p>Notice that we&#39;ve only specified the source shard, <em>test_keyspace/0</em>.
+The <em>SplitClone</em> process will automatically figure out which shards to use
+as the destinations based on the key range that needs to be covered.
+In this case, shard <em>0</em> covers the entire range, so it identifies
+<em>-80</em> and <em>80-</em> as the destination shards, since they combine to cover the
+same range.</p>
+
+<p>Next, it will pause replication on one <em>rdonly</em> (offline processing) tablet
+to serve as a consistent snapshot of the data. The app can continue without
+downtime, since live traffic is served by <em>replica</em> and <em>master</em> tablets,
+which are unaffected. Other batch jobs will also be unaffected, since they
+will be served by the remaining, un-paused <em>rdonly</em> tablets.</p>
+
+<h2 id="check-filtered-replication">Check filtered replication</h2>
+
+<p>Once the copy from the paused snapshot finishes, <code>vtworker</code> turns on
+<a href="http://vitess.io/user-guide/sharding.html#filtered-replication">filtered replication</a>
+from the source shard to each destination shard. This allows the destination
+shards to catch up on updates that have continued to flow in from the app since
+the time of the snapshot.</p>
+
+<p>When the destination shards are caught up, they will continue to replicate
+new updates. You can see this by looking at the contents of each shard as
+you add new messages to various pages in the Guestbook app. Shard <em>0</em> will
+see all the messages, while the new shards will only see messages for pages
+that live on that shard.</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="c"># See what&#39;s on shard test_keyspace/0:</span>
+<span class="nv">$ </span>kvtctl ExecuteFetchAsDba <span class="nb">test</span>-0000000100 <span class="s2">&quot;SELECT * FROM messages&quot;</span>
+<span class="c"># See what&#39;s on shard test_keyspace/-80:</span>
+<span class="nv">$ </span>kvtctl ExecuteFetchAsDba <span class="nb">test</span>-0000000200 <span class="s2">&quot;SELECT * FROM messages&quot;</span>
+<span class="c"># See what&#39;s on shard test_keyspace/80-:</span>
+<span class="nv">$ </span>kvtctl ExecuteFetchAsDba <span class="nb">test</span>-0000000300 <span class="s2">&quot;SELECT * FROM messages&quot;</span>
+</code></pre></div>
+<h2 id="check-copied-data-integrity">Check copied data integrity</h2>
+
+<p>The <code>vtworker</code> batch process has another mode that will compare the source
+and destination to ensure all the data is present and correct.
+The following commands will run a diff for each destination shard:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./sharded-vtworker.sh SplitDiff test_keyspace/-80
+vitess/examples/kubernetes<span class="nv">$ </span>./sharded-vtworker.sh SplitDiff test_keyspace/80-
+</code></pre></div>
+<h2 id="switch-over-to-the-new-shards">Switch over to the new shards</h2>
+
+<p>Now we&#39;re ready to switch over to serving from the new shards.
+The <a href="http://vitess.io/reference/vtctl.html#migrateservedtypes">MigrateServedTypes</a>
+command lets you do this one
+<a href="http://vitess.io/overview/concepts.html#tablet">tablet type</a> at a time,
+and even one <a href="http://vitess.io/overview/concepts.html#cell-(data-center)">cell</a>
+at a time. The process can be rolled back at any point <em>until</em> the master is
+switched over.</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>kvtctl MigrateServedTypes test_keyspace/0 rdonly
+<span class="nv">$ </span>kvtctl MigrateServedTypes test_keyspace/0 replica
+<span class="nv">$ </span>kvtctl MigrateServedTypes test_keyspace/0 master
+</code></pre></div>
+<p>During the <em>master</em> migration, the original shard master will first stop
+accepting updates. Then the process will wait for the new shard masters to
+fully catch up on filtered replication before allowing them to begin serving.
+Since filtered replication has been following along with live updates, there
+should only be a few seconds of master unavailability.</p>
+
+<h2 id="remove-the-original-shard">Remove the original shard</h2>
+
+<p>Now that all traffic is being served from the new shards, we can remove the
+original one. To do that, we use the <code>vttablet-down.sh</code> script from the
+unsharded example, and pass it the address for <code>vtctld</code> so it can clean up
+the <a href="http://vitess.io/overview/concepts.html#topology-service">topology</a> data
+for each tablet.</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span><span class="nb">alias </span>kvtctl
+<span class="c">### example output:</span>
+<span class="c"># alias kvtctl=&#39;vtctlclient -server 2.3.4.5:30000&#39;</span>
+vitess/examples/kubernetes<span class="nv">$ VTCTLD_ADDR</span><span class="o">=</span>2.3.4.5:30000 ./vttablet-down.sh
+<span class="c">### example output:</span>
+<span class="c"># Removing tablet test-0000000100 from Vitess topology...</span>
+<span class="c"># Deleting pod for tablet test-0000000100...</span>
+<span class="c"># pods/vttablet-100</span>
+<span class="c"># ...</span>
+</code></pre></div>
+<p>Then we can delete the now-empty shard:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>kvtctl DeleteShard test_keyspace/0
+</code></pre></div>
+<p>You should then see in the vtctld <strong>Topology</strong> page, or in the output of
+<code>kvtctl ListAllTablets test</code> that the tablets for shard <em>0</em> are gone.</p>
+
+<h2 id="tear-down-and-clean-up">Tear down and clean up</h2>
+
+<p>Before stopping the Container Engine cluster, you should tear down the Vitess
+services. Kubernetes will then take care of cleaning up any entities it created
+for those services, like external load balancers.</p>
+
+<p>Since you already cleaned up the tablets from the original unsharded example,
+replace that step with <code>./sharded-vttablet-down.sh</code> to clean up the new sharded
+tablets.</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./guestbook-down.sh
+vitess/examples/kubernetes<span class="nv">$ </span>./vtgate-down.sh
+vitess/examples/kubernetes<span class="nv">$ </span>./sharded-vttablet-down.sh
+vitess/examples/kubernetes<span class="nv">$ </span>./vtctld-down.sh
+vitess/examples/kubernetes<span class="nv">$ </span>./etcd-down.sh
+</code></pre></div>
+<p>Then tear down the Container Engine cluster itself, which will stop the virtual
+machines running on Compute Engine:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>gcloud beta container clusters delete example
+</code></pre></div>
+<p>It&#39;s also a good idea to remove the firewall rules you created, unless you plan
+to use them again soon:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>gcloud compute firewall-rules delete vtctld guestbook
+</code></pre></div>
+  </div>
+
+</main>
+
+               </section>
+            </div>
+         </div>
+         <footer>
+            <div class="s-12">
+               <div style="float: left; display: inline-block; width: 50%;">&copy; 2015 Google. Licensed under <a href="http://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>.</div>
+               <div style="float: right; display: inline-block; text-align: right; width: 50%;">Design and coding based on <a href="http://www.myresponsee.com" title="Responsee - lightweight responsive framework">Responsee</a> framework</div>
+               </div>
+         </footer>
+      </div>
+      <!-- FOOTER -->
+
+      <script src="/assets/scripts/main.js"></script>
+
+      <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  if (window.location.hostname == 'youtube.github.io') {
+    ga('create', 'UA-60219601-1', 'auto');
+    ga('send', 'pageview');
+  }
+</script>
+
+   </body>
+</html>
