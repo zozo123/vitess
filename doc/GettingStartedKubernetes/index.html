@@ -347,12 +347,22 @@ example, to tear down the <code>etcd</code> deployment, run:</p>
 inspect the state of the Vitess cluster. It also accepts RPC
 commands from <code>vtctlclient</code> to modify the cluster.</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./vtctld-up.sh
+<span class="c">### example output:</span>
+<span class="c"># Creating vtctld service...</span>
+<span class="c"># services/vtctld</span>
+<span class="c"># Creating vtctld pod...</span>
+<span class="c"># pods/vtctld</span>
+<span class="c">#</span>
+<span class="c"># vtctld address: http://2.3.4.5:30000</span>
 </code></pre></div>
 <p><br>To let you access vtctld from outside Kubernetes, the
 <code>vtctld</code> service is created with the <code>type: NodePort</code>
 option. This creates an
 <a href="https://github.com/GoogleCloudPlatform/kubernetes/blob/master/docs/services.md#external-services">external service</a>
-by exposing a port on each node that forwards to the vtctld service.<br></p></li>
+by exposing a port on each node that forwards to the vtctld service.<br></p>
+
+<p>The <strong>vtctld address</strong> printed by <code>vtctld-up.sh</code> is thus the external IP
+of one of the nodes, combined with the <code>nodePort</code> assigned for vtctld.</p></li>
 <li><p><strong>Access vtctld</strong></p>
 
 <p>To access the <code>vtctld</code> service from outside
@@ -364,39 +374,25 @@ and install and run <code>vtctlclient</code> there.)<br><br></p>
 <p>On GCE, you can open the port like this:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>gcloud compute firewall-rules create vtctld --allow tcp:30000
 </code></pre></div>
-<p><br>Then, get the <code>ExternalIP</code> of any Kubernetes node
-(not the master):</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>kubectl get -o yaml nodes
-<span class="c">### example output:</span>
-<span class="c"># - apiVersion: v1</span>
-<span class="c">#   kind: Node</span>
-<span class="c"># ...</span>
-<span class="c">#   status:</span>
-<span class="c">#     addresses:</span>
-<span class="c">#     - address: 2.3.4.5</span>
-<span class="c">#       type: ExternalIP</span>
-<span class="c"># ...</span>
-</code></pre></div>
-<p><br>You can then access the <code>vtctld</code> web interface at port 30000
-of the EXTERNAL_IP address returned in the above command.
-In this example, the web UI would be at
-<code><a href="http://2.3.4.5:30000">http://2.3.4.5:30000</a></code>.</p></li>
+<p><br>You can then access the vtctld web interface at the address printed
+by <code>vtctld-up.sh</code> above. In this example, the web UI would be at
+<code>http://2.3.4.5:30000</code>.</p></li>
 <li><p><strong>Use <code>vtctlclient</code> to call <code>vtctld</code></strong></p>
 
 <p>You can now run <code>vtctlclient</code> locally to issue commands
 to the <code>vtctld</code> service on your Kubernetes cluster.<br><br></p>
 
-<p>When you call <code>vtctlclient</code>, the command includes
+<p>When you call <code>vtctlclient</code>, the command requires
 the IP address and port for your <code>vtctld</code> service.
-To avoid having to enter that for each command, create an alias
-called <code>kvtctl</code> that points to the address from above:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span><span class="nb">alias </span><span class="nv">kvtctl</span><span class="o">=</span><span class="s1">&#39;vtctlclient -server 2.3.4.5:30000&#39;</span>
-</code></pre></div>
-<p><br>Now, running <code>kvtctl help</code> will test your connection to
+To avoid having to enter that for each command, you can use the
+provided <code>kvtctl.sh</code> script, which uses <code>kubectl</code> to discover the
+proper address.</p>
+
+<p><br>Now, running <code>kvtctl.sh help</code> will test your connection to
 <code>vtctld</code> and also list the <code>vtctlclient</code>
 commands that you can use to administer the Vitess cluster.</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="c"># Test the connection to vtctld and list available commands</span>
-<span class="nv">$ </span>kvtctl <span class="nb">help</span>
+vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh <span class="nb">help</span>
 <span class="c">### example output:</span>
 <span class="c"># Available commands:</span>
 <span class="c">#</span>
@@ -404,7 +400,7 @@ commands that you can use to administer the Vitess cluster.</p>
 <span class="c">#   InitTablet ...</span>
 <span class="c"># ...</span>
 </code></pre></div><div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="c"># Get usage for a specific command:</span>
-<span class="nv">$ </span>kvtctl <span class="nb">help </span>InitTablet
+vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh <span class="nb">help </span>InitTablet
 </code></pre></div>
 <p><br>See the <a href="http://vitess.io/reference/vtctl.html">vtctl reference</a> for a
 web-formatted version of the <code>vtctl help</code> output.</p></li>
@@ -438,8 +434,8 @@ for your <code>vtctld</code> instance
 (e.g. <code><a href="http://2.3.4.5:30000/dbtopo">http://2.3.4.5:30000/dbtopo</a></code>).
 This can take some time if a pod was scheduled on a node that needs to
 download the latest Vitess Docker image. You can also check the status of
-the tablets from the command line using <code>kvtctl</code>:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>kvtctl ListAllTablets <span class="nb">test</span>
+the tablets from the command line using <code>kvtctl.sh</code>:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh ListAllTablets <span class="nb">test</span>
 <span class="c">### example output:</span>
 <span class="c"># test-0000000100 test_keyspace 0 replica 10.64.1.6:15002 10.64.1.6:3306 []</span>
 <span class="c"># test-0000000101 test_keyspace 0 replica 10.64.2.5:15002 10.64.2.5:3306 []</span>
@@ -459,8 +455,8 @@ reference for more about the available tablet types.<br></p>
 you have effectively just created a new
 <a href="http://vitess.io/overview/concepts.html#shard">shard</a>.
 To initialize the keyspace for the new
-shard, call the <code>kvtctl RebuildKeyspaceGraph</code> command:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>kvtctl RebuildKeyspaceGraph test_keyspace
+shard, call the <code>kvtctl.sh RebuildKeyspaceGraph</code> command:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh RebuildKeyspaceGraph test_keyspace
 </code></pre></div>
 <p><strong>Note:</strong> Many <code>vtctlclient</code> commands produce no output on
 success.<br><br></p>
@@ -495,7 +491,7 @@ connections from localhost.<br><br></p>
 <p>If you want to check or manipulate the underlying mysqld, you can issue
 simple queries or commands through <code>vtctlclient</code> like this:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="c"># Send a query to tablet 100 in cell &#39;test&#39;.</span>
-<span class="nv">$ </span>kvtctl ExecuteFetchAsDba <span class="nb">test</span>-0000000100 <span class="s2">&quot;SELECT VERSION()&quot;</span>
+vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh ExecuteFetchAsDba <span class="nb">test</span>-0000000100 <span class="s2">&quot;SELECT VERSION()&quot;</span>
 <span class="c">### example output:</span>
 <span class="c"># {</span>
 <span class="c">#   &quot;Fields&quot;: [],</span>
@@ -540,7 +536,7 @@ tablet types are all replica or rdonly. As a
 result, the following command uses the <code>-force</code>
 flag when calling the <code>InitShardMaster</code> command
 to be able to promote one instance to master.</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>kvtctl InitShardMaster -force test_keyspace/0 <span class="nb">test</span>-0000000100
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh InitShardMaster -force test_keyspace/0 <span class="nb">test</span>-0000000100
 </code></pre></div>
 <p><br><strong>Note:</strong> If you do not include the <code>-force</code> flag
 here, the command will first check to ensure the provided
@@ -556,7 +552,7 @@ and the others are replica or rdonly.<br><br></p>
 
 <p>You can also run this command on the command line to see the
 same data:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>kvtctl ListAllTablets <span class="nb">test</span>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh ListAllTablets <span class="nb">test</span>
 <span class="c">### example output:</span>
 <span class="c"># test-0000000100 test_keyspace 0 master 10.64.1.6:15002 10.64.1.6:3306 []</span>
 <span class="c"># test-0000000101 test_keyspace 0 replica 10.64.2.5:15002 10.64.2.5:3306 []</span>
@@ -570,7 +566,7 @@ same data:</p>
 across all tablets in a keyspace. The following command creates
 the table defined in the <code>create_test_table.sql</code> file:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="c"># Make sure to run this from the examples/kubernetes dir, so it finds the file.</span>
-vitess/examples/kubernetes<span class="nv">$ </span>kvtctl ApplySchema -sql <span class="s2">&quot;$(cat create_test_table.sql)&quot;</span> test_keyspace
+vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh ApplySchema -sql <span class="s2">&quot;$(cat create_test_table.sql)&quot;</span> test_keyspace
 </code></pre></div>
 <p><br>The SQL to create the table is shown below:</p>
 <div class="highlight"><pre><code class="language-text" data-lang="text">CREATE TABLE messages (
@@ -584,7 +580,7 @@ PRIMARY KEY (page, time_created_ns)
 <p><br>You can run this command to confirm that the schema was created
 properly on a given tablet, where <code>test-0000000100</code>
 is a tablet alias as shown by the <code>ListAllTablets</code> command:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>kvtctl GetSchema <span class="nb">test</span>-0000000100
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh GetSchema <span class="nb">test</span>-0000000100
 <span class="c">### example output:</span>
 <span class="c"># {</span>
 <span class="c">#   &quot;DatabaseSchema&quot;: &quot;CREATE DATABASE `` /*!40100 DEFAULT CHARACTER SET utf8 */&quot;,</span>
@@ -620,6 +616,11 @@ engine. The client-side code (HTML/JavaScript) has been modified to support
 multiple Guestbook pages, which will be useful to demonstrate Vitess sharding in
 a later guide.</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./guestbook-up.sh
+<span class="c">### example output:</span>
+<span class="c"># Creating guestbook service...</span>
+<span class="c"># services/guestbook</span>
+<span class="c"># Creating guestbook replicationcontroller...</span>
+<span class="c"># replicationcontrollers/guestbook</span>
 </code></pre></div>
 <p>As with the <code>vtctld</code> service, to access the GuestBook
 app from outside Kubernetes, we need to set the <code>type</code> field in the
@@ -660,7 +661,7 @@ read-only requests by querying Vitess in &#39;replica&#39; mode, confirming
 that replication is working.</p>
 
 <p>You can also inspect the data stored by the app:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>kvtctl ExecuteFetchAsDba <span class="nb">test</span>-0000000100 <span class="s2">&quot;SELECT * FROM messages&quot;</span>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh ExecuteFetchAsDba <span class="nb">test</span>-0000000100 <span class="s2">&quot;SELECT * FROM messages&quot;</span>
 <span class="c">### example output:</span>
 <span class="c"># {</span>
 <span class="c">#   &quot;Fields&quot;: [],</span>

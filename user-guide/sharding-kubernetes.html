@@ -179,7 +179,7 @@ confirming that the Vitess cluster continues to serve without downtime.</p>
 
 <p>The first step is to tell Vitess the name and type of our
 <a href="http://vitess.io/overview/concepts.html#keyspace-id">keyspace_id</a> column:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>kvtctl SetKeyspaceShardingInfo test_keyspace keyspace_id uint64
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh SetKeyspaceShardingInfo test_keyspace keyspace_id uint64
 </code></pre></div>
 <p>This column was added in the original
 <a href="https://github.com/youtube/vitess/blob/master/examples/kubernetes/create_test_table.sql">schema</a>
@@ -217,16 +217,16 @@ since <em>0x80</em> is the midpoint of the
 transition, but actual traffic will be served only by the original shard
 until we tell it to switch over.</p>
 
-<p>Check the <code>vtctld</code> <strong>Topology</strong> page, or the output of <code>kvtctl ListAllTablets test</code>,
+<p>Check the <code>vtctld</code> <strong>Topology</strong> page, or the output of <code>kvtctl.sh ListAllTablets test</code>,
 to see when the tablets are ready. There should be 5 tablets in each shard.</p>
 
 <p>Once the tablets are ready, initialize replication by electing the first master
 for each of the new shards:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>kvtctl InitShardMaster -force test_keyspace/-80 <span class="nb">test</span>-0000000200
-<span class="nv">$ </span>kvtctl InitShardMaster -force test_keyspace/80- <span class="nb">test</span>-0000000300
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh InitShardMaster -force test_keyspace/-80 <span class="nb">test</span>-0000000200
+vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh InitShardMaster -force test_keyspace/80- <span class="nb">test</span>-0000000300
 </code></pre></div>
 <p>Now there should be a total of 15 tablets, with one master each:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>kvtctl ListAllTablets <span class="nb">test</span>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh ListAllTablets <span class="nb">test</span>
 <span class="c">### example output:</span>
 <span class="c"># test-0000000100 test_keyspace 0 master 10.64.3.4:15002 10.64.3.4:3306 []</span>
 <span class="c"># ...</span>
@@ -239,8 +239,8 @@ for each of the new shards:</p>
 
 <p>The new tablets start out empty, so we need to copy everything from the
 original shard to the two new ones, starting with the schema:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>kvtctl CopySchemaShard test_keyspace/0 test_keyspace/-80
-<span class="nv">$ </span>kvtctl CopySchemaShard test_keyspace/0 test_keyspace/80-
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh CopySchemaShard test_keyspace/0 test_keyspace/-80
+vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh CopySchemaShard test_keyspace/0 test_keyspace/80-
 </code></pre></div>
 <p>Since the amount of data to copy can be very large, we use a special
 batch process called <code>vtworker</code> to stream the data from a single source
@@ -285,11 +285,11 @@ you add new messages to various pages in the Guestbook app. Shard <em>0</em> wil
 see all the messages, while the new shards will only see messages for pages
 that live on that shard.</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="c"># See what&#39;s on shard test_keyspace/0:</span>
-<span class="nv">$ </span>kvtctl ExecuteFetchAsDba <span class="nb">test</span>-0000000100 <span class="s2">&quot;SELECT * FROM messages&quot;</span>
+vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh ExecuteFetchAsDba <span class="nb">test</span>-0000000100 <span class="s2">&quot;SELECT * FROM messages&quot;</span>
 <span class="c"># See what&#39;s on shard test_keyspace/-80:</span>
-<span class="nv">$ </span>kvtctl ExecuteFetchAsDba <span class="nb">test</span>-0000000200 <span class="s2">&quot;SELECT * FROM messages&quot;</span>
+vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh ExecuteFetchAsDba <span class="nb">test</span>-0000000200 <span class="s2">&quot;SELECT * FROM messages&quot;</span>
 <span class="c"># See what&#39;s on shard test_keyspace/80-:</span>
-<span class="nv">$ </span>kvtctl ExecuteFetchAsDba <span class="nb">test</span>-0000000300 <span class="s2">&quot;SELECT * FROM messages&quot;</span>
+vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh ExecuteFetchAsDba <span class="nb">test</span>-0000000300 <span class="s2">&quot;SELECT * FROM messages&quot;</span>
 </code></pre></div>
 <h2 id="check-copied-data-integrity">Check copied data integrity</h2>
 
@@ -298,6 +298,10 @@ and destination to ensure all the data is present and correct.
 The following commands will run a diff for each destination shard:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./sharded-vtworker.sh SplitDiff test_keyspace/-80
 vitess/examples/kubernetes<span class="nv">$ </span>./sharded-vtworker.sh SplitDiff test_keyspace/80-
+</code></pre></div>
+<p>If any discrepancies are found, they will be printed.
+If everything is good, you should see something like this:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">Table messages checks out (4 rows processed, 1072961 qps)
 </code></pre></div>
 <h2 id="switch-over-to-the-new-shards">Switch over to the new shards</h2>
 
@@ -308,9 +312,9 @@ command lets you do this one
 and even one <a href="http://vitess.io/overview/concepts.html#cell-(data-center)">cell</a>
 at a time. The process can be rolled back at any point <em>until</em> the master is
 switched over.</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>kvtctl MigrateServedTypes test_keyspace/0 rdonly
-<span class="nv">$ </span>kvtctl MigrateServedTypes test_keyspace/0 replica
-<span class="nv">$ </span>kvtctl MigrateServedTypes test_keyspace/0 master
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh MigrateServedTypes test_keyspace/0 rdonly
+vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh MigrateServedTypes test_keyspace/0 replica
+vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh MigrateServedTypes test_keyspace/0 master
 </code></pre></div>
 <p>During the <em>master</em> migration, the original shard master will first stop
 accepting updates. Then the process will wait for the new shard masters to
@@ -322,13 +326,8 @@ should only be a few seconds of master unavailability.</p>
 
 <p>Now that all traffic is being served from the new shards, we can remove the
 original one. To do that, we use the <code>vttablet-down.sh</code> script from the
-unsharded example, and pass it the address for <code>vtctld</code> so it can clean up
-the <a href="http://vitess.io/overview/concepts.html#topology-service">topology</a> data
-for each tablet.</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span><span class="nb">alias </span>kvtctl
-<span class="c">### example output:</span>
-<span class="c"># alias kvtctl=&#39;vtctlclient -server 2.3.4.5:30000&#39;</span>
-vitess/examples/kubernetes<span class="nv">$ VTCTLD_ADDR</span><span class="o">=</span>2.3.4.5:30000 ./vttablet-down.sh
+unsharded example:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./vttablet-down.sh
 <span class="c">### example output:</span>
 <span class="c"># Removing tablet test-0000000100 from Vitess topology...</span>
 <span class="c"># Deleting pod for tablet test-0000000100...</span>
@@ -336,10 +335,10 @@ vitess/examples/kubernetes<span class="nv">$ VTCTLD_ADDR</span><span class="o">=
 <span class="c"># ...</span>
 </code></pre></div>
 <p>Then we can delete the now-empty shard:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>kvtctl DeleteShard test_keyspace/0
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh DeleteShard test_keyspace/0
 </code></pre></div>
 <p>You should then see in the vtctld <strong>Topology</strong> page, or in the output of
-<code>kvtctl ListAllTablets test</code> that the tablets for shard <em>0</em> are gone.</p>
+<code>kvtctl.sh ListAllTablets test</code> that the tablets for shard <em>0</em> are gone.</p>
 
 <h2 id="tear-down-and-clean-up">Tear down and clean up</h2>
 
@@ -347,9 +346,9 @@ vitess/examples/kubernetes<span class="nv">$ VTCTLD_ADDR</span><span class="o">=
 services. Kubernetes will then take care of cleaning up any entities it created
 for those services, like external load balancers.</p>
 
-<p>Since you already cleaned up the tablets from the original unsharded example,
-replace that step with <code>./sharded-vttablet-down.sh</code> to clean up the new sharded
-tablets.</p>
+<p>Since you already cleaned up the tablets from the original unsharded example by
+running <code>./vttablet-down.sh</code>, that step has been replaced with
+<code>./sharded-vttablet-down.sh</code> to clean up the new sharded tablets.</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./guestbook-down.sh
 vitess/examples/kubernetes<span class="nv">$ </span>./vtgate-down.sh
 vitess/examples/kubernetes<span class="nv">$ </span>./sharded-vttablet-down.sh
