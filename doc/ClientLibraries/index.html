@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en-US">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width" />
+      <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Vitess - ClientLibraries</title>
+<meta name="description" content="A set of servers and tools that facilitate scaling of MySQL databases for the web.">
+
+<link rel="canonical" href="http://vitess.io/doc/ClientLibraries/">
+
+<!-- Add to homescreen for Chrome on Android -->
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="icon" sizes="196x196" href="/images/touch/chrome-touch-icon-196x196.png">
+
+<!-- Add to homescreen for Safari on iOS -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Vitess">
+
+<!-- Tile icon for Win8 (144x144 + tile color) -->
+<meta name="msapplication-TileImage" content="/images/touch/ms-touch-icon-144x144-precomposed.png">
+<meta name="msapplication-TileColor" content="#3372DF">
+
+      <link rel="stylesheet" href="/assets/vendor/styles/wsk.css">
+<link rel="stylesheet" href="/css/main.css">
+<link rel="stylesheet" href="/css/extra.css">
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,600,900|Roboto+Condensed:300,300italic,400,700">
+
+      <link rel="stylesheet" href="/css/components.css">
+      <link rel="stylesheet" href="/css/responsee.css">
+      <!-- CUSTOM STYLE -->
+      <link rel="stylesheet" href="/css/template-style.css">
+      <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700,800&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+      <script type="text/javascript" src="/assets/scripts/jquery-1.8.3.min.js"></script>
+      <script type="text/javascript" src="/assets/scripts/jquery-ui.min.js"></script>    
+      <script type="text/javascript" src="/assets/scripts/modernizr.js"></script>
+      <script type="text/javascript" src="/assets/scripts/responsee.js"></script>
+      <!--[if lt IE 9]>
+      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+      <![endif]-->
+   </head>
+   <body class="size-1140">
+      <header id="app-bar" class="app-bar promote-layer">
+         <div class="line">
+            <div class="app-bar-container">
+               <button id="menu" class="menu" title="Menu"></button>
+               <h1 class="logo"><a href="/">Vitess</a></h1>
+               <section class="app-bar-actions">
+                  <a href="#"><i class="icon icon-chevron-up"></i> Top</a>
+               </section>
+            </div>
+            <div class="navdrawer">
+              <nav id="nav" class="navdrawer-container promote-layer">
+                <h4>Navigation</h4>
+                
+<ul>
+  
+    <li >
+      <a href="//"></a>
+    </li>
+  
+    <li >
+      <a href="/overview/">Overview</a>
+    </li>
+  
+    <li >
+      <a href="/getting-started/">Getting Started</a>
+    </li>
+  
+  <li><a href="https://github.com/youtube/vitess">GitHub</a></li>
+</ul>
+
+              </nav>
+            </div>
+         </div>
+      </header>
+      <!-- ASIDE NAV AND CONTENT -->
+      <div class="line">
+         <div class="box  margin-bottom">
+            <div class="margin">
+               <!-- ASIDE NAV 2 -->
+               <nav class="scrolling-nav" style="margin:0">
+               <aside class="s-12">
+                  <div class="aside-nav">
+                     <div class="aside-nav-header">Overview</div>
+                     <ul>
+                        <li><a href="/overview/">What is Vitess</a></li>
+                        <li><a href="/overview/concepts.html">Key Concepts</a></li>
+                     </ul>
+                     <div class="aside-nav-header">Getting Started</div>
+                     <ul>
+                        <li><a href="/getting-started/">Run Vitess on Kubernetes</a></li>
+                        <li><a href="/getting-started/local-instance.html">Run Vitess Locally</a></li>
+                     </ul>
+                     <div class="aside-nav-header">User Guide</div>
+                     <ul>
+                        <li><a href="/user-guide/backup-and-restore.html">Backing Up Data</a>
+                        <li><a href="/user-guide/sharding.html">Sharding</a>
+                          <ul>
+                            <li><a href="/user-guide/horizontal-sharding.html">Horizontal Sharding (Codelab)</a></li>
+                            <li><a href="/user-guide/sharding-kubernetes.html">Sharding in Kubernetes (Codelab)</a></li>
+                          </ul>
+                        </li>
+<!--
+                        <li><a href="/user-guide/schema-management.html">Schema Management</a></li>
+                        <li><a href="/user-guide/reparenting.html">Reparenting</a></li>
+                        <li><a href="/user-guide/storage.html">Storage</a></li>
+                        <li><a href="/user-guide/api.html">Using the API</a></li>
+-->
+                     </ul>
+<!--
+                     <div class="aside-nav-header">Architecture</div>
+                     <ul>
+                        <li><a href="/architecture/life-of-a-query.html">Life of a Query</a></li>
+                        <li><a href="/architecture/topology-service.html">Topology Service</a></li>
+                     </ul>
+
+                     <div class="aside-nav-header">Maintenance</div>
+                     <ul>
+                        <li><a href="/maintenance/monitoring.html">Monitoring</a></li>
+                        <li><a href="/maintenance/testing.html">Testing</a></li>
+                     </ul>
+-->
+                     <div class="aside-nav-header">Reference</div>
+                     <ul>
+                        <li><a href="/reference/vtctl.html">vtctl Reference</a></li>
+<!--
+                        <li><a href="/reference/api.html">API Reference</a></li>
+                        <li><a href="/reference/client-libraries/">Client Libraries</a></li>
+-->
+                     </ul>
+                     <div class="aside-nav-header">Other Resources</div>
+                     <ul>
+                        <li><a href="/resources/presentations.html">Presentations</a></li>
+                        <!--<li class="last"><a href="/resources/roadmap.html">Roadmap</a></li>-->
+                     </ul>
+                  </div>
+               </aside>
+               </nav>
+               <!-- CONTENT -->
+               <section class="s-12 l-9">
+                 <article class="main-content-container">
+                   <main class="clear">
+
+  <header class="page-header container">
+    <h2 class="xxlarge text-divider">ClientLibraries</h2>
+    
+  </header>
+
+  <div class="container">
+    <p>This document explains the client library strategy for Vitess. A Vitess cluster can be accessed
+by a variety of clients, written in different languages. We provide a unified client strategy
+for each language we support.</p>
+
+<p>Vitess&#39;s service is exposed through a proto3 service definition, and we support gRPC.
+So we therefore support all languages the gRPC framework supports. The RPC layer is however
+a bit raw to use as is, so we implement a thin layer on the RPC API to the vtgate server pool.
+Each client provides a single connection abstraction to the vtgate service.
+The RPC API is described in the proto file. (TODO: link to the proto generated doc).</p>
+
+<h2 id="core-principles-for-the-client-libraries">Core Principles for the Client Libraries</h2>
+
+<p>The following principles are followed by each client library:</p>
+
+<ul>
+<li>Each client should if possible fully implement the server API, and provide access to all methods:
+
+<ul>
+<li>Execution of queries targeted to a specific set of shards (the ...Shards methods).</li>
+<li>Execution of queries targeted by sharding key (the ...KeyspaceIds, ...KeyRanges and ...EntityIds methods).</li>
+<li>Execution of queries using the v3 API, which chooses a target automatically (Experimental).</li>
+<li>Transaction methods (Begin, Commit, Rollback).</li>
+<li>Map-Reduce helper method (SplitQuery).</li>
+<li>Topology method (GetSrvKeyspace).</li>
+</ul></li>
+<li>The connection object should be thread-safe if applicable, and allow the multiplexing of multiple queries on the same connection (streaming queries, transactions, ...).</li>
+<li>A lower level plug-in abstraction should be used, so the transport used can be plugged-in, and we can use different RPC frameworks. Note if the proto3 library is available in the language, it is preferable to use the data types generated from our proto files in the API.</li>
+<li>A higher level object abstraction should be available so the user doesn&#39;t have to keep track of the Session.</li>
+<li>Language specific idiomatic constructs to provide helpful constructs to application developers. Integration with language database drivers will lower the barrier of entry for application developers. Full integration may require the use of v3 API:
+
+<ul>
+<li>For Python, compliance with DB API.</li>
+<li>For Java, compliance with JDBC.</li>
+<li>For Go, the database/sql package.</li>
+</ul></li>
+<li>If a well-known Map-Reduce framework exists for the language, both a data source and a sink should be provided for that language. For instance, in Java, we provide a Hadoop data source and a sink.</li>
+<li>Higher level libraries can also be provided if they make sense. For instance, we have object-based helper classes in Python (used by YouTube) that we provide.</li>
+<li>Expose the same set of well-documented error codes to the user. (TODO: link to the proto error doc).</li>
+<li>Use vtgateclienttest to fully unit-test all API calls (vtgateclienttest is a small server that can simulate a real server and return specific responses to allow full client feature coverage).</li>
+</ul>
+
+<h2 id="rpc-frameworks">RPC Frameworks</h2>
+
+<p>We started Vitess with BSON-RPC, which is BSON-encoded data structures on top of the Go RPC framework. However, limitations in that framework, and the availability of gRPC, made us switch to <a href="https://github.com/grpc">gRPC</a>.</p>
+
+<p>We now define our services using <a href="https://github.com/google/protobuf">proto files</a>, and the proto3 syntax.</p>
+
+<p>We are not however constrained by it. The plug-in client strategy we follow allows us to easily send the proto3 objects over any transport (for instance, within Google, we use proto2 objects over Stubby).</p>
+
+<h2 id="java">Java</h2>
+
+<p>TODO: fill in more information, once refactor is done.</p>
+
+<h2 id="php">PHP</h2>
+
+<p>TODO: fill in more information.</p>
+
+<h2 id="go">Go</h2>
+
+<p>The Go client exposes the entire API. It also provides an adapter for the go native database/sql library, based on the v3 API.</p>
+
+<p>No map-reduce integration is supported yet.</p>
+
+<h2 id="python">Python</h2>
+
+<p>TODO: fill in more information.</p>
+
+  </div>
+
+</main>
+
+                 </article>
+               </section>
+            </div>
+         </div>
+         <footer>
+            <div class="s-12">
+               <div style="float: left; display: inline-block; width: 50%;">&copy; 2015 Google. Licensed under <a href="http://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>.</div>
+               <div style="float: right; display: inline-block; text-align: right; width: 50%;">Design and coding based on <a href="http://www.myresponsee.com" title="Responsee - lightweight responsive framework">Responsee</a> framework</div>
+               </div>
+         </footer>
+      </div>
+      <!-- FOOTER -->
+
+      <script src="/assets/scripts/main.js"></script>
+
+      <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  if (window.location.hostname == 'youtube.github.io') {
+    ga('create', 'UA-60219601-1', 'auto');
+    ga('send', 'pageview');
+  }
+</script>
+
+   </body>
+</html>
