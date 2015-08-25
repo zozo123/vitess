@@ -108,7 +108,9 @@
                         </li>
 <!--
                         <li><a href="/user-guide/schema-management.html">Schema Management</a></li>
+-->
                         <li><a href="/user-guide/reparenting.html">Reparenting</a></li>
+<!--
                         <li><a href="/user-guide/storage.html">Storage</a></li>
                         <li><a href="/user-guide/api.html">Using the API</a></li>
 -->
@@ -304,7 +306,7 @@ traffic since 2011.</p>
 
 <p><strong>vttablet</strong> is a proxy server that sits in front of a MySQL database. A Vitess implementation has one vttablet for each MySQL instance.</p>
 
-<p>vttablet performs tasks that attempt to maximize throughput as well as protect MySQL from harmful queries. Its features include connection pooling, query rewriting, and query de-duping. In addition, vttablet executes management tasks that vtctl initiates, and it provides streaming services that are used for <a href="Resharding.md#filtered-replication">filtered replication</a> and data exports.</p>
+<p>vttablet performs tasks that attempt to maximize throughput as well as protect MySQL from harmful queries. Its features include connection pooling, query rewriting, and query de-duping. In addition, vttablet executes management tasks that vtctl initiates, and it provides streaming services that are used for <a href="/user-guide/sharding.html#filtered-replication">filtered replication</a> and data exports.</p>
 
 <!--
 It is a newer version of and provides all of the same benefits as vtocc, including connection pooling, query rewriting, and query de-duping. In addition, vttablet executes management tasks that vtctl initiates. It also provides streaming services that are used for [filtered replication](Resharding.md#filtered-replication) and data export.
