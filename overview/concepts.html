@@ -219,7 +219,7 @@ TODO: keyspace ID rules must be solidified once VTGate features are finalized.
 
 <p>A keyspace that does not use sharding effectively has one shard. Vitess names the shard <code>0</code> by convention. When sharded a keyspace has <code>N</code> shards with non-overlapping data. Usually, <code>N</code> is a power of 2.</p>
 
-<p>Vitess supports <a href="https://github.com/youtube/vitess/blob/master/doc/Resharding.md">dynamic resharding</a>, in which one shard is split into multiple shards for instance. During dynamic resharding, the data in the source shard is split into the destination shards. Then the source shard is deleted.</p>
+<p>Vitess supports <a href="http://vitess.io/user-guide/sharding.html#resharding">dynamic resharding</a>, in which one shard is split into multiple shards for instance. During dynamic resharding, the data in the source shard is split into the destination shards. Then the source shard is deleted.</p>
 
 <h2 id="tablet">Tablet</h2>
 
