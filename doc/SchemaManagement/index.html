@@ -99,17 +99,16 @@
                      </ul>
                      <div class="aside-nav-header">User Guide</div>
                      <ul>
+                        
                         <li><a href="/user-guide/backup-and-restore.html">Backing Up Data</a>
+                        <li><a href="/user-guide/reparenting.html">Reparenting</a></li>
+                        <li><a href="/user-guide/schema-management.html">Schema Management</a></li>
                         <li><a href="/user-guide/sharding.html">Sharding</a>
                           <ul>
                             <li><a href="/user-guide/horizontal-sharding.html">Horizontal Sharding (Codelab)</a></li>
                             <li><a href="/user-guide/sharding-kubernetes.html">Sharding in Kubernetes (Codelab)</a></li>
                           </ul>
                         </li>
-<!--
-                        <li><a href="/user-guide/schema-management.html">Schema Management</a></li>
--->
-                        <li><a href="/user-guide/reparenting.html">Reparenting</a></li>
 <!--
                         <li><a href="/user-guide/storage.html">Storage</a></li>
                         <li><a href="/user-guide/api.html">Using the API</a></li>
@@ -148,70 +147,158 @@
   </header>
 
   <div class="container">
-    <h1 id="schema-management">Schema Management</h1>
+    <p>Your MySQL database schema lists the tables in your database and
+contains table definitions that explain how to create those tables.
+Table definitions identify table names, column names, column types,
+primary key information, and so forth.</p>
 
-<p>The schema is the list of tables and how to create them. It is managed by vtctl.</p>
+<p>This document describes the <code><a href="/reference/vtctl.html">vtctl</a></code>
+commands that you can use to <a href="#reviewing-your-schema">review</a> or
+<a href="#changing-your-schema">update</a> your schema in Vitess.</p>
 
-<h2 id="looking-at-the-schema">Looking at the Schema</h2>
+<h2 id="reviewing-your-schema">Reviewing your schema</h2>
 
-<p>The following vtctl commands exist to look at the schema, and validate it&#39;s the same on all databases.</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">GetSchema &lt;tablet alias&gt;
-</code></pre></div>
-<p>where &lt;tablet alias&gt; is in the format of &quot;&lt;cell name&gt;-&lt;uid&gt;&quot;</p>
-
-<p>Example:
-<code>
-$ vtctl -wait-time=30s GetSchema cell01-01234567
-</code>
-displays the full schema for a tablet</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">ValidateSchemaShard &lt;keyspace/shard&gt;
-</code></pre></div>
-<p>where &lt;keyspace/shard&gt; is the format of &quot;&lt;keyspace&gt;/&lt;shard&gt;&quot;</p>
-
-<p>Example:
-<code>
-$ vtctl -wait-time=30s ValidateSchemaShard keyspace01/10-20
-</code>
-validate the master schema matches all the slaves.</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">ValidateSchemaKeyspace &lt;keyspace&gt;
-</code></pre></div>
-<p>validate the master schema from shard 0 matches all the other tablets in the keyspace.</p>
-
-<p>Example:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">$ vtctl -wait-time=30s ValidateSchemaKeyspace user
-</code></pre></div>
-<h2 id="changing-the-schema">Changing the Schema</h2>
-
-<p>Goals:</p>
+<p>This section describes the following <code>vtctl</code> commands, which let you look at the schema and validate its consistency across tablets or shards:</p>
 
 <ul>
-<li>simplify schema updates on the fleet</li>
-<li>minimize human actions / errors</li>
-<li>guarantee no or very little downtime for most schema updates</li>
-<li>do not store any permanent schema data in Topology Server, just use it for actions.</li>
-<li>only look at tables for now (not stored procedures or grants for instance, although they both could be added fairly easily in the same manner)</li>
+<li><a href="#getschema">GetSchema</a></li>
+<li><a href="#validateschemashard">ValidateSchemaShard</a></li>
+<li><a href="#validateschemakeyspace">ValidateSchemaKeyspace</a></li>
 </ul>
 
-<p>We’re trying to get reasonable confidence that a schema update is going to work before applying it. Since we cannot really apply a change to live tables without potentially causing trouble, we have implemented a Preflight operation: it copies the current schema into a temporary database, applies the change there to validate it, and gathers the resulting schema. After this Preflight, we have a good idea of what to expect, and we can apply the change to any database and make sure it worked.</p>
+<h3 id="getschema">GetSchema</h3>
 
-<p>The Preflight operation takes a sql string, and returns a SchemaChangeResult:</p>
-<div class="highlight"><pre><code class="language-go" data-lang="go"><span class="kd">type</span> <span class="nx">SchemaChangeResult</span> <span class="kd">struct</span> <span class="p">{</span>
- <span class="nx">Error</span>        <span class="kt">string</span>
- <span class="nx">BeforeSchema</span> <span class="o">*</span><span class="nx">SchemaDefinition</span>
- <span class="nx">AfterSchema</span>  <span class="o">*</span><span class="nx">SchemaDefinition</span>
-<span class="p">}</span>
+<p>The <code><a href="/reference/vtctl.html#getschema">GetSchema</a></code> command
+displays the full schema for a tablet or a subset of the tablet&#39;s tables.
+When you call <code>GetSchema</code>, you specify the tablet alias that
+uniquely identifies the tablet. The <code>&lt;tablet alias&gt;</code>
+argument value has the format <code>&lt;cell name&gt;-&lt;uid&gt;</code>.</p>
+
+<p><strong>Note:</strong> You can use the
+<code><a href="/reference/vtctl.html#listalltablets">vtctl ListAllTablets</a></code>
+command to retrieve a list of tablets in a cell and their unique IDs.</p>
+
+<p>The following example retrieves the schema for the tablet with the
+unique ID <code>test-000000100</code>:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">GetSchema test-000000100
 </code></pre></div>
-<p>The ApplySchema action applies a schema change to a specified keyspace, the performed steps are:</p>
+<h3 id="validateschemashard">ValidateSchemaShard</h3>
+
+<p>The
+<code><a href="/reference/vtctl.html#validateschemashard">ValidateSchemaShard</a></code>
+command confirms that for a given keyspace, all of the slave tablets
+in a specified shard have the same schema as the master tablet in that
+shard. When you call <code>ValidateSchemaShard</code>, you specify both
+the keyspace and the shard that you are validating.</p>
+
+<p>The following command confirms that the master and slave tablets in
+shard <code>0</code> all have the same schema for the <code>user</code>
+keyspace:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">ValidateSchemaShard user/0
+</code></pre></div>
+<h3 id="validateschemakeyspace">ValidateSchemaKeyspace</h3>
+
+<p>The <code><a href="/reference/vtctl.html#validateschemakeyspace">ValidateSchemaKeyspace</a></code>
+command confirms that all of the tablets in a given keyspace have
+the the same schema as the master tablet on shard <code>0</code>
+in that keyspace. Thus, whereas the <code>ValidateSchemaShard</code>
+command confirms the consistency of the schema on tablets within a shard
+for a given keyspace, <code>ValidateSchemaKeyspace</code> confirms the
+consistency across all tablets in all shards for that keyspace.</p>
+
+<p>The following command confirms that all tablets in all shards have the
+same schema as the master tablet in shard <code>0</code> for the
+<code>user</code> keyspace:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">ValidateSchemaKeyspace user
+</code></pre></div>
+<h2 id="changing-your-schema">Changing your schema</h2>
+
+<p>This section describes the <code>vtctl ApplySchema</code> command, which
+supports schema modifications. Vitess&#39; schema modification functionality
+is designed the following goals in mind:</p>
 
 <ul>
-<li>It first finds shards belong to this keyspace, including newly added shards in the presence of <a href="http://vitess.io/user-guide/sharding.html#resharding">resharding event</a>.</li>
-<li>Validate the sql syntax and reject the schema change if the sql 1) Alter more then 100,000 rows, or 2) The targed table has more then 2,000,000 rows. The rational behind this is that ApplySchema simply applies schema changes to the masters; therefore, a big schema change that takes too much time slows down the replication and may reduce the availability of the overall system.</li>
-<li>Create a temporary database that has the same schema as the targeted table. Apply the sql to it and makes sure it changes table structure.</li>
-<li>Apply the Sql command to the database.</li>
-<li>Read the schema again, make sure it is equal to AfterSchema.</li>
+<li>Enable simple updates that propagate to your entire fleet of servers.</li>
+<li>Require minimal human interaction.</li>
+<li>Minimize errors by testing changes against a temporary database.</li>
+<li>Guarantee very little downtime (or no downtime) for most schema updates.</li>
+<li>Do not store permanent schema data in the topology server.</li>
 </ul>
-<div class="highlight"><pre><code class="language-text" data-lang="text">ApplySchema {-sql=&lt;sql&gt; || -sql_file=&lt;filename&gt;} &lt;keyspace&gt;
+
+<p>Note that, at this time, Vitess only supports
+<a href="https://dev.mysql.com/doc/refman/5.6/en/sql-syntax-data-definition.html">data definition statements</a>
+that create, modify, or delete database tables.
+For instance, <code>ApplySchema</code> does not affect stored procedures
+or grants.</p>
+
+<h3 id="applyschema">ApplySchema</h3>
+
+<p>The <code><a href="/reference/vtctl.html#applyschema">ApplySchema</a></code>
+command applies a schema change to the specified keyspace on every
+master tablet, running in parallel on all shards. Changes are then
+propagated to slaves via replication. The command format is:
+<code>
+ApplySchema {-sql=&lt;sql&gt; || -sql_file=&lt;filename&gt;} &lt;keyspace&gt;
+</code></p>
+
+<p>When the <code>ApplySchema</code> action actually applies a schema
+change to the specified keyspace, it performs the following steps:</p>
+
+<ol>
+<li>It finds shards that belong to the keyspace, including newly added
+shards if a <a href="/user-guide/sharding.html#resharding">resharding event</a>
+has taken place.</li>
+<li>It validates the SQL syntax and determines the impact of the schema
+change. If the scope of the change is too large, Vitess rejects it.
+See the <a href="#permitted-schema-changes">permitted schema changes</a> section
+for more detail.</li>
+<li>It employs a pre-flight check to ensure that a schema update will
+succeed before the change is actually applied to the live database.
+In this stage, Vitess copies the current schema into a temporary
+database, applies the change there to validate it, and retrieves
+the resulting schema. By doing so, Vitess verifies that the change
+succeeds without actually touching live database tables.</li>
+<li>It applies the Sql command on the master tablet in each shard.</li>
+</ol>
+
+<p>The following sample command applies the SQL in the <strong>user_table.sql</strong>
+file to the <strong>user</strong> keyspace:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">ApplySchema -sql_file=user_table.sql user
 </code></pre></div>
+<h4 id="permitted-schema-changes">Permitted schema changes</h4>
+
+<p>The <code>ApplySchema</code> command supports a limited set of DDL
+statements. In addition, Vitess rejects some schema changes because
+large changes can slow replication and may reduce the availability
+of your overall system.</p>
+
+<p>The following list identifies types of DDL statements that Vitess
+supports:</p>
+
+<ul>
+<li><code>CREATE TABLE</code></li>
+<li><code>CREATE INDEX</code></li>
+<li><code>CREATE VIEW</code></li>
+<li><code>ALTER TABLE</code></li>
+<li><code>ALTER VIEW</code></li>
+<li><code>RENAME TABLE</code></li>
+<li><code>DROP TABLE</code></li>
+<li><code>DROP INDEX</code></li>
+<li><code>DROP VIEW</code></li>
+</ul>
+
+<p>In addition, Vitess applies the following rules when assessing the
+impact of a potential change:</p>
+
+<ul>
+<li><code>DROP</code> statements are always allowed, regardless of the
+table&#39;s size.</li>
+<li><code>ALTER</code> statements are only allowed if the table on the
+shard&#39;s master tablet has 100,000 rows or less.</li>
+<li>For all other statements, the table on the shard&#39;s master tablet
+must have 2 million rows or less.</li>
+</ul>
+
   </div>
 
 </main>
