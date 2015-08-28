@@ -7,10 +7,10 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>Vitess - Presentations and Videos</title>
-<meta name="description" content="Slides and videos from presentations about Vitess.">
+<title>Vitess - Vitess User Guide - Introduction</title>
+<meta name="description" content="A set of servers and tools that facilitate scaling of MySQL databases for the web.">
 
-<link rel="canonical" href="http://vitess.io/resources/presentations.html">
+<link rel="canonical" href="http://vitess.io/user-guide/introduction.html">
 
 <!-- Add to homescreen for Chrome on Android -->
 <meta name="mobile-web-app-capable" content="yes">
@@ -143,35 +143,140 @@
                    <main class="clear">
 
   <header class="page-header container">
-    <h2 class="xxlarge text-divider">Presentations and Videos</h2>
-    
-      <p class="page-header__excerpt g-wide--push-1 g-wide--pull-1" style="padding-bottom: 32px;">
-        Slides and videos from presentations about Vitess.
-      </p>
+    <h2 class="xxlarge text-divider">Vitess User Guide - Introduction</h2>
     
   </header>
 
   <div class="container">
-    <h2 id="percona-2015">Percona 2015</h2>
+    <p><strong>Contents:</strong></p>
 
-<p>Vitess team member Anthony Yeh talk at the Percona 2015 provided an overview of Vitess as well as an explanation of how Vitess has evolved to live in a containerized world with Kubernetes and Docker.</p>
+<ul class="table-of-contents">
+  <li><a href="#platform-support">Platform support</a></li>
+  <li><a href="#database-support">Database support</a>
+    <ul>
+      <li><a href="#data-types-and-sql-support">Data types and SQL support</a></li>
+      <li><a href="#schema-management">Schema management</a></li>
+    </ul>
+  </li>
+  <li><a href="#supported-clients">Supported clients</a>
+    <ul>
+      <li><a href="#client-libraries">Client libraries</a>
+    </ul>
+  </li>
+  <li><a href="#backups">Backups</a></li>
+</ul>
 
-<!--
-Still waiting for link to video for Anthony's talk from Percona
+<h2 id="platform-support">Platform support</h2>
 
--->
+<p>Vitess runs on either Ubuntu 14.04 (Trusty) or Debian 7.0 (Wheezy).
+You can run Vitess on local hardware or as the storage engine in a
+Kubernetes cluster.</p>
 
-<iframe src="http://docs.google.com/gview?url=http://vitess.io/resources/percona-2015-vitess-and-kubernetes.pdf&embedded=true" style="width:643px; height:379px; margin-top: 20px;" frameborder="0"></iframe>
+<h2 id="database-support">Database support</h2>
 
-<div style="text-align: right; width: 100%;"><a href="https://github.com/youtube/vitess/blob/master/doc/slides/Percona2015.pptx?raw=true">download slides</a></div>
+<p>Vitess supports <a href="http://dev.mysql.com/doc/refman/5.6/en/">MySQL 5.6</a>
+and <a href="https://downloads.mariadb.org/mariadb/10.0.21/">MariaDB 10.0</a>
+implementations.</p>
 
-<h2 id="google-i/o-2014---scaling-with-go:-youtube&#39;s-vitess">Google I/O 2014 - Scaling with Go: YouTube&#39;s Vitess</h2>
+<p><strong>Note:</strong> If you are using MariaDB, you must install version 10.0 or
+higher. If you are using an <code>apt</code> repository, confirm that
+it offers an option to install that version. You can also download the
+source directly from
+<a href="https://downloads.mariadb.org/mariadb/10.0.21/">mariadb.org</a>.</p>
 
-<p>In this talk, Sugu Sougoumarane from the Vitess team talks about how Vitess
-solved YouTube&#39;s scalability problems as well as about tips and techniques
-used to scale with Go.<br><br></p>
+<h3 id="data-types-and-sql-support">Data types and SQL support</h3>
 
-<iframe width="640" height="360" src="https://www.youtube.com/embed/midJ6b1LkA0" frameborder="0" allowfullscreen></iframe>
+<p>In Vitess, database tables are like MySQL relational tables, and you
+can use relational modeling schemes (normalization) to structure your
+schema. Vitess supports both primary and secondary indexes.</p>
+
+<p>Vitess supports all MySQL data types, which translate into almost all
+usual scalar data types. It also provides full SQL support within a
+<a href="/overview/concepts.html#shard">shard</a>, including JOIN statements.</p>
+
+<p>The maximum size/value is 16MB per cell/row. In addition, the limit
+on the total database size is in the tens of TB.</p>
+
+<p>Vitess does not currently support encoded protobufs or protocol buffer
+querying. (The latter is also known as cracking.) Protocol buffers can
+be stored as a blob in MySQL, but must be decoded and interpreted at
+the application layer.</p>
+
+<h3 id="schema-management">Schema management</h3>
+
+<p>Vitess supports several functions for looking at your schema and
+validating its consistency across tablets in a shard or across all
+shards in a keyspace.</p>
+
+<p>In addition, Vitess supports
+<a href="https://dev.mysql.com/doc/refman/5.6/en/sql-syntax-data-definition.html">data definition statements</a>
+that create, modify, or delete database tables. Vitess executes
+schema changes on the master tablet within each shard, and those
+changes then propagate to slave tablets via replication. Vitess does
+not support other types of DDL statements, such as those that affect
+stored procedures or grants.</p>
+
+<p>Before executing a schema change, Vitess validates the SQL syntax
+and determines the impact of the change. It also does a pre-flight
+check to ensure that the update can be applied to your schema. In
+addition, to avoid reducing the availability of your entire system,
+Vitess rejects changes that exceed a certain scope.</p>
+
+<p>See the <a href="/user-guide/schema-management.html">Schema Management</a>
+section of this guide for more information.</p>
+
+<h2 id="supported-clients">Supported clients</h2>
+
+<p>You can access your Vitess cluster using a variety of clients and
+programming languages.</p>
+
+<p>Vitess&#39; service is exposed through a
+<a href="https://developers.google.com/protocol-buffers/docs/proto3">proto3</a>
+service definition. Vitess supports <a href="http://www.grpc.io/">gRPC</a>,
+and you can use the
+<a href="https://developers.google.com/protocol-buffers/docs/proto?hl=en#generating">proto compiler</a>
+to generate stubs that can call the API in any language that the
+gRPC framework supports.</p>
+
+<h3 id="client-libraries">Client libraries</h3>
+
+<p>Client libraries that support a richer set of functionality are
+available for some languages. Client libraries help your application
+to more easily talk to your storage system to query data.</p>
+
+<p>The following table lists those
+client libraries and other clients that Vitess supports.</p>
+
+<table><thead>
+<tr>
+<th style="text-align: left">Type</th>
+<th style="text-align: left">Options</th>
+</tr>
+</thead><tbody>
+<tr>
+<td style="text-align: left">Client library</td>
+<td style="text-align: left"><a href="http://www.grpc.io/">gRPC</a><br>C++<br>Go<br>Java<br>Python</td>
+</tr>
+<tr>
+<td style="text-align: left">MapReduce</td>
+<td style="text-align: left"><a href="https://hadoop.apache.org/docs/r2.7.0/api/org/apache/hadoop/mapreduce/InputFormat.html">Hadoop input</a></td>
+</tr>
+<tr>
+<td style="text-align: left">Cloud Dataflow</td>
+<td style="text-align: left"><strong><em>coming soon</em></strong></td>
+</tr>
+</tbody></table>
+
+<h2 id="backups">Backups</h2>
+
+<p>Vitess supports data backups to an NFS directory and can use any
+network-mounted drive as the backup repository. Vitess defines an
+interface that, in turn, defines methods for creating, listing,
+and removing backups.</p>
+
+<p>See the <a href="/user-guide/backup-and-restore.html">Backup Up Data</a> section
+of this guide for more information about creating and restoring data
+backups with Vitess.</p>
 
   </div>
 

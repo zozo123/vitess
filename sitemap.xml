@@ -21,6 +21,10 @@
     <lastmod>2015-01-01T00:00:00-05:00</lastmod>
   </url>
   <url>
+    <loc>http://vitess.io/doc/UserGuideIntroduction/</loc>
+    <lastmod>2015-01-01T00:00:00-05:00</lastmod>
+  </url>
+  <url>
     <loc>http://vitess.io/doc/TopologyService/</loc>
     <lastmod>2015-01-01T00:00:00-05:00</lastmod>
   </url>
@@ -84,6 +88,9 @@
     <loc>http://vitess.io/user-guide/backup-and-restore.html</loc>
   </url>
   <url>
+    <loc>http://vitess.io/user-guide/client-libraries.html</loc>
+  </url>
+  <url>
     <loc>http://vitess.io/overview/concepts.html</loc>
   </url>
   <url>
@@ -106,6 +113,9 @@
   </url>
   <url>
     <loc>http://vitess.io/doc/</loc>
+  </url>
+  <url>
+    <loc>http://vitess.io/user-guide/introduction.html</loc>
   </url>
   <url>
     <loc>http://vitess.io/getting-started/local-instance.html</loc>

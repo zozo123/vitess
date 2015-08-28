@@ -99,7 +99,8 @@
                      </ul>
                      <div class="aside-nav-header">User Guide</div>
                      <ul>
-                        
+                        <li><a href="/user-guide/introduction.html">Introduction</a>
+                        <li><a href="/user-guide/client-libraries.html">Client Libraries</a>
                         <li><a href="/user-guide/backup-and-restore.html">Backing Up Data</a>
                         <li><a href="/user-guide/reparenting.html">Reparenting</a></li>
                         <li><a href="/user-guide/schema-management.html">Schema Management</a></li>
@@ -147,73 +148,114 @@
   </header>
 
   <div class="container">
-    <p>This document explains the client library strategy for Vitess. A Vitess cluster can be accessed
-by a variety of clients, written in different languages. We provide a unified client strategy
-for each language we support.</p>
+    <p><strong>Contents:</strong></p>
 
-<p>Vitess&#39;s service is exposed through a proto3 service definition, and we support gRPC.
-So we therefore support all languages the gRPC framework supports. The RPC layer is however
-a bit raw to use as is, so we implement a thin layer on the RPC API to the vtgate server pool.
-Each client provides a single connection abstraction to the vtgate service.
-The RPC API is described in the proto file. (TODO: link to the proto generated doc).</p>
-
-<h2 id="core-principles-for-the-client-libraries">Core Principles for the Client Libraries</h2>
-
-<p>The following principles are followed by each client library:</p>
-
-<ul>
-<li>Each client should if possible fully implement the server API, and provide access to all methods:
-
-<ul>
-<li>Execution of queries targeted to a specific set of shards (the ...Shards methods).</li>
-<li>Execution of queries targeted by sharding key (the ...KeyspaceIds, ...KeyRanges and ...EntityIds methods).</li>
-<li>Execution of queries using the v3 API, which chooses a target automatically (Experimental).</li>
-<li>Transaction methods (Begin, Commit, Rollback).</li>
-<li>Map-Reduce helper method (SplitQuery).</li>
-<li>Topology method (GetSrvKeyspace).</li>
-</ul></li>
-<li>The connection object should be thread-safe if applicable, and allow the multiplexing of multiple queries on the same connection (streaming queries, transactions, ...).</li>
-<li>A lower level plug-in abstraction should be used, so the transport used can be plugged-in, and we can use different RPC frameworks. Note if the proto3 library is available in the language, it is preferable to use the data types generated from our proto files in the API.</li>
-<li>A higher level object abstraction should be available so the user doesn&#39;t have to keep track of the Session.</li>
-<li>Language specific idiomatic constructs to provide helpful constructs to application developers. Integration with language database drivers will lower the barrier of entry for application developers. Full integration may require the use of v3 API:
-
-<ul>
-<li>For Python, compliance with DB API.</li>
-<li>For Java, compliance with JDBC.</li>
-<li>For PHP, compliance with PDO.</li>
-<li>For Go, the database/sql package.</li>
-</ul></li>
-<li>If a well-known Map-Reduce framework exists for the language, both a data source and a sink should be provided for that language. For instance, in Java, we provide a Hadoop data source and a sink.</li>
-<li>Higher level libraries can also be provided if they make sense. For instance, we have object-based helper classes in Python (used by YouTube) that we provide.</li>
-<li>Expose the same set of well-documented error codes to the user. (TODO: link to the proto error doc).</li>
-<li>Use vtgateclienttest to fully unit-test all API calls (vtgateclienttest is a small server that can simulate a real server and return specific responses to allow full client feature coverage).</li>
+<ul class="table-of-contents">
+  <li><a href="#overview">Overview</a></li>
+  <li><a href="#core-principles">Core principles</a></li>
+  <li><a href="#language-specific-considerations">Language-specific considerations</a></li>
+  <li><a href="#available-libraries">Available libraries</a></li>
 </ul>
 
-<h2 id="rpc-frameworks">RPC Frameworks</h2>
+<h2 id="overview">Overview</h2>
 
-<p>We started Vitess with BSON-RPC, which is BSON-encoded data structures on top of the Go RPC framework. However, limitations in that framework, and the availability of gRPC, made us switch to <a href="https://github.com/grpc">gRPC</a>.</p>
+<p>You can access your Vitess cluster using a variety of clients and
+programming languages. Vitess client libraries help your client
+application to more easily talk to your storage system to query data.</p>
 
-<p>We now define our services using <a href="https://github.com/google/protobuf">proto files</a>, and the proto3 syntax.</p>
+<p>Vitess&#39; service is exposed through a
+<a href="https://developers.google.com/protocol-buffers/docs/proto3">proto3</a>
+service definition. Vitess supports <a href="http://www.grpc.io/">gRPC</a>,
+and you can use the
+<a href="https://developers.google.com/protocol-buffers/docs/proto?hl=en#generating">proto compiler</a>
+to generate stubs that can call the API in any language that the
+gRPC framework supports.</p>
 
-<p>We are not however constrained by it. The plug-in client strategy we follow allows us to easily send the proto3 objects over any transport (for instance, within Google, we use proto2 objects over Stubby).</p>
+<p>This document explains the client library strategy for Vitess.</p>
 
-<h2 id="java">Java</h2>
+<h2 id="core-principles">Core Principles</h2>
 
-<p>TODO: fill in more information, once refactor is done.</p>
+<p>Vitess client libraries follow these core principles:</p>
 
-<h2 id="php">PHP</h2>
+<ul>
+<li>Libraries fully implement the server API and provide access to all
+API methods, which support the following types of functions:
 
-<p>TODO: fill in more information.</p>
+<ul>
+<li>Transactions (begin, commit, rollback)</li>
+<li>Queries targeted to a specific shards or groups of shards</li>
+<li>Queries targeted based on sharding key values</li>
+<li>Queries that monitor sharding configurations</li>
+<li>MapReduce operations</li>
+</ul></li>
+<li>Libraries expose an identical set of well-documented error codes.</li>
+<li>Libraries provide a single-connection abstraction to the
+<code>vtgate</code> service. The connection object should be
+thread-safe, if applicable, and should support multiplexing for
+streaming queries, transactions, and other operations that rely
+on multiple queries.</li>
+<li>A low-level plug-in abstraction enables the transport to be plugged
+in so that the application can use different RPC frameworks. For
+instance, within Google, we use proto2 objects with an internal
+RPC system.<br><br><strong>Note:</strong> If the proto3 library is available in
+your language, we recommend that your API calls use the data types
+generated from our .proto files.</li>
+<li>A high-level object abstraction allows the user to execute transactions
+without having to keep track of the database session.</li>
+<li>Libraries support <code>vtgateclienttest</code>, enabling you to
+fully unit-test all API calls. <code>vtgateclienttest</code> is
+a small server that simulates a real <code>vtgate</code> server
+and returns specific responses to allow for full client feature
+coverage.</li>
+</ul>
 
-<h2 id="go">Go</h2>
+<h2 id="language-specific-considerations">Language-specific considerations</h2>
 
-<p>The Go client exposes the entire API. It also provides an adapter for the go native database/sql library, based on the v3 API.</p>
+<ul>
+<li>Each client library should support language-specific, idiomatic
+constructs to simplify application development in that language.</li>
+<li>Client libraries should integrate with the following language-specific
+database drivers, though this support is not yet provided:
 
-<p>No map-reduce integration is supported yet.</p>
+<ul>
+<li>Go: <a href="http://golang.org/pkg/database/sql/">database/sql package</a></li>
+<li>Java: <a href="https://docs.oracle.com/javase/tutorial/jdbc/index.html">JDBC</a>
+compliance</li>
+<li>PHP: <a href="http://php.net/manual/en/intro.pdo.php">PHP Data Objects (PDO)</a>
+compliance</li>
+<li>Python: <a href="https://www.python.org/dev/peps/pep-0249/">DB API</a> compliance</li>
+</ul></li>
+<li>Libraries provide a thin wrapper around the proto3 service definitions.
+Those wrappers could be extended with adapters to higher level libraries
+like SQLAlchemy (Python) or JDBC (Java), with other object-based helper
+classes in the relevant language, or both.</li>
+<li>If a well-known MapReduce framework exists for the language, the client
+library should provide a data source and a data sink. For example, you
+can read data from Vitess inside a Hadoop MapReduce job and save the
+output into Vitess.</li>
+</ul>
 
-<h2 id="python">Python</h2>
+<h2 id="available-libraries">Available libraries</h2>
 
-<p>TODO: fill in more information.</p>
+<h3 id="go">Go</h3>
+
+<p>The Go client exposes the entire API. It also provides an adapter
+based on the v3 API for the Go native
+<a href="http://golang.org/pkg/database/sql/">database/sql</a>.</p>
+
+<p>The Go client does not yet support MapReduce integration.</p>
+
+<h3 id="java">Java</h3>
+
+<p>Content to be filled in.</p>
+
+<h3 id="php">PHP</h3>
+
+<p>Content to be filled in.</p>
+
+<h3 id="python">Python</h3>
+
+<p>Content to be filled in.</p>
 
   </div>
 
