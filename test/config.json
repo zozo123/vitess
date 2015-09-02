@@ -39,8 +39,7 @@
 			"File": "",
 			"Args": [],
 			"Command": [
-				"travis/goveralls.sh",
-				"--full"
+				"travis/goveralls.sh"
 			],
 			"Manual": true,
 			"Shard": 0,
