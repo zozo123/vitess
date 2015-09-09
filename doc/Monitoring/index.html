@@ -8,7 +8,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>Vitess - Monitoring</title>
-<meta name="description" content="A set of servers and tools that facilitate scaling of MySQL databases for the web.">
+<meta name="description" content="Servers and tools that scale MySQL databases for the web in cloud architectures or on dedicated hardware.">
 
 <link rel="canonical" href="http://vitess.io/doc/Monitoring/">
 
@@ -25,10 +25,33 @@
 <meta name="msapplication-TileImage" content="/images/touch/ms-touch-icon-144x144-precomposed.png">
 <meta name="msapplication-TileColor" content="#3372DF">
 
-      <link rel="stylesheet" href="/assets/vendor/styles/wsk.css">
-<link rel="stylesheet" href="/css/main.css">
-<link rel="stylesheet" href="/css/extra.css">
-<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,600,900|Roboto+Condensed:300,300italic,400,700">
+          <!-- Webfont -->
+    <link href='http://fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300italic,400italic,500,500italic,700,700italic,900,900italic' rel='stylesheet' type='text/css'>
+    
+    <!--<link rel="shortcut icon" type="image/png" href="/favicon.png">-->
+
+    <!-- Bootstrap -->
+    <link href="/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Less custom stylesheet -->
+    <link rel="stylesheet/less" type="text/css" href="/css/style.less" />
+    <link rel="stylesheet" type="text/css" href="/css/vitess.css">
+    <!-- Font Awesome icons -->
+    <link href="/libs/font-awesome-4.4.0/css/font-awesome.min.css"
+          rel="stylesheet"
+          type="text/css">
+    
+    <!-- Less clientside js script after all less stylesheets. -->
+    <script src="/libs/less/less.min.js" type="text/javascript"></script>
+
+
 
       <link rel="stylesheet" href="/css/components.css">
       <link rel="stylesheet" href="/css/responsee.css">
@@ -156,31 +179,31 @@
 
 <p>There are currently three main ways that a Vitess cluster can be monitored. Depending on your needs, you can use any of the following methods:</p>
 
-<h3 id="1.-vitess-status-pages">1. Vitess status pages</h3>
+<h3 id="1-vitess-status-pages">1. Vitess status pages</h3>
 
-<p>The status HTML pages of various Vitess components can be accessed by pointing your browser to <code>http://&lt;host&gt;:&lt;port&gt;/debug/status</code>. The status pages will often display some basic, but useful, information for monitoring. For example, the status page of a vttablet will show the QPS graph for the past few minutes.</p>
+<p>The status HTML pages of various Vitess components can be accessed by pointing your browser to <code class="prettyprint">http://&lt;host&gt;:&lt;port&gt;/debug/status</code>. The status pages will often display some basic, but useful, information for monitoring. For example, the status page of a vttablet will show the QPS graph for the past few minutes.</p>
 
 <p>Viewing a status page can be useful since it works out of the box, but it only provides very basic monitoring capabilities.</p>
 
-<h3 id="2.-pull-based-metrics-system">2. Pull-based metrics system</h3>
+<h3 id="2-pull-based-metrics-system">2. Pull-based metrics system</h3>
 
-<p>Vitess uses Go’s <a href="http://golang.org/pkg/expvar/">expvar package</a> to expose various metrics, with the expectation that a user can configure a pull-based metrics system to ingest those metrics. Metrics are published to <code>http://&lt;host&gt;:&lt;port&gt;/debug/vars</code> as JSON key-value pairs, which should be easy for any metrics system to parse.</p>
+<p>Vitess uses Go’s <a href="http://golang.org/pkg/expvar/">expvar package</a> to expose various metrics, with the expectation that a user can configure a pull-based metrics system to ingest those metrics. Metrics are published to <code class="prettyprint">http://&lt;host&gt;:&lt;port&gt;/debug/vars</code> as JSON key-value pairs, which should be easy for any metrics system to parse.</p>
 
 <p>Scraping Vitess variables is a good way to integrate Vitess into an existing monitoring system, and is useful for building up detailed monitoring dashboards. It is also the officially supported way for monitoring Vitess.</p>
 
-<h3 id="3.-push-based-metrics-system">3. Push-based metrics system</h3>
+<h3 id="3-push-based-metrics-system">3. Push-based metrics system</h3>
 
-<p>Vitess also includes support for push-based metrics systems via plug-ins. Each Vitess component would need to be run with the <code>--emit_stats</code> flag.</p>
+<p>Vitess also includes support for push-based metrics systems via plug-ins. Each Vitess component would need to be run with the <code class="prettyprint">--emit_stats</code> flag.</p>
 
-<p>By default, the stats_emit_period is 60s, so each component will push stats to the the selected backend every minute. This is configurable via the <code>--stats_emit_period</code> flag.</p>
+<p>By default, the stats_emit_period is 60s, so each component will push stats to the the selected backend every minute. This is configurable via the <code class="prettyprint">--stats_emit_period</code> flag.</p>
 
 <p>Vitess has a preliminary plug-in to support InfluxDB as a push-based metrics backend. However, there is very limited support at this time, as InfluxDB itself is going through various API breaking changes.</p>
 
-<p>It should be fairly straightforward to write your own plug-in, if you want to support a different backend. The plug-in package simply needs to implement the <code>PushBackend</code> interface of the <code>stats</code> package. For an example, you can see the <a href="https://github.com/youtube/vitess/blob/master/go/stats/influxdbbackend/influxdb_backend.go">InfluxDB plugin</a>.</p>
+<p>It should be fairly straightforward to write your own plug-in, if you want to support a different backend. The plug-in package simply needs to implement the <code class="prettyprint">PushBackend</code> interface of the <code class="prettyprint">stats</code> package. For an example, you can see the <a href="https://github.com/youtube/vitess/blob/master/go/stats/influxdbbackend/influxdb_backend.go">InfluxDB plugin</a>.</p>
 
 <p>Once you’ve written the backend plug-in, you also need to register the plug-in from within all the relevant Vitess binaries. An example of how to do this can be seen in <a href="https://github.com/youtube/vitess/pull/469">this pull request</a>.</p>
 
-<p>You can then specify that Vitess should publish stats to the backend that you’re targeting by using the <code>--stats_backend</code> flag.</p>
+<p>You can then specify that Vitess should publish stats to the backend that you’re targeting by using the <code class="prettyprint">--stats_backend</code> flag.</p>
 
 <p>Connecting Vitess to a push-based metrics system can be useful if you’re already running a push-based system that you would like to integrate into. More discussion on using a push vs pull based monitoring system can be seen here: <a href="http://www.boxever.com/push-vs-pull-for-monitoring">http://www.boxever.com/push-vs-pull-for-monitoring</a></p>
 

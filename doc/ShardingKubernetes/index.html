@@ -8,7 +8,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>Vitess - ShardingKubernetes</title>
-<meta name="description" content="A set of servers and tools that facilitate scaling of MySQL databases for the web.">
+<meta name="description" content="Servers and tools that scale MySQL databases for the web in cloud architectures or on dedicated hardware.">
 
 <link rel="canonical" href="http://vitess.io/doc/ShardingKubernetes/">
 
@@ -25,10 +25,33 @@
 <meta name="msapplication-TileImage" content="/images/touch/ms-touch-icon-144x144-precomposed.png">
 <meta name="msapplication-TileColor" content="#3372DF">
 
-      <link rel="stylesheet" href="/assets/vendor/styles/wsk.css">
-<link rel="stylesheet" href="/css/main.css">
-<link rel="stylesheet" href="/css/extra.css">
-<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,600,900|Roboto+Condensed:300,300italic,400,700">
+          <!-- Webfont -->
+    <link href='http://fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300italic,400italic,500,500italic,700,700italic,900,900italic' rel='stylesheet' type='text/css'>
+    
+    <!--<link rel="shortcut icon" type="image/png" href="/favicon.png">-->
+
+    <!-- Bootstrap -->
+    <link href="/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Less custom stylesheet -->
+    <link rel="stylesheet/less" type="text/css" href="/css/style.less" />
+    <link rel="stylesheet" type="text/css" href="/css/vitess.css">
+    <!-- Font Awesome icons -->
+    <link href="/libs/font-awesome-4.4.0/css/font-awesome.min.css"
+          rel="stylesheet"
+          type="text/css">
+    
+    <!-- Less clientside js script after all less stylesheets. -->
+    <script src="/libs/less/less.min.js" type="text/javascript"></script>
+
+
 
       <link rel="stylesheet" href="/css/components.css">
       <link rel="stylesheet" href="/css/responsee.css">
@@ -148,8 +171,11 @@
   </header>
 
   <div class="container">
-    <p>This guide will walk through the process of sharding an existing unsharded
+    <p>This guide walks you through the process of sharding an existing unsharded
 Vitess <a href="http://vitess.io/overview/concepts.html#keyspace">keyspace</a> in Kubernetes.</p>
+
+<p><strong>Contents:</strong>
+<div id="toc"></div></p>
 
 <h2 id="prerequisites">Prerequisites</h2>
 
@@ -213,7 +239,7 @@ since <em>0x80</em> is the midpoint of the
 transition, but actual traffic will be served only by the original shard
 until we tell it to switch over.</p>
 
-<p>Check the <code>vtctld</code> <strong>Topology</strong> page, or the output of <code>kvtctl.sh ListAllTablets test</code>,
+<p>Check the <code class="prettyprint">vtctld</code> <strong>Topology</strong> page, or the output of <code class="prettyprint">kvtctl.sh ListAllTablets test</code>,
 to see when the tablets are ready. There should be 5 tablets in each shard.</p>
 
 <p>Once the tablets are ready, initialize replication by electing the first master
@@ -239,7 +265,7 @@ original shard to the two new ones, starting with the schema:</p>
 vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh CopySchemaShard test_keyspace/0 test_keyspace/80-
 </code></pre></div>
 <p>Since the amount of data to copy can be very large, we use a special
-batch process called <code>vtworker</code> to stream the data from a single source
+batch process called <code class="prettyprint">vtworker</code> to stream the data from a single source
 to multiple destinations, routing each row based on its <em>keyspace_id</em>:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./sharded-vtworker.sh SplitClone --strategy<span class="o">=</span>-populate_blp_checkpoint test_keyspace/0
 <span class="c">### example output:</span>
@@ -269,7 +295,7 @@ will be served by the remaining, un-paused <em>rdonly</em> tablets.</p>
 
 <h2 id="check-filtered-replication">Check filtered replication</h2>
 
-<p>Once the copy from the paused snapshot finishes, <code>vtworker</code> turns on
+<p>Once the copy from the paused snapshot finishes, <code class="prettyprint">vtworker</code> turns on
 <a href="http://vitess.io/user-guide/sharding.html#filtered-replication">filtered replication</a>
 from the source shard to each destination shard. This allows the destination
 shards to catch up on updates that have continued to flow in from the app since
@@ -289,7 +315,7 @@ vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh ExecuteFetchAsDb
 </code></pre></div>
 <h2 id="check-copied-data-integrity">Check copied data integrity</h2>
 
-<p>The <code>vtworker</code> batch process has another mode that will compare the source
+<p>The <code class="prettyprint">vtworker</code> batch process has another mode that will compare the source
 and destination to ensure all the data is present and correct.
 The following commands will run a diff for each destination shard:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./sharded-vtworker.sh SplitDiff test_keyspace/-80
@@ -299,7 +325,7 @@ vitess/examples/kubernetes<span class="nv">$ </span>./sharded-vtworker.sh SplitD
 If everything is good, you should see something like this:</p>
 <div class="highlight"><pre><code class="language-text" data-lang="text">Table messages checks out (4 rows processed, 1072961 qps)
 </code></pre></div>
-<h2 id="switch-over-to-the-new-shards">Switch over to the new shards</h2>
+<h2 id="switch-over-to-new-shards">Switch over to new shards</h2>
 
 <p>Now we&#39;re ready to switch over to serving from the new shards.
 The <a href="http://vitess.io/reference/vtctl.html#migrateservedtypes">MigrateServedTypes</a>
@@ -318,10 +344,10 @@ fully catch up on filtered replication before allowing them to begin serving.
 Since filtered replication has been following along with live updates, there
 should only be a few seconds of master unavailability.</p>
 
-<h2 id="remove-the-original-shard">Remove the original shard</h2>
+<h2 id="remove-original-shard">Remove original shard</h2>
 
 <p>Now that all traffic is being served from the new shards, we can remove the
-original one. To do that, we use the <code>vttablet-down.sh</code> script from the
+original one. To do that, we use the <code class="prettyprint">vttablet-down.sh</code> script from the
 unsharded example:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./vttablet-down.sh
 <span class="c">### example output:</span>
@@ -334,7 +360,7 @@ unsharded example:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh DeleteShard test_keyspace/0
 </code></pre></div>
 <p>You should then see in the vtctld <strong>Topology</strong> page, or in the output of
-<code>kvtctl.sh ListAllTablets test</code> that the tablets for shard <em>0</em> are gone.</p>
+<code class="prettyprint">kvtctl.sh ListAllTablets test</code> that the tablets for shard <em>0</em> are gone.</p>
 
 <h2 id="tear-down-and-clean-up">Tear down and clean up</h2>
 
@@ -343,8 +369,8 @@ services. Kubernetes will then take care of cleaning up any entities it created
 for those services, like external load balancers.</p>
 
 <p>Since you already cleaned up the tablets from the original unsharded example by
-running <code>./vttablet-down.sh</code>, that step has been replaced with
-<code>./sharded-vttablet-down.sh</code> to clean up the new sharded tablets.</p>
+running <code class="prettyprint">./vttablet-down.sh</code>, that step has been replaced with
+<code class="prettyprint">./sharded-vttablet-down.sh</code> to clean up the new sharded tablets.</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./guestbook-down.sh
 vitess/examples/kubernetes<span class="nv">$ </span>./vtgate-down.sh
 vitess/examples/kubernetes<span class="nv">$ </span>./sharded-vttablet-down.sh

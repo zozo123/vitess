@@ -1,158 +1,117 @@
 <!DOCTYPE html>
-<html lang="en-US">
-   <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width" />
-      <meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<html lang="en" itemscope itemtype="https://schema.org/WebPage">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Vitess / Running Vitess on Kubernetes</title>
 
-<title>Vitess - Running Vitess on Kubernetes</title>
-<meta name="description" content="Vitess runs best in a containerized environment like Kubernetes, which manages a cluster of Linux containers as a single system.">
-
-<link rel="canonical" href="http://vitess.io/getting-started/">
-
-<!-- Add to homescreen for Chrome on Android -->
-<meta name="mobile-web-app-capable" content="yes">
-<link rel="icon" sizes="196x196" href="/images/touch/chrome-touch-icon-196x196.png">
-
-<!-- Add to homescreen for Safari on iOS -->
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
-<meta name="apple-mobile-web-app-title" content="Vitess">
-
-<!-- Tile icon for Win8 (144x144 + tile color) -->
-<meta name="msapplication-TileImage" content="/images/touch/ms-touch-icon-144x144-precomposed.png">
-<meta name="msapplication-TileColor" content="#3372DF">
-
-      <link rel="stylesheet" href="/assets/vendor/styles/wsk.css">
-<link rel="stylesheet" href="/css/main.css">
-<link rel="stylesheet" href="/css/extra.css">
-<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,600,900|Roboto+Condensed:300,300italic,400,700">
-
-      <link rel="stylesheet" href="/css/components.css">
-      <link rel="stylesheet" href="/css/responsee.css">
-      <!-- CUSTOM STYLE -->
-      <link rel="stylesheet" href="/css/template-style.css">
-      <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700,800&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
-      <script type="text/javascript" src="/assets/scripts/jquery-1.8.3.min.js"></script>
-      <script type="text/javascript" src="/assets/scripts/jquery-ui.min.js"></script>    
-      <script type="text/javascript" src="/assets/scripts/modernizr.js"></script>
-      <script type="text/javascript" src="/assets/scripts/responsee.js"></script>
-      <!--[if lt IE 9]>
-      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-      <![endif]-->
-   </head>
-   <body class="size-1140">
-      <header id="app-bar" class="app-bar promote-layer">
-         <div class="line">
-            <div class="app-bar-container">
-               <button id="menu" class="menu" title="Menu"></button>
-               <h1 class="logo"><a href="/">Vitess</a></h1>
-               <section class="app-bar-actions">
-                  <a href="#"><i class="icon icon-chevron-up"></i> Top</a>
-               </section>
-            </div>
-            <div class="navdrawer">
-              <nav id="nav" class="navdrawer-container promote-layer">
-                <h4>Navigation</h4>
-                
-<ul>
-  
-    <li >
-      <a href="//"></a>
-    </li>
-  
-    <li >
-      <a href="/overview/">Guides</a>
-    </li>
-  
-    <li >
-      <a href="/reference/vtctl.html">Reference</a>
-    </li>
-  
-  <li><a href="https://github.com/youtube/vitess">GitHub</a></li>
-</ul>
-
-              </nav>
-            </div>
-         </div>
-      </header>
-      <!-- ASIDE NAV AND CONTENT -->
-      <div class="line">
-         <div class="box  margin-bottom">
-            <div class="margin">
-               <!-- ASIDE NAV 2 -->
-               <nav class="scrolling-nav" style="margin:0">
-               <aside class="s-12">
-                  
-                  <div class="aside-nav">
-                     <div class="aside-nav-header">Overview</div>
-                     <ul>
-                        <li><a href="/overview/">What is Vitess</a></li>
-                        <li><a href="/overview/concepts.html">Key Concepts</a></li>
-                     </ul>
-                     <div class="aside-nav-header">Getting Started</div>
-                     <ul>
-                        <li><a href="/getting-started/">Run Vitess on Kubernetes</a></li>
-                        <li><a href="/getting-started/local-instance.html">Run Vitess Locally</a></li>
-                     </ul>
-                     <div class="aside-nav-header">User Guide</div>
-                     <ul>
-                        <li><a href="/user-guide/introduction.html">Introduction</a>
-                        <li><a href="/user-guide/client-libraries.html">Client Libraries</a>
-                        <li><a href="/user-guide/backup-and-restore.html">Backing Up Data</a>
-                        <li><a href="/user-guide/reparenting.html">Reparenting</a></li>
-                        <li><a href="/user-guide/schema-management.html">Schema Management</a></li>
-                        <li><a href="/user-guide/sharding.html">Sharding</a>
-                          <ul>
-                            <li><a href="/user-guide/horizontal-sharding.html">Horizontal Sharding (Codelab)</a></li>
-                            <li><a href="/user-guide/sharding-kubernetes.html">Sharding in Kubernetes (Codelab)</a></li>
-                          </ul>
-                        </li>
-<!--
-                        <li><a href="/user-guide/storage.html">Storage</a></li>
-                        <li><a href="/user-guide/api.html">Using the API</a></li>
--->
-                     </ul>
-<!--
-                     <div class="aside-nav-header">Architecture</div>
-                     <ul>
-                        <li><a href="/architecture/life-of-a-query.html">Life of a Query</a></li>
-                        <li><a href="/architecture/topology-service.html">Topology Service</a></li>
-                     </ul>
-
-                     <div class="aside-nav-header">Maintenance</div>
-                     <ul>
-                        <li><a href="/maintenance/monitoring.html">Monitoring</a></li>
-                        <li><a href="/maintenance/testing.html">Testing</a></li>
-                     </ul>
--->
-                     <div class="aside-nav-header">Other Resources</div>
-                     <ul>
-                        <li><a href="/resources/presentations.html">Presentations</a></li>
-                        <!--<li class="last"><a href="/resources/roadmap.html">Roadmap</a></li>-->
-                     </ul>
-                  </div>
-                  
-               </aside>
-               </nav>
-               <!-- CONTENT -->
-               <section class="s-12 l-9">
-                 <article class="main-content-container">
-                   <main class="clear">
-
-  <header class="page-header container">
-    <h2 class="xxlarge text-divider">Running Vitess on Kubernetes</h2>
+        <!-- Webfont -->
+    <link href='http://fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300italic,400italic,500,500italic,700,700italic,900,900italic' rel='stylesheet' type='text/css'>
     
-      <p class="page-header__excerpt g-wide--push-1 g-wide--pull-1" style="padding-bottom: 32px;">
-        Vitess runs best in a containerized environment like Kubernetes, which manages a cluster of Linux containers as a single system.
-      </p>
-    
-  </header>
+    <!--<link rel="shortcut icon" type="image/png" href="/favicon.png">-->
 
+    <!-- Bootstrap -->
+    <link href="/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Less custom stylesheet -->
+    <link rel="stylesheet/less" type="text/css" href="/css/style.less" />
+    <link rel="stylesheet" type="text/css" href="/css/vitess.css">
+    <!-- Font Awesome icons -->
+    <link href="/libs/font-awesome-4.4.0/css/font-awesome.min.css"
+          rel="stylesheet"
+          type="text/css">
+    
+    <!-- Less clientside js script after all less stylesheets. -->
+    <script src="/libs/less/less.min.js" type="text/javascript"></script>
+
+
+
+
+    <!-- metadata -->
+    <meta name="og:title" content="Vitess / Running Vitess on Kubernetes"/>
+    <meta name="og:image" content="/images/120x120.gif"/>
+    <meta name="og:description" content="Servers and tools that scale MySQL databases for the web in cloud architectures or on dedicated hardware."/>
+  </head>
+  <body class="docs">
+
+  	<nav id="common-nav" class="navbar navbar-static-top inverse">
   <div class="container">
-    <p>This page explains how to run Vitess on <a href="http://kubernetes.io">Kubernetes</a>.
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-1">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/">
+        <img class="logo" src="/images/vitess-logo-large-cropped.png" alt="Vitess">
+      </a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="navbar-collapse-1">
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="/overview/">Guides</a></li>
+        <li><a href="/reference/vitess-api.html">Reference</a></li>
+        <li><a href="https://github.com/youtube/vitess"><i class="fa fa-github"></i> GitHub</a></li>
+        <!-- Hide link to blog unless we have actual posts -->
+        <!-- <li><a href="/blog/" title="">Blog</a></li> -->
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+
+
+
+<div class="page-title-bar">
+  <div class="container">
+    <h1>Running Vitess on Kubernetes</h1>
+  </div>
+</div>
+
+
+<div class="container">
+  <div class="row">
+  <div class="col-sm-3">
+    <div id="left-nav">
+    <ul class="list-unstyled docs-side-nav">
+      <li><h4 class="no-top-margin">Overview</h4></li>
+      <li><a href="/overview/">What is Vitess</a></li>
+      <li><a href="/overview/concepts.html">Key Concepts</a></li>
+      <li><h4>Getting Started</h4></li>
+      <li><a href="/getting-started/">Run Vitess on Kubernetes</a></li>
+      <li><a href="/getting-started/local-instance.html">Run Vitess Locally</a></li>
+      <li><h4>User Guide</h4></li>
+      <li><a href="/user-guide/introduction.html">Introduction</a>
+      <li><a href="/user-guide/client-libraries.html">Client Libraries</a>
+      <li><a href="/user-guide/backup-and-restore.html">Backing Up Data</a>
+      <li><a href="/user-guide/reparenting.html">Reparenting</a></li>
+      <li><a href="/user-guide/schema-management.html">Schema Management</a></li>
+      <li><a href="/user-guide/sharding.html">Sharding</a>
+        <ul style="list-style-type: none">
+          <li><a href="/user-guide/horizontal-sharding.html">Horizontal Sharding (Codelab)</a></li>
+          <li><a href="/user-guide/sharding-kubernetes.html">Sharding in Kubernetes (Codelab)</a></li>
+        </ul>
+      </li>
+      <li><h4>Reference Guides</h4></li>
+      <li><a href="/reference/vitess-api.html">Vitess API</a>
+      <li><a href="/reference/vtctl.html">vtctl Commands</a>
+      <li><h4>Other Resources</h4></li>
+      <li><a href="/resources/presentations.html">Presentations</a>
+    </ul>
+  </div>
+  </div>
+  <div class="col-sm-9">
+      <p>This page explains how to run Vitess on <a href="http://kubernetes.io">Kubernetes</a>.
 It also gives the steps to start a Kubernetes cluster with
 <a href="https://cloud.google.com/container-engine/">Google Container Engine</a>.</p>
 
@@ -161,13 +120,17 @@ It also gives the steps to start a Kubernetes cluster with
 you can skip the <code>gcloud</code> steps.
 The <code>kubectl</code> steps will apply to any Kubernetes cluster.</p>
 
+<p><strong>Contents:</strong></p>
+
+<div id="toc"></div>
+
 <h2 id="prerequisites">Prerequisites</h2>
 
 <p>To complete the exercise in this guide, you must locally install Go 1.3+,
 Vitess&#39; <code>vtctlclient</code> tool, and Google Cloud SDK. The
 following sections explain how to set these up in your environment.</p>
 
-<h3 id="install-go-1.3+">Install Go 1.3+</h3>
+<h3 id="install-go-1-3">Install Go 1.3+</h3>
 
 <p>You need to install <a href="http://golang.org/doc/install">Go 1.3+</a> to build the
 <code>vtctlclient</code> tool, which issues commands to Vitess.</p>
@@ -182,7 +145,7 @@ your <code>$PATH</code>. More information about setting up a Go
 workspace can be found at
 <a href="http://golang.org/doc/code.html#Organization">http://golang.org/doc/code.html#Organization</a>.</p>
 
-<h2 id="build-and-install-vtctlclient">Build and install <code>vtctlclient</code></h2>
+<h2 id="build-and-install-vtctlclient">Build and install vtctlclient</h2>
 
 <p>The <code>vtctlclient</code> tool issues commands to Vitess.</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>go get github.com/youtube/vitess/go/cmd/vtctlclient
@@ -192,7 +155,7 @@ workspace can be found at
 </code></pre></div>
 <p>It also copies the built <code>vtctlclient</code> binary into <code>$GOPATH/bin</code>.</p>
 
-<h3 id="set-up-google-compute-engine,-container-engine,-and-cloud-tools">Set up Google Compute Engine, Container Engine, and Cloud tools</h3>
+<h3 id="set-up-google-compute-engine-container-engine-and-cloud-tools">Set up Google Compute Engine, Container Engine, and Cloud tools</h3>
 
 <p>To run Vitess on Kubernetes using Google Compute Engine (GCE),
 you must have a GCE account with billing enabled. The instructions
@@ -230,7 +193,7 @@ and test the Google Cloud SDK. You will also set your default project
 ID while completing the quickstart. Start with step 2 in the setup
 process.</p>
 
-<p><br><strong>Note:</strong> During the quickstart, you&#39;ll generate an SSH key for
+<p><strong>Note:</strong> During the quickstart, you&#39;ll generate an SSH key for
 Google Compute Engine, and you will be prompted to enter a
 passphrase. You will be prompted for that passphrase several times
 when bringing up your Kubernetes cluster later in this guide.</p></li>
@@ -247,7 +210,7 @@ the <code>kubectl</code> tool:</p>
 <span class="c">### example output:</span>
 <span class="c"># ~/google-cloud-sdk/bin/kubectl</span>
 </code></pre></div>
-<p><br>If <code>kubectl</code> isn&#39;t on your PATH, you can tell our scripts where
+<p>If <code>kubectl</code> isn&#39;t on your PATH, you can tell our scripts where
 to find it by setting the <code>KUBECTL</code> environment variable:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span><span class="nb">export </span><span class="nv">KUBECTL</span><span class="o">=</span>/example/path/to/google-cloud-sdk/bin/kubectl
 </code></pre></div></li>
@@ -282,10 +245,9 @@ dashboard, where you can monitor nodes, services, pods, etc.</li>
 indicating that the server&#39;s security certificate is not
 trusted by your computer&#39;s operating system, click the
 <strong>Advanced</strong> link and then the link to proceed to the URL.</li>
-<li> You should be prompted to enter a username and password to
+<li><p>You should be prompted to enter a username and password to
 access the requested page. You can find the randomly-generated password
-with <code>kubectl config view</code>:</li>
-</ol>
+with <code>kubectl config view</code>:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>kubectl config view
 <span class="c">### example output:</span>
 <span class="c"># apiVersion: v1</span>
@@ -299,6 +261,7 @@ with <code>kubectl config view</code>:</li>
 <span class="c">#     password: gr8j0Rb11</span>
 <span class="c">#     username: admin</span>
 </code></pre></div></li>
+</ol></li>
 </ol>
 
 <h2 id="start-a-vitess-cluster">Start a Vitess cluster</h2>
@@ -321,7 +284,7 @@ Kubernetes itself.</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span><span class="nb">cd </span>examples/kubernetes
 vitess/examples/kubernetes<span class="nv">$ </span>./etcd-up.sh
 </code></pre></div>
-<p><br>This command creates two clusters. One is for the
+<p>This command creates two clusters. One is for the
 <a href="http://vitess.io/doc/TopologyService/#global-vs-local">global cell</a>,
 and the other is for a
 <a href="http://vitess.io/overview/concepts.html#cell-(data-center)">local cell</a>
@@ -330,9 +293,9 @@ called <em>test</em>. You can check the status of the
 in the cluster by running:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>kubectl get pods
 </code></pre></div>
-<p><br>It may take a while for each Kubernetes node to download the
+<p>It may take a while for each Kubernetes node to download the
 Docker images the first time it needs them. While the images
-are downloading, the pod status will be Pending.<br><br></p>
+are downloading, the pod status will be Pending.</p>
 
 <p><strong>Note:</strong> In this example, each script that has a name ending in
 <code>-up.sh</code> also has a corresponding <code>-down.sh</code>
@@ -355,40 +318,40 @@ commands from <code>vtctlclient</code> to modify the cluster.</p>
 <span class="c">#</span>
 <span class="c"># vtctld address: http://2.3.4.5:30000</span>
 </code></pre></div>
-<p><br>To let you access vtctld from outside Kubernetes, the
+<p>To let you access vtctld from outside Kubernetes, the
 <code>vtctld</code> service is created with the <code>type: NodePort</code>
 option. This creates an
 <a href="https://github.com/GoogleCloudPlatform/kubernetes/blob/master/docs/services.md#external-services">external service</a>
-by exposing a port on each node that forwards to the vtctld service.<br></p>
+by exposing a port on each node that forwards to the vtctld service.</p>
 
-<p>The <strong>vtctld address</strong> printed by <code>vtctld-up.sh</code> is thus the external IP
-of one of the nodes, combined with the <code>nodePort</code> assigned for vtctld.</p></li>
+<p>The <strong>vtctld address</strong> printed by <code class="prettyprint">vtctld-up.sh</code> is thus the external IP
+of one of the nodes, combined with the <code class="prettyprint">nodePort</code> assigned for vtctld.</p></li>
 <li><p><strong>Access vtctld</strong></p>
 
 <p>To access the <code>vtctld</code> service from outside
 Kubernetes, you need to open port 30000 in your platform&#39;s firewall.
 (If you don&#39;t complete this step, the only way to issue commands
 to <code>vtctld</code> would be to SSH into a Kubernetes node
-and install and run <code>vtctlclient</code> there.)<br><br></p>
+and install and run <code>vtctlclient</code> there.)</p>
 
 <p>On GCE, you can open the port like this:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>gcloud compute firewall-rules create vtctld --allow tcp:30000
 </code></pre></div>
-<p><br>You can then access the vtctld web interface at the address printed
-by <code>vtctld-up.sh</code> above. In this example, the web UI would be at
-<code>http://2.3.4.5:30000</code>.</p></li>
+<p>You can then access the vtctld web interface at the address printed
+by <code class="prettyprint">vtctld-up.sh</code> above. In this example, the web UI would be at
+<code class="prettyprint">http://2.3.4.5:30000</code>.</p></li>
 <li><p><strong>Use <code>vtctlclient</code> to call <code>vtctld</code></strong></p>
 
 <p>You can now run <code>vtctlclient</code> locally to issue commands
-to the <code>vtctld</code> service on your Kubernetes cluster.<br><br></p>
+to the <code>vtctld</code> service on your Kubernetes cluster.</p>
 
 <p>When you call <code>vtctlclient</code>, the command requires
 the IP address and port for your <code>vtctld</code> service.
 To avoid having to enter that for each command, you can use the
-provided <code>kvtctl.sh</code> script, which uses <code>kubectl</code> to discover the
+provided <code class="prettyprint">kvtctl.sh</code> script, which uses <code class="prettyprint">kubectl</code> to discover the
 proper address.</p>
 
-<p><br>Now, running <code>kvtctl.sh help</code> will test your connection to
+<p>Now, running <code class="prettyprint">kvtctl.sh help</code> will test your connection to
 <code>vtctld</code> and also list the <code>vtctlclient</code>
 commands that you can use to administer the Vitess cluster.</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="c"># Test the connection to vtctld and list available commands</span>
@@ -402,7 +365,7 @@ vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh <span class="nb"
 </code></pre></div><div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="c"># Get usage for a specific command:</span>
 vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh <span class="nb">help </span>InitTablet
 </code></pre></div>
-<p><br>See the <a href="http://vitess.io/reference/vtctl.html">vtctl reference</a> for a
+<p>See the <a href="http://vitess.io/reference/vtctl.html">vtctl reference</a> for a
 web-formatted version of the <code>vtctl help</code> output.</p></li>
 <li><p><strong>Start vttablets</strong></p>
 
@@ -413,7 +376,7 @@ host. We enforce this coupling in Kubernetes by putting the respective
 containers for vttablet and mysqld inside a single
 <a href="https://github.com/GoogleCloudPlatform/kubernetes/blob/master/docs/pods.md">pod</a>.</p>
 
-<p><br>Run the following script to launch the vttablet pod, which also includes
+<p>Run the following script to launch the vttablet pod, which also includes
 mysqld:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./vttablet-up.sh
 <span class="c">### example output:</span>
@@ -429,12 +392,12 @@ mysqld:</p>
 <span class="c"># Creating pod for tablet test-0000000104...</span>
 <span class="c"># pods/vttablet-104</span>
 </code></pre></div>
-<p><br>Wait until you see all 5 tablets listed in the <strong>Topology</strong> summary page
+<p>Wait until you see all 5 tablets listed in the <strong>Topology</strong> summary page
 for your <code>vtctld</code> instance
 (e.g. <code><a href="http://2.3.4.5:30000/dbtopo">http://2.3.4.5:30000/dbtopo</a></code>).
 This can take some time if a pod was scheduled on a node that needs to
 download the latest Vitess Docker image. You can also check the status of
-the tablets from the command line using <code>kvtctl.sh</code>:</p>
+the tablets from the command line using <code class="prettyprint">kvtctl.sh</code>:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh ListAllTablets <span class="nb">test</span>
 <span class="c">### example output:</span>
 <span class="c"># test-0000000100 test_keyspace 0 replica 10.64.1.6:15002 10.64.1.6:3306 []</span>
@@ -443,35 +406,35 @@ the tablets from the command line using <code>kvtctl.sh</code>:</p>
 <span class="c"># test-0000000103 test_keyspace 0 rdonly 10.64.1.7:15002 10.64.1.7:3306 []</span>
 <span class="c"># test-0000000104 test_keyspace 0 rdonly 10.64.2.6:15002 10.64.2.6:3306 []</span>
 </code></pre></div>
-<p><br>Note that of the 5 tablets, the first 3 were assigned to be
+<p>Note that of the 5 tablets, the first 3 were assigned to be
 <strong>replica</strong> type (for serving live web traffic), while the last 2
 were assigned to be <strong>rdonly</strong> type (for offline processing).
-These allocations can be configured in the <code>vttablet-up.sh</code> script.
+These allocations can be configured in the <code class="prettyprint">vttablet-up.sh</code> script.
 See the <a href="http://vitess.io/overview/concepts.html#tablet">tablet</a>
-reference for more about the available tablet types.<br></p>
+reference for more about the available tablet types.</p>
 
-<p><br>By bringing up tablets in a previously empty
+<p>By bringing up tablets in a previously empty
 <a href="http://vitess.io/overview/concepts.html#keyspace">keyspace</a>,
 you have effectively just created a new
 <a href="http://vitess.io/overview/concepts.html#shard">shard</a>.
 To initialize the keyspace for the new
-shard, call the <code>kvtctl.sh RebuildKeyspaceGraph</code> command:</p>
+shard, call the <code class="prettyprint">kvtctl.sh RebuildKeyspaceGraph</code> command:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh RebuildKeyspaceGraph test_keyspace
 </code></pre></div>
 <p><strong>Note:</strong> Many <code>vtctlclient</code> commands produce no output on
-success.<br><br></p>
+success.</p>
 
 <p>After this command completes, go back to the <code>vtctld</code>
 UI and click the <strong>Topology</strong> link in the top nav bar. You should see the
 three tablets listed. If you click the address of a tablet, you
-will see the coordination data stored in <code>etcd</code>.<br><br></p>
+will see the coordination data stored in <code>etcd</code>.</p>
 
 <p><strong><em>Status pages for vttablets</em></strong></p>
 
 <p>Each <code>vttablet</code> serves a set of HTML status pages on its primary
 port. The <code>vtctld</code> interface provides a <strong>[status]</strong> link for
 each tablet, but the links are actually to internal, per-pod IPs that can
-only be accessed from within Kubernetes.<br><br></p>
+only be accessed from within Kubernetes.</p>
 
 <p>As a workaround, you can access tablet status pages through the apiserver
 proxy, provided by the Kubernetes master. For example, to see the status
@@ -479,17 +442,17 @@ page for the tablet with ID 100 (recall that our Kubernetes master is
 on public IP 1.2.3.4), you could navigate to:</p>
 <div class="highlight"><pre><code class="language-text" data-lang="text">https://1.2.3.4/api/v1/proxy/namespaces/default/pods/vttablet-100:15002/debug/status
 </code></pre></div>
-<p><br>In the future, we plan to have vtctld directly link through this proxy from
-the <strong>[status]</strong> link.<br><br></p>
+<p>In the future, we plan to have vtctld directly link through this proxy from
+the <strong>[status]</strong> link.</p>
 
 <p><strong><em>Direct connection to mysqld</em></strong></p>
 
 <p>Since the <code>mysqld</code> within the <code>vttablet</code> pod is only
 meant to be accessed via vttablet, our default bootstrap settings only allow
-connections from localhost.<br><br></p>
+connections from localhost.</p>
 
 <p>If you want to check or manipulate the underlying mysqld, you can issue
-simple queries or commands through <code>vtctlclient</code> like this:</p>
+simple queries or commands through <code class="prettyprint">vtctlclient</code> like this:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="c"># Send a query to tablet 100 in cell &#39;test&#39;.</span>
 vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh ExecuteFetchAsDba <span class="nb">test</span>-0000000100 <span class="s2">&quot;SELECT VERSION()&quot;</span>
 <span class="c">### example output:</span>
@@ -505,9 +468,10 @@ vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh ExecuteFetchAsDb
 <span class="c">#   &quot;Err&quot;: null</span>
 <span class="c"># }</span>
 </code></pre></div>
-<p><br>If you need a truly direct connection to mysqld for bulk operations,
+<p>If you need a truly direct connection to mysqld for bulk operations,
 you can SSH to the Kubernetes node on which the pod is running.
-Then use <a href="https://docs.docker.com/reference/commandline/cli/#exec">docker exec</a>
+Then use
+<a href="https://docs.docker.com/reference/commandline/cli/#exec">docker exec</a>
 to launch a bash shell inside the mysql container, and connect with the
 <code>mysql</code> command-line client:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="c"># For example, to connect to the mysql container within the vttablet-100 pod:</span>
@@ -528,7 +492,7 @@ vttablet-100:/# <span class="nv">TERM</span><span class="o">=</span>ansi mysql -
 <p>The tablets all start as slaves by default. In this step, you
 designate one of the tablets to be the master. Vitess
 automatically connects the other slaves&#39; mysqld instances
-so that they start replicating from the master&#39;s mysqld.<br><br></p>
+so that they start replicating from the master&#39;s mysqld.</p>
 
 <p>Since this is the first time the shard has been started,
 the tablets are not already doing any replication, and the
@@ -538,17 +502,17 @@ flag when calling the <code>InitShardMaster</code> command
 to be able to promote one instance to master.</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh InitShardMaster -force test_keyspace/0 <span class="nb">test</span>-0000000100
 </code></pre></div>
-<p><br><strong>Note:</strong> If you do not include the <code>-force</code> flag
+<p><strong>Note:</strong> If you do not include the <code>-force</code> flag
 here, the command will first check to ensure the provided
 tablet is the only tablet of type master in the shard.
 However, since none of the slaves are masters, and we&#39;re not
 replicating at all, that check would fail and the command
-would fail as well.<br><br></p>
+would fail as well.</p>
 
 <p>After running this command, go back to the <strong>Topology</strong> page
 in the <code>vtctld</code> web interface. When you refresh the
 page, you should see that one tablet is the master
-and the others are replica or rdonly.<br><br></p>
+and the others are replica or rdonly.</p>
 
 <p>You can also run this command on the command line to see the
 same data:</p>
@@ -568,7 +532,7 @@ the table defined in the <code>create_test_table.sql</code> file:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="c"># Make sure to run this from the examples/kubernetes dir, so it finds the file.</span>
 vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh ApplySchema -sql <span class="s2">&quot;$(cat create_test_table.sql)&quot;</span> test_keyspace
 </code></pre></div>
-<p><br>The SQL to create the table is shown below:</p>
+<p>The SQL to create the table is shown below:</p>
 <div class="highlight"><pre><code class="language-text" data-lang="text">CREATE TABLE messages (
 page BIGINT(20) UNSIGNED,
 time_created_ns BIGINT(20) UNSIGNED,
@@ -577,7 +541,7 @@ message VARCHAR(10000),
 PRIMARY KEY (page, time_created_ns)
 ) ENGINE=InnoDB
 </code></pre></div>
-<p><br>You can run this command to confirm that the schema was created
+<p>You can run this command to confirm that the schema was created
 properly on a given tablet, where <code>test-0000000100</code>
 is a tablet alias as shown by the <code>ListAllTablets</code> command:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh GetSchema <span class="nb">test</span>-0000000100
@@ -738,25 +702,23 @@ mailing list</a>
 to get more help.</p>
 
   </div>
+</div>
 
-</main>
+</div>
 
-                 </article>
-               </section>
-            </div>
-         </div>
-         <footer>
-            <div class="s-12">
-               <div style="float: left; display: inline-block; width: 50%;">&copy; 2015 Google. Licensed under <a href="http://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>.</div>
-               <div style="float: right; display: inline-block; text-align: right; width: 50%;">Design and coding based on <a href="http://www.myresponsee.com" title="Responsee - lightweight responsive framework">Responsee</a> framework</div>
-               </div>
-         </footer>
-      </div>
-      <!-- FOOTER -->
+<div class="page-spacer"></div>
 
-      <script src="/assets/scripts/main.js"></script>
 
-      <script>
+        <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="/libs/bootstrap/js/bootstrap.min.js"></script>
+    <!-- Include the common site javascript -->
+    <script src="/js/common.js" type="text/javascript" charset="utf-8"></script>
+
+
+    <!-- GA -->
+    <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
@@ -767,5 +729,5 @@ to get more help.</p>
   }
 </script>
 
-   </body>
+  </body>
 </html>

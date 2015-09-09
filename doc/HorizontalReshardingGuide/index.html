@@ -8,7 +8,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>Vitess - HorizontalReshardingGuide</title>
-<meta name="description" content="A set of servers and tools that facilitate scaling of MySQL databases for the web.">
+<meta name="description" content="Servers and tools that scale MySQL databases for the web in cloud architectures or on dedicated hardware.">
 
 <link rel="canonical" href="http://vitess.io/doc/HorizontalReshardingGuide/">
 
@@ -25,10 +25,33 @@
 <meta name="msapplication-TileImage" content="/images/touch/ms-touch-icon-144x144-precomposed.png">
 <meta name="msapplication-TileColor" content="#3372DF">
 
-      <link rel="stylesheet" href="/assets/vendor/styles/wsk.css">
-<link rel="stylesheet" href="/css/main.css">
-<link rel="stylesheet" href="/css/extra.css">
-<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,600,900|Roboto+Condensed:300,300italic,400,700">
+          <!-- Webfont -->
+    <link href='http://fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300italic,400italic,500,500italic,700,700italic,900,900italic' rel='stylesheet' type='text/css'>
+    
+    <!--<link rel="shortcut icon" type="image/png" href="/favicon.png">-->
+
+    <!-- Bootstrap -->
+    <link href="/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Less custom stylesheet -->
+    <link rel="stylesheet/less" type="text/css" href="/css/style.less" />
+    <link rel="stylesheet" type="text/css" href="/css/vitess.css">
+    <!-- Font Awesome icons -->
+    <link href="/libs/font-awesome-4.4.0/css/font-awesome.min.css"
+          rel="stylesheet"
+          type="text/css">
+    
+    <!-- Less clientside js script after all less stylesheets. -->
+    <script src="/libs/less/less.min.js" type="text/javascript"></script>
+
+
 
       <link rel="stylesheet" href="/css/components.css">
       <link rel="stylesheet" href="/css/responsee.css">
@@ -152,6 +175,10 @@
 
 <p>You can use the same general instructions to reshard a sharded keyspace.</p>
 
+<p><strong>Contents:</strong></p>
+
+<div id="toc"></div>
+
 <h2 id="prerequisites">Prerequisites</h2>
 
 <p>To complete these steps, you must have:</p>
@@ -166,13 +193,13 @@ Having at least two <code>rdonly</code> tablets ensures that data updates that o
 <a href="http://vitess.io/user-guide/sharding.html#range-based-sharding">range-based sharding</a>
 section of the <em>Sharding</em> guide.</p>
 
-<h2 id="step-1:-define-your-keyspace-id-on-the-source-shard">Step 1: Define your Keyspace ID on the Source Shard</h2>
+<h2 id="step-1-define-your-keyspace-id-on-the-source-shard">Step 1: Define your Keyspace ID on the Source Shard</h2>
 
-<h6 id="note:-skip-this-step-if-your-keyspace-already-has-multiple-shards.">Note: Skip this step if your keyspace already has multiple shards.</h6>
+<p><strong>Note:</strong> Skip this step if your keyspace already has multiple shards.</p>
 
 <p>In this step, you add a column, which will serve as the <a href="/overview/concepts#keyspace-id">keyspace ID</a> (or sharding key), to each table in the soon-to-be-sharded keyspace. After the keyspace has been sharded, Vitess will use the column&#39;s value to route each query to the proper shard.</p>
 
-<h3 id="step-1.1:-add-the-keyspace-id-to-each-database-table">Step 1.1: Add the Keyspace ID to each database table</h3>
+<h3 id="step-1-1-add-keyspace-id-to-each-database-table">Step 1.1: Add keyspace ID to each database table</h3>
 
 <p>For each table in the unsharded keyspace, run the following <code>alter</code> statement:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">vtctl ApplySchema <span class="se">\</span>
@@ -186,11 +213,11 @@ section of the <em>Sharding</em> guide.</p>
 </code></pre></div>
 <p>In the above statement, replace <code>user_keyspace_id</code> with the column name that you want to use to store the keyspace ID value. Also replace <code>user_keyspace</code> with the name of your keyspace.</p>
 
-<h3 id="step-1.2:-update-tables-to-contain-keyspace-id-values">Step 1.2: Update tables to contain keyspace ID values</h3>
+<h3 id="step-1-2-update-tables-to-contain-keyspace-id-values">Step 1.2: Update tables to contain keyspace ID values</h3>
 
 <p>Backfill each row in each table with the appropriate keyspace ID value. In this example, each <code>user_keyspace_id</code> column contains a 64-bit hash of the user ID in that column&#39;s row.</p>
 
-<h3 id="step-1.3:-set-the-keyspace-id-in-the-topology-server">Step 1.3: Set the Keyspace ID in the Topology Server</h3>
+<h3 id="step-1-3-set-keyspace-id-in-topology-server">Step 1.3: Set keyspace ID in topology server</h3>
 
 <p>Tell Vitess which column value identifies the keyspace ID by running the following command:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">vtctl SetKeyspaceShardingInfo &lt;keyspace name&gt; <span class="se">\</span>
@@ -201,7 +228,7 @@ section of the <em>Sharding</em> guide.</p>
 </code></pre></div>
 <p>Note that each table in the keyspace must have a column to identify the keyspace ID. In addition, all of those columns must have the same name.</p>
 
-<h2 id="step-2:-prepare-the-destination-shards">Step 2: Prepare the destination shards</h2>
+<h2 id="step-2-prepare-the-destination-shards">Step 2: Prepare the destination shards</h2>
 
 <p>In this step, you create the destination shards and tablets. At the end of this step, the destination shards will have been created, but they will not contain any data and will not serve any traffic.</p>
 
@@ -212,7 +239,7 @@ section of the <em>Sharding</em> guide.</p>
 <li>80-</li>
 </ul>
 
-<h3 id="step-2.1:-create-the-destination-shards">Step 2.1: Create the destination shards</h3>
+<h3 id="step-2-1-create-destination-shards">Step 2.1: Create destination shards</h3>
 
 <p>To create the destination shards, call the <code>CreateShard</code> command.
 You would have used the same command to create the source shard. Repeat the
@@ -223,7 +250,7 @@ following command for each shard you need to create:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">vtctl CreateShard user_keyspace/80-
 vtctl CreateShard user_keyspace/-80
 </code></pre></div>
-<h3 id="step-2.2:-create-the-destination-tablets">Step 2.2: Create the destination tablets</h3>
+<h3 id="step-2-2-create-destination-tablets">Step 2.2: Create destination tablets</h3>
 
 <p>To create the destination master tablets, call the
 <code>InitTablet</code> command. Then call the <code>InitShardMaster</code>
@@ -244,7 +271,7 @@ vtctl InitTablet -keyspace<span class="o">=</span>user_keyspace -shard<span clas
                  &lt;tablet <span class="nb">alias</span>&gt; master
 vtctl InitShardMaster -force user_keyspace/80- &lt;tablet <span class="nb">alias</span>&gt;
 </code></pre></div>
-<h3 id="step-2.3:-create-rdonly-tablets-in-each-destination-shard">Step 2.3: Create rdonly tablets in each destination shard</h3>
+<h3 id="step-2-3-create-rdonly-tablets-in-destination-shards">Step 2.3: Create rdonly tablets in destination shards</h3>
 
 <p>Each destination shard should have two rdonly tablets. Again, use the
 <code>InitTablet</code> command to create each tablet.</p>
@@ -261,14 +288,14 @@ vtctl InitTablet -keyspace=user_keyspace -shard=80- &lt;tablet alias&gt; \
 vtctl InitTablet -keyspace=user_keyspace -shard=80- &lt;tablet alias&gt; \
                  rdonly
 </code></pre></div>
-<h2 id="step-3:-clone-data-to-the-destination-shards">Step 3: Clone data to the destination shards</h2>
+<h2 id="step-3-clone-data-to-the-destination-shards">Step 3: Clone data to the destination shards</h2>
 
 <p>In this step, you copy the database schema to each destination shard.
 Then you copy the data to the destination shards. At the end of this
 step, the destination tablets will be populated with data but will not
 yet be serving traffic.</p>
 
-<h3 id="step-3.1:-copy-the-schema-to-destination-shards">Step 3.1: Copy the schema to destination shards</h3>
+<h3 id="step-3-1-copy-schema-to-destination-shards">Step 3.1: Copy schema to destination shards</h3>
 
 <p>Call the <code>CopySchemaShard</code> command to copy the database schema
 from a rdonly tablet on the source shard to the destination shards:</p>
@@ -279,7 +306,7 @@ from a rdonly tablet on the source shard to the destination shards:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">vtctl CopySchemaShard &lt;<span class="nb">source </span>rdonly tablet <span class="nb">alias</span>&gt; user_keyspace/-80
 vtctl CopySchemaShard &lt;<span class="nb">source </span>rdonly tablet <span class="nb">alias</span>&gt; user_keyspace/80-
 </code></pre></div>
-<h3 id="step-3.2:-copy-data-from-source-shard-to-destination-shards">Step 3.2: Copy data from source shard to destination shards</h3>
+<h3 id="step-3-2-copy-data-from-source-shard-to-destination-shards">Step 3.2: Copy data from source shard to destination shards</h3>
 
 <p>This step uses a vtworker process to copy data from the source shard
 to the destination shards. The vtworker performs the following tasks:</p>
@@ -311,21 +338,21 @@ shards contain the correct data but do not yet serve traffic.
 The destination shards are also now running
 <a href="#filtered-replication">filtered replication</a>.</p>
 
-<h3 id="step-3.3:-restore-the-rdonly-tablet-on-the-source-shard">Step 3.3: Restore the rdonly tablet on the source shard</h3>
+<h3 id="step-3-3-restore-rdonly-tablet-on-source-shard">Step 3.3: Restore rdonly tablet on source shard</h3>
 
 <p>The source tablet is not automatically returned to the serving graph.
 Use the following command to change the tablet&#39;s type back to
 <code>rdonly</code> and have the tablet catch up on replication:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">vtctl ChangeSlaveType &lt;<span class="nb">source </span>rdonly tablet <span class="nb">alias</span>&gt; rdonly
 </code></pre></div>
-<h2 id="step-4:-running-a-diff-of-the-data-to-verify-accuracy">Step 4: Running a diff of the data to verify accuracy</h2>
+<h2 id="step-4-run-a-data-diff-to-verify-accuracy">Step 4: Run a data diff to verify accuracy</h2>
 
 <p>Before the destination shard starts serving data, you want to ensure that
 its data is up-to-date. Remember that the source tablet would not have
 received updates to any of its records while the vtworker process was
 copying data to the destination shards.</p>
 
-<h3 id="step-4.1:-catch-up-to-source-data-changes-via-filtered-replication">Step 4.1: Catch up to source data changes via filtered replication</h3>
+<h3 id="step-4-1-use-filtered-replication-to-catch-up-to-source-data-changes">Step 4.1: Use filtered replication to catch up to source data changes</h3>
 
 <p>Vitess uses <a href="#filtered-replication">filtered replication</a> to ensure that
 data changes on the source shard during step 3 propagate successfully
@@ -338,7 +365,7 @@ viewing the status page of the shard&#39;s master tablet in your browser.
 The Binlog Player table shows a <strong>SecondsBehindMaster</strong> column that
 indicates how far the destination master is still behind the source shard.</p>
 
-<h3 id="step-4.2:-compare-data-on-source-and-destination-shards">Step 4.2: Compare data on source and destination shards</h3>
+<h3 id="step-4-2-compare-data-on-source-and-destination-shards">Step 4.2: Compare data on source and destination shards</h3>
 
 <p>In this step, you use another vtworker process to ensure that the data
 on the source and destination shards is identical. The vtworker can also
@@ -381,18 +408,18 @@ same sharding key constraints, and verifies that the data is equal.</li>
 <p>If the diff is successful on the first destination shard, repeat it
 on the next destination shard.</p>
 
-<h3 id="step-4.3:-return-tablets-to-the-serving-graph">Step 4.3: Return tablets to the serving graph</h3>
+<h3 id="step-4-3-return-tablets-to-serving-graph">Step 4.3: Return tablets to serving graph</h3>
 
 <p>Put the source and destination rdonly tablets used in step 4.2 back into
 the serving graph:</p>
 <div class="highlight"><pre><code class="language-text" data-lang="text">vtctl ChangeSlaveType &lt;source rdonly tablet alias&gt; rdonly
 vtctl ChangeSlaveType &lt;destination rdonly tablet alias&gt; rdonly
 </code></pre></div>
-<h2 id="step-5:-direct-traffic-to-destination-shards">Step 5: Direct traffic to destination shards</h2>
+<h2 id="step-5-direct-traffic-to-destination-shards">Step 5: Direct traffic to destination shards</h2>
 
 <p>After verifying that your destination shards contain the correct data, you can start serving traffic from those shards.</p>
 
-<h3 id="step-5.1-migrate-read-only-traffic">Step 5.1 Migrate read-only traffic</h3>
+<h3 id="step-5-1-migrate-read-only-traffic">Step 5.1 Migrate read-only traffic</h3>
 
 <p>The safest process is to migrate read-only traffic first. You will migrate
 write operations in the following step, after the read-only traffic is
@@ -414,7 +441,7 @@ read-only traffic to the source shard:</p>
 vtctl MigrateServedTypes -reverse &lt;keyspace name&gt;/&lt;source shard name&gt; \
                          replica
 </code></pre></div>
-<h3 id="step-5.2-migrate-master-traffic">Step 5.2 Migrate master traffic</h3>
+<h3 id="step-5-2-migrate-master-traffic">Step 5.2 Migrate master traffic</h3>
 
 <p>Use the <code>MigrateServedTypes</code> command again to migrate <strong>master</strong>
 traffic to the destination shard:</p>
@@ -423,18 +450,18 @@ traffic to the destination shard:</p>
 <p>For this example, the command is:</p>
 <div class="highlight"><pre><code class="language-text" data-lang="text">vtctl MigrateServedTypes user_keyspace/0 master
 </code></pre></div>
-<h2 id="step-6:-scrap-the-source-shard">Step 6: Scrap the source shard</h2>
+<h2 id="step-6-scrap-source-shard">Step 6: Scrap source shard</h2>
 
 <p>If all of the other steps were successful, you can remove the source
 shard, which should no longer be in use.</p>
 
-<h3 id="step-6.1:-remove-source-shard-tablets">Step 6.1: Remove source shard tablets</h3>
+<h3 id="step-6-1-remove-source-shard-tablets">Step 6.1: Remove source shard tablets</h3>
 
 <p>Run the following commands for each tablet in the source shard:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">vtctl ScrapTablet &lt;<span class="nb">source </span>tablet <span class="nb">alias</span>&gt;<span class="sb">`</span>
 vtctl DeleteTablet &lt;<span class="nb">source </span>tablet <span class="nb">alias</span>&gt;<span class="sb">`</span>
 </code></pre></div>
-<h3 id="step-6.2:-rebuild-the-serving-graph">Step 6.2: Rebuild the serving graph</h3>
+<h3 id="step-6-2-rebuild-serving-graph">Step 6.2: Rebuild serving graph</h3>
 
 <p>Run the following command:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">vtctl RebuildKeyspaceGraph &lt;keyspace name&gt;
@@ -442,7 +469,7 @@ vtctl DeleteTablet &lt;<span class="nb">source </span>tablet <span class="nb">al
 <p>For this example, the command is:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">vtctl RebuildKeyspaceGraph user_keyspace
 </code></pre></div>
-<h3 id="step-6.3:-delete-the-source-shard">Step 6.3: Delete the source shard</h3>
+<h3 id="step-6-3-delete-source-shard">Step 6.3: Delete source shard</h3>
 
 <p>Run the following command:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">vtctl DeleteShard &lt;keyspace name&gt;/&lt;<span class="nb">source </span>shard name&gt;

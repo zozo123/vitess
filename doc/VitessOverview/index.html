@@ -8,7 +8,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>Vitess - VitessOverview</title>
-<meta name="description" content="A set of servers and tools that facilitate scaling of MySQL databases for the web.">
+<meta name="description" content="Servers and tools that scale MySQL databases for the web in cloud architectures or on dedicated hardware.">
 
 <link rel="canonical" href="http://vitess.io/doc/VitessOverview/">
 
@@ -25,10 +25,33 @@
 <meta name="msapplication-TileImage" content="/images/touch/ms-touch-icon-144x144-precomposed.png">
 <meta name="msapplication-TileColor" content="#3372DF">
 
-      <link rel="stylesheet" href="/assets/vendor/styles/wsk.css">
-<link rel="stylesheet" href="/css/main.css">
-<link rel="stylesheet" href="/css/extra.css">
-<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,600,900|Roboto+Condensed:300,300italic,400,700">
+          <!-- Webfont -->
+    <link href='http://fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300italic,400italic,500,500italic,700,700italic,900,900italic' rel='stylesheet' type='text/css'>
+    
+    <!--<link rel="shortcut icon" type="image/png" href="/favicon.png">-->
+
+    <!-- Bootstrap -->
+    <link href="/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Less custom stylesheet -->
+    <link rel="stylesheet/less" type="text/css" href="/css/style.less" />
+    <link rel="stylesheet" type="text/css" href="/css/vitess.css">
+    <!-- Font Awesome icons -->
+    <link href="/libs/font-awesome-4.4.0/css/font-awesome.min.css"
+          rel="stylesheet"
+          type="text/css">
+    
+    <!-- Less clientside js script after all less stylesheets. -->
+    <script src="/libs/less/less.min.js" type="text/javascript"></script>
+
+
 
       <link rel="stylesheet" href="/css/components.css">
       <link rel="stylesheet" href="/css/responsee.css">
@@ -150,15 +173,9 @@
   <div class="container">
     <p><strong>Contents:</strong></p>
 
-<ul>
-<li><a href="#overview">Overview</a></li>
-<li><a href="#comparisons-to-other-storage-options">Comparisons to other storage options</a></li>
-<li><a href="#features">Features</a></li>
-<li><a href="#architecture">Architecture</a></li>
-<li><a href="#history">History</a></li>
-</ul>
+<div id="toc"></div>
 
-<p><a name="overview"></a></p>
+<h2 id="overview">Overview</h2>
 
 <p>Vitess is a database solution for scaling MySQL. It&#39;s architected to run as
 effectively in a public or private cloud architecture as it does on dedicated
@@ -172,21 +189,26 @@ traffic since 2011.</p>
 
 <p>Kubernetes handles scheduling onto nodes in a compute cluster, actively manages workloads on those nodes, and groups containers comprising an application for easy management and discovery. Using Kubernetes, you can easily create and manage a Vitess cluster, out of the box.</p>
 
-<h3 id="vitess-on-local-hardware">Vitess on Local Hardware</h3>
+<!--
+### Vitess on Local Hardware
+-->
 
 <h2 id="comparisons-to-other-storage-options">Comparisons to other storage options</h2>
 
 <p>The following sections compare Vitess to two common alternatives, a vanilla MySQL implementation and a NoSQL implementation.</p>
 
-<h3 id="vitess-vs.-vanilla-mysql">Vitess vs. Vanilla MySQL</h3>
+<h3 id="vitess-vs-vanilla-mysql">Vitess vs. Vanilla MySQL</h3>
 
 <p>Vitess improves a vanilla MySQL implementation in several ways:</p>
 
 <table class="comparison">
+  <thead>
   <tr>
     <th>Vanilla MySQL</th>
     <th>Vitess</th>
   </tr>
+  </thead>
+  <tbody>
   <tr>
     <td>Every MySQL connection has a memory overhead that ranges between 256KB and almost 3MB, depending on which MySQL release you're using. As your user base grows, you need to add RAM to support additional connections, but the RAM does not contribute to faster queries. In addition, there is a significant CPU cost associated with obtaining the connections.</td>
     <td>Vitess' BSON-based protocol creates very lightweight connections that are around 32KB. Vitess' connection pooling feature uses Go's concurrency support to map these lightweight connections to a small pool of MySQL connections. As such, Vitess can easily handle thousands of connections.</td>
@@ -207,17 +229,21 @@ traffic since 2011.</p>
     <td>A MySQL cluster can have custom database configurations for different workloads, like a master database for writes, fast read-only replicas for web clients, slower read-only replicas for batch jobs, and so forth. If the database has horizontal sharding, the setup is repeated for each shard, and the app needs baked-in logic to know how to find the right database.</td>
     <td>Vitess uses a topology backed by a consistent data store, like etcd or ZooKeeper. This means the cluster view is always up-to-date and consistent for different clients. Vitess also provides a proxy that routes queries efficiently to the most appropriate MySQL instance.</td>
   </tr>
+  </tbody>
 </table>
 
-<h3 id="vitess-vs.-nosql">Vitess vs. NoSQL</h3>
+<h3 id="vitess-vs-nosql">Vitess vs. NoSQL</h3>
 
 <p>If you&#39;re considering a NoSQL solution primarily because of concerns about the scalability of MySQL, Vitess might be a more appropriate choice for your application. While NoSQL provides great support for unstructured data, Vitess still offers several benefits not available in NoSQL datastores:</p>
 
 <table class="comparison">
+  <thead>
   <tr>
     <th>NoSQL</th>
     <th>Vitess</th>
   </tr>
+  </thead>
+  <tbody>
   <tr>
     <td>NoSQL databases do not define relationships between database tables, and only support a subset of the SQL language.</td>
     <td>Vitess is not a simple key-value store. It supports complex query semantics such as where clauses, JOINS, aggregation functions, and more.</td>
@@ -234,6 +260,7 @@ traffic since 2011.</p>
     <td>NoSQL solutions provide limited support for database indexes compared to MySQL.</td>
     <td>Vitess allows you to use all of MySQL's indexing functionality to optimize query performance.</td>
   </tr>
+  </tbody>
 </table>
 
 <h2 id="features">Features</h2>

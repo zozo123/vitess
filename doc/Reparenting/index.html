@@ -8,7 +8,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>Vitess - Reparenting</title>
-<meta name="description" content="A set of servers and tools that facilitate scaling of MySQL databases for the web.">
+<meta name="description" content="Servers and tools that scale MySQL databases for the web in cloud architectures or on dedicated hardware.">
 
 <link rel="canonical" href="http://vitess.io/doc/Reparenting/">
 
@@ -25,10 +25,33 @@
 <meta name="msapplication-TileImage" content="/images/touch/ms-touch-icon-144x144-precomposed.png">
 <meta name="msapplication-TileColor" content="#3372DF">
 
-      <link rel="stylesheet" href="/assets/vendor/styles/wsk.css">
-<link rel="stylesheet" href="/css/main.css">
-<link rel="stylesheet" href="/css/extra.css">
-<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,600,900|Roboto+Condensed:300,300italic,400,700">
+          <!-- Webfont -->
+    <link href='http://fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300italic,400italic,500,500italic,700,700italic,900,900italic' rel='stylesheet' type='text/css'>
+    
+    <!--<link rel="shortcut icon" type="image/png" href="/favicon.png">-->
+
+    <!-- Bootstrap -->
+    <link href="/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Less custom stylesheet -->
+    <link rel="stylesheet/less" type="text/css" href="/css/style.less" />
+    <link rel="stylesheet" type="text/css" href="/css/vitess.css">
+    <!-- Font Awesome icons -->
+    <link href="/libs/font-awesome-4.4.0/css/font-awesome.min.css"
+          rel="stylesheet"
+          type="text/css">
+    
+    <!-- Less clientside js script after all less stylesheets. -->
+    <script src="/libs/less/less.min.js" type="text/javascript"></script>
+
+
 
       <link rel="stylesheet" href="/css/components.css">
       <link rel="stylesheet" href="/css/responsee.css">
@@ -148,7 +171,13 @@
   </header>
 
   <div class="container">
-    <p>Reparenting is the process of changing a shard&#39;s master tablet
+    <p><strong>Contents:</strong></p>
+
+<div id="toc"></div>
+
+<h2 id="overview">Overview</h2>
+
+<p><strong>Reparenting</strong> is the process of changing a shard&#39;s master tablet
 from one host to another or changing a slave tablet to have a
 different master. Reparenting can be initiated manually
 or it can occur automatically in response to particular database
@@ -159,8 +188,8 @@ a master tablet dies.</p>
 <p>This document explains the types of reparenting that Vitess supports:</p>
 
 <ul>
-<li><em><a href="#active-reparenting">Active reparenting</a></em> occurs when the Vitess toolchain manages
-the entire reparenting process.</li>
+<li><em><a href="#active-reparenting">Active reparenting</a></em> occurs when the Vitess
+toolchain manages the entire reparenting process.</li>
 <li><em><a href="#external-reparenting">External reparenting</a></em> occurs when another tool
 handles the reparenting process, and the Vitess toolchain just updates its
 topology server, replication graph, and serving graph to accurately reflect
@@ -172,11 +201,11 @@ parenting relationships within a shard. That command makes the specified
 tablet the master and makes the other tablets in the shard slaves that
 replicate from that master.</p>
 
-<h3 id="mysql-requirements">MySQL requirements</h3>
+<h2 id="mysql-requirements">MySQL requirements</h2>
 
 <p>Vitess supports <a href="https://dev.mysql.com/doc/refman/5.6/en/replication-gtids-howto.html">MySQL 5.6</a> and <a href="https://mariadb.com/kb/en/mariadb/global-transaction-id/">MariaDB</a> implementations.</p>
 
-<h4 id="gtids">GTIDs</h4>
+<h3 id="gtids">GTIDs</h3>
 
 <p>Vitess requires the use of global transaction identifiers
 (<a href="https://dev.mysql.com/doc/refman/5.6/en/replication-gtids-concepts.html">GTIDs</a>) for its operations:</p>
@@ -192,7 +221,7 @@ the process by which source tablet data is transferred to the proper
 destination tablets.</li>
 </ul>
 
-<h4 id="semisynchronous-replication">Semisynchronous replication</h4>
+<h3 id="semisynchronous-replication">Semisynchronous replication</h3>
 
 <p>Vitess does not depend on
 <a href="https://dev.mysql.com/doc/refman/5.6/en/replication-semisync.html">semisynchronous replication</a> but does work if it is implemented.
@@ -218,7 +247,7 @@ available, and they both insert rows in the topology server&#39;s
 <code>_vt.reparent_journal</code> table. As such, you can review
 your database&#39;s reparenting history by inspecting that table.</p>
 
-<h3 id="plannedreparentshard:-planned-reparenting">PlannedReparentShard: Planned reparenting</h3>
+<h3 id="plannedreparentshard-planned-reparenting">PlannedReparentShard: Planned reparenting</h3>
 
 <p>The <code>PlannedReparentShard</code> command reparents a healthy master
 tablet to a new master. The current and new master must both be up and
@@ -261,7 +290,7 @@ That parameter indicates what type of tablet that tablet tries to be
 when healthy. When it is not healthy, the tablet type changes to
 <code>spare</code>.</p>
 
-<h3 id="emergencyreparentshard:-emergency-reparenting">EmergencyReparentShard: Emergency reparenting</h3>
+<h3 id="emergencyreparentshard-emergency-reparenting">EmergencyReparentShard: Emergency reparenting</h3>
 
 <p>The <code>EmergencyReparentShard</code> command is used to force
 a reparent to a new master when the current master is unavailable.

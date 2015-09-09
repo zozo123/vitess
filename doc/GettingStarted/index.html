@@ -8,7 +8,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>Vitess - GettingStarted</title>
-<meta name="description" content="A set of servers and tools that facilitate scaling of MySQL databases for the web.">
+<meta name="description" content="Servers and tools that scale MySQL databases for the web in cloud architectures or on dedicated hardware.">
 
 <link rel="canonical" href="http://vitess.io/doc/GettingStarted/">
 
@@ -25,10 +25,33 @@
 <meta name="msapplication-TileImage" content="/images/touch/ms-touch-icon-144x144-precomposed.png">
 <meta name="msapplication-TileColor" content="#3372DF">
 
-      <link rel="stylesheet" href="/assets/vendor/styles/wsk.css">
-<link rel="stylesheet" href="/css/main.css">
-<link rel="stylesheet" href="/css/extra.css">
-<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,600,900|Roboto+Condensed:300,300italic,400,700">
+          <!-- Webfont -->
+    <link href='http://fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300italic,400italic,500,500italic,700,700italic,900,900italic' rel='stylesheet' type='text/css'>
+    
+    <!--<link rel="shortcut icon" type="image/png" href="/favicon.png">-->
+
+    <!-- Bootstrap -->
+    <link href="/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Less custom stylesheet -->
+    <link rel="stylesheet/less" type="text/css" href="/css/style.less" />
+    <link rel="stylesheet" type="text/css" href="/css/vitess.css">
+    <!-- Font Awesome icons -->
+    <link href="/libs/font-awesome-4.4.0/css/font-awesome.min.css"
+          rel="stylesheet"
+          type="text/css">
+    
+    <!-- Less clientside js script after all less stylesheets. -->
+    <script src="/libs/less/less.min.js" type="text/javascript"></script>
+
+
 
       <link rel="stylesheet" href="/css/components.css">
       <link rel="stylesheet" href="/css/responsee.css">
@@ -154,6 +177,8 @@
 <p>If you run into issues or have questions, please post on our
 <a href="https://groups.google.com/forum/#!forum/vitess">forum</a>.</p>
 
+<div id="toc"></div>
+
 <h2 id="docker-build">Docker Build</h2>
 
 <p>To run Vitess in Docker, use an
@@ -197,12 +222,12 @@ Vitess on a local server:</p>
 <li><p>Install <a href="https://downloads.mariadb.org/">MariaDB 10.0</a> or
 <a href="http://dev.mysql.com/downloads/mysql">MySQL 5.6</a>. You can use any
 installation method (src/bin/rpm/deb), but be sure to include the client
-development headers (<strong>libmariadbclient-dev</strong> or <strong>libmysqlclient-dev</strong>).
-<br><br>
-The Vitess development team currently tests against MariaDB 10.0.17
-and MySQL 5.6.24.
-<br><br>
-If you are installing MariaDB, note that you must install version 10.0 or
+development headers (<strong>libmariadbclient-dev</strong> or <strong>libmysqlclient-dev</strong>).</p>
+
+<p>The Vitess development team currently tests against MariaDB 10.0.17
+and MySQL 5.6.24.</p>
+
+<p>If you are installing MariaDB, note that you must install version 10.0 or
 higher. If you are using <code>apt-get</code>, confirm that your repository
 offers an option to install that version. You can also download the source
 directly from <a href="https://downloads.mariadb.org/mariadb/10.0.16/">mariadb.org</a>.</p></li>
@@ -233,7 +258,7 @@ on your path.</li>
 <li>pkg-config</li>
 <li>bison</li>
 <li>curl</li>
-<li>unzip<br><br></li>
+<li>unzip</li>
 </ul>
 
 <p>These can be installed with the following apt-get command:</p>
@@ -267,7 +292,7 @@ MariaDB installation. For example, if MariaDB is installed in
 <strong>/usr/local/mysql</strong>, run the following command.</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nb">export </span><span class="nv">VT_MYSQL_ROOT</span><span class="o">=</span>/usr/local/mysql
 </code></pre></div>
-<p><br>Note that the command indicates that the <strong>mysql</strong> executable should
+<p>Note that the command indicates that the <strong>mysql</strong> executable should
 be found at <strong>/usr/local/mysql/bin/mysql</strong>.</p></li>
 <li><p>Run <code>mysql_config --version</code> and confirm that you
 are running the correct version of MariaDB or MySQL. The value should
@@ -291,8 +316,7 @@ to set the usual environment variables (e.g. <code>http_proxy</code>,
 . ./dev.env
 make build
 </code></pre></div>
-<p><br>
-If you build Vitess successfully, you can proceed to
+<p>If you build Vitess successfully, you can proceed to
 <a href="#start-a-vitess-cluster">start a Vitess cluster</a>.
 If your build attempt fails, see the following section,
 <a href="#test-your-vitess-cluster">Test your Vitess Cluster</a>, for help
@@ -323,7 +347,7 @@ please let the development team know in the
 <a href="https://groups.google.com/forum/#!forum/vitess">vitess@googlegroups.com</a>
 discussion forum.</p>
 
-<h5 id="node-already-exists,-port-in-use,-etc.">Node already exists, port in use, etc.</h5>
+<h5 id="node-already-exists-port-in-use-etc">Node already exists, port in use, etc.</h5>
 
 <p>A failed test can leave orphaned processes. If you use the default
 settings, you can use the following commands to identify and kill
@@ -331,13 +355,13 @@ those processes:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">pgrep -f -l <span class="s1">&#39;(vtdataroot|VTDATAROOT)&#39;</span> <span class="c"># list Vitess processes</span>
 pkill -f <span class="s1">&#39;(vtdataroot|VTDATAROOT)&#39;</span> <span class="c"># kill Vitess processes</span>
 </code></pre></div>
-<h5 id="too-many-connections-to-mysql,-or-other-timeouts">Too many connections to MySQL, or other timeouts</h5>
+<h5 id="too-many-connections-to-mysql-or-other-timeouts">Too many connections to MySQL, or other timeouts</h5>
 
 <p>This error often means your disk is too slow. If you don&#39;t have access
 to an SSD, you can try <a href="https://github.com/youtube/vitess/blob/master/doc/TestingOnARamDisk.md">testing against a
 ramdisk</a>.</p>
 
-<h5 id="connection-refused-to-tablet,-mysql-socket-not-found,-etc.">Connection refused to tablet, MySQL socket not found, etc.</h5>
+<h5 id="connection-refused-to-tablet-mysql-socket-not-found-etc">Connection refused to tablet, MySQL socket not found, etc.</h5>
 
 <p>These errors might indicate that the machine ran out of RAM and a server
 crashed when trying to allocate more RAM. Some of the heavier tests
@@ -364,24 +388,24 @@ lock service. ZooKeeper is included in the Vitess distribution.</p>
 
 <p>Some Linux distributions ship with default file descriptor limits
 that are too low for database servers. This issue could show up
-as the database crashing with the message &quot;too many open files&quot;.<br><br></p>
+as the database crashing with the message &quot;too many open files&quot;.</p>
 
-<p>Check the system-wide <code>file-max</code> setting as well as user-specific
-<code>ulimit</code> values. We recommend setting them above 100K to be safe.
+<p>Check the system-wide <code class="prettyprint">file-max</code> setting as well as user-specific
+<code class="prettyprint">ulimit</code> values. We recommend setting them above 100K to be safe.
 The exact <a href="http://www.cyberciti.biz/faq/linux-increase-the-maximum-number-of-open-files/">procedure</a>
  may vary depending on your Linux distribution.</p></li>
 <li><p><strong>Configure environment variables</strong></p>
 
 <p>If you are still in the same terminal window that
 you used to run the build commands, you can skip to the next
-step since the environment variables will already be set.<br><br></p>
+step since the environment variables will already be set.</p>
 
 <p>Navigate to the directory where you built Vitess
 (<strong>$WORKSPACE/src/github.com/youtube/vitess</strong>) and run the
 following command:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">. ./dev.env
 </code></pre></div>
-<p><br>From that directory, navigate to the directory that contains
+<p>From that directory, navigate to the directory that contains
 the example scripts:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nb">cd </span>examples/local
 </code></pre></div></li>
@@ -394,12 +418,11 @@ service. The following script creates a small ZooKeeper cluster:</p>
 <span class="c"># Starting zk servers...</span>
 <span class="c"># Waiting for zk servers to be ready...</span>
 </code></pre></div>
-<p><br>
-After the ZooKeeper cluster is running, we only need to tell each
+<p>After the ZooKeeper cluster is running, we only need to tell each
 Vitess process how to connect to ZooKeeper. Then, each process can
-find all of the other Vitess processes by coordinating via ZooKeeper.
-<br><br>
-To instruct Vitess processes on how to connect to ZooKeeper, set
+find all of the other Vitess processes by coordinating via ZooKeeper.</p>
+
+<p>To instruct Vitess processes on how to connect to ZooKeeper, set
 the <code>ZK_CLIENT_CONFIG</code> environment variable to the path
 to the <code>zk-client-conf.json</code> file, which contains the
 ZooKeeper server addresses for each cell.</p></li>
@@ -411,10 +434,10 @@ displays all of the coordination information stored in ZooKeeper.</p>
 <span class="c"># Starting vtctld</span>
 <span class="c"># Access vtctld at http://localhost:15000</span>
 </code></pre></div>
-<p><br>Open <code><a href="http://localhost:15000">http://localhost:15000</a></code> to verify that
+<p>Open <code><a href="http://localhost:15000">http://localhost:15000</a></code> to verify that
 <code>vtctld</code> is running. There won&#39;t be any information
 there yet, but the menu should come up, which indicates that
-<code>vtctld</code> is running.<br><br></p>
+<code>vtctld</code> is running.</p>
 
 <p><strong>Note:</strong> The <code>vtctld</code> server accepts commands from
 the <code>vtctlclient</code> tool, which administers the Vitess
@@ -439,7 +462,7 @@ a new shard.</p>
 <span class="c"># Starting vttablet for test-0000000102...</span>
 <span class="c"># Access tablet test-0000000102 at http://localhost:15102/debug/status</span>
 </code></pre></div>
-<p><br>After this command completes, go back to the <code>vtctld</code>
+<p>After this command completes, go back to the <code>vtctld</code>
 web page from the previous step and click the <strong>Topology</strong> link.
 You should see the three tablets listed. If you click the address
 of a tablet, you will see the coordination data stored in ZooKeeper.
@@ -451,8 +474,7 @@ you will see the debug page generated by the tablet itself.</p></li>
 new shard:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$VTROOT</span>/bin/vtctlclient -server localhost:15000 RebuildKeyspaceGraph test_keyspace
 </code></pre></div>
-<p><br>
-<strong>Note:</strong> Most <code>vtctlclient</code> commands yield no output if
+<p><strong>Note:</strong> Most <code>vtctlclient</code> commands yield no output if
 they run successfully.</p></li>
 <li><p><strong>Elect a master vttablet</strong></p>
 
@@ -460,7 +482,7 @@ they run successfully.</p></li>
 In this step, you designate one of the vttablets to be the master.
 Vitess automatically connects the other replicas&#39; <code>mysqld</code>
 instances so that they start replicating from the master
-<code>mysqld</code> instance.<br><br></p>
+<code>mysqld</code> instance.</p>
 
 <p>Since this is the first time the shard has been started, the
 vttablets are not already doing any replication. As a result,
@@ -469,10 +491,10 @@ calling the <code>InitShardMaster</code> command so that it
 accepts the change of a replica to be the master.</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$VTROOT</span>/bin/vtctlclient -server localhost:15000 InitShardMaster -force test_keyspace/0 <span class="nb">test</span>-0000000100
 </code></pre></div>
-<p><br>After running this command, go back to the <strong>Topology</strong> page
+<p>After running this command, go back to the <strong>Topology</strong> page
 in the <code>vtctld</code> web interface. When you refresh the
 page, you should see that one <code>vttablet</code> is the master
-and the other two are replicas.<br><br></p>
+and the other two are replicas.</p>
 
 <p>You can also run this command on the command line to see the
 same data:</p>
@@ -488,7 +510,7 @@ same data:</p>
 file.</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$VTROOT</span>/bin/vtctlclient -server localhost:15000 ApplySchema -sql <span class="s2">&quot;$(cat create_test_table.sql)&quot;</span> test_keyspace
 </code></pre></div>
-<p><br>The SQL to create the table is shown below:</p>
+<p>The SQL to create the table is shown below:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">CREATE TABLE test_table <span class="o">(</span>
 id BIGINT AUTO_INCREMENT,
 msg VARCHAR<span class="o">(</span>250<span class="o">)</span>,
@@ -512,9 +534,10 @@ the load.</p>
 that connects to <code>vtgate</code> and executes some queries.
 To run it, you need to either:</p>
 
-<ol>
-<li><p>Add the Vitess Python packages to your <code>PYTHONPATH</code><br>
-or</p></li>
+<ul>
+<li>Add the Vitess Python packages to your <code>PYTHONPATH</code>
+<br class="bigbreak">
+or</li>
 <li><p>Use the <code>client.sh</code> wrapper script, which temporarily
 sets up the environment and then runs <code>client.py</code></p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">./client.sh --server<span class="o">=</span>localhost:15001
@@ -525,7 +548,7 @@ sets up the environment and then runs <code>client.py</code></p>
 <span class="c"># Reading from replica...</span>
 <span class="c"># (1L, &#39;V is for speed&#39;)</span>
 </code></pre></div></li>
-</ol>
+</ul>
 
 <h3 id="tear-down-the-cluster">Tear down the cluster</h3>
 

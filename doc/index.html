@@ -8,7 +8,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>Vitess - Vitess Documentation</title>
-<meta name="description" content="A set of servers and tools that facilitate scaling of MySQL databases for the web.">
+<meta name="description" content="Servers and tools that scale MySQL databases for the web in cloud architectures or on dedicated hardware.">
 
 <link rel="canonical" href="http://vitess.io/doc/">
 
@@ -25,10 +25,33 @@
 <meta name="msapplication-TileImage" content="/images/touch/ms-touch-icon-144x144-precomposed.png">
 <meta name="msapplication-TileColor" content="#3372DF">
 
-      <link rel="stylesheet" href="/assets/vendor/styles/wsk.css">
-<link rel="stylesheet" href="/css/main.css">
-<link rel="stylesheet" href="/css/extra.css">
-<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,600,900|Roboto+Condensed:300,300italic,400,700">
+          <!-- Webfont -->
+    <link href='http://fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300italic,400italic,500,500italic,700,700italic,900,900italic' rel='stylesheet' type='text/css'>
+    
+    <!--<link rel="shortcut icon" type="image/png" href="/favicon.png">-->
+
+    <!-- Bootstrap -->
+    <link href="/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Less custom stylesheet -->
+    <link rel="stylesheet/less" type="text/css" href="/css/style.less" />
+    <link rel="stylesheet" type="text/css" href="/css/vitess.css">
+    <!-- Font Awesome icons -->
+    <link href="/libs/font-awesome-4.4.0/css/font-awesome.min.css"
+          rel="stylesheet"
+          type="text/css">
+    
+    <!-- Less clientside js script after all less stylesheets. -->
+    <script src="/libs/less/less.min.js" type="text/javascript"></script>
+
+
 
       <link rel="stylesheet" href="/css/components.css">
       <link rel="stylesheet" href="/css/responsee.css">
@@ -192,16 +215,21 @@ single database....</p>
   <p class="post-excerpt" itemprop="description">Contents:
 
 
+
 Overview
-Comparisons to other storage options
-Features
-Architecture
-History
+
+Vitess is a database solution for scaling MySQL. It&#39;s architected to run as
+effectively in a public or private cloud architecture ...</p>
+</article>
 
 
-
-
-Vitess is a database solution for scaling MySQL. It&#39;s archite...</p>
+  <article class="tile" itemscope itemtype="http://schema.org/Article">
+  <a href="http://vitess.io/doc/VitessApi/" title="VitessApi" class="post-teaser">
+    <img src="http://vitess.io/images/400x250.gif" alt="teaser" itemprop="image">
+  </a>
+<!--  <p class="entry-date date published"><time datetime="2015-01-01" itemprop="datePublished">January 01, 2015</time></p> -->
+  <h2 class="post-title" itemprop="name"><a href="http://vitess.io/doc/VitessApi/">VitessApi</a></h2>
+  <p class="post-excerpt" itemprop="description">This document describes Vitess API methods that enable your client application to more easily talk to your storage system to query data. API methods are grou...</p>
 </article>
 
 
@@ -242,16 +270,11 @@ The goal of the V3 API is to simplify the application’s view of the physical d
   <p class="post-excerpt" itemprop="description">Contents:
 
 
-  Platform support
-  Database support
-    
-      Data types and SQL support
-      Schema management
-    
-  
-  Supported clients
-    
-      Client...</p>
+
+Platform support
+
+Vitess runs on either Ubuntu 14.04 (Trusty) or Debian 7.0 (Wheezy).
+You can run Vitess on local hardware or as the storage eng...</p>
 </article>
 
 
@@ -285,12 +308,15 @@ The integration_test testsuite contains tests that may time-out if run against a
   </a>
 <!--  <p class="entry-date date published"><time datetime="2015-01-01" itemprop="datePublished">January 01, 2015</time></p> -->
   <h2 class="post-title" itemprop="name"><a href="http://vitess.io/doc/ShardingKubernetes/">ShardingKubernetes</a></h2>
-  <p class="post-excerpt" itemprop="description">This guide will walk through the process of sharding an existing unsharded
+  <p class="post-excerpt" itemprop="description">This guide walks you through the process of sharding an existing unsharded
 Vitess keyspace in Kubernetes.
+
+Contents:
+
 
 Prerequisites
 
-We begin by assuming you&#39;ve com...</p>
+We begin by assuming yo...</p>
 </article>
 
 
@@ -324,9 +350,15 @@ Table definitions identi...</p>
   </a>
 <!--  <p class="entry-date date published"><time datetime="2015-01-01" itemprop="datePublished">January 01, 2015</time></p> -->
   <h2 class="post-title" itemprop="name"><a href="http://vitess.io/doc/Reparenting/">Reparenting</a></h2>
-  <p class="post-excerpt" itemprop="description">Reparenting is the process of changing a shard&#39;s master tablet
+  <p class="post-excerpt" itemprop="description">Contents:
+
+
+
+Overview
+
+Reparenting is the process of changing a shard&#39;s master tablet
 from one host to another or changing a slave tablet to have a
-different master. Reparentin...</p>
+diffe...</p>
 </article>
 
 
@@ -419,9 +451,11 @@ manual build process.
 If you run into issues or have questions, please post on our
 forum.
 
+
+
 Docker Build
 
-To ru...</p>
+To ...</p>
 </article>
 
 
@@ -431,20 +465,14 @@ To ru...</p>
   </a>
 <!--  <p class="entry-date date published"><time datetime="2015-01-01" itemprop="datePublished">January 01, 2015</time></p> -->
   <h2 class="post-title" itemprop="name"><a href="http://vitess.io/doc/Concepts/">Concepts</a></h2>
-  <p class="post-excerpt" itemprop="description">Concepts
-
-Vitess uses the following concepts and terms:
+  <p class="post-excerpt" itemprop="description">Vitess uses the following concepts and terms:
 
 
-keyspace
-shard
-tablet
-keyspace ID
-shard graph
-replication graph
-serving graph
-topology service
-cell...</p>
+
+Keyspace
+
+A keyspace is a logical database. In its simplest form, it maps directly
+to a MySQL database name,...</p>
 </article>
 
 
@@ -457,15 +485,12 @@ cell...</p>
   <p class="post-excerpt" itemprop="description">Contents:
 
 
-  Overview
-  Core principles
-  Language-specific considerations
-  Available libraries
-
 
 Overview
 
-You can access your Vitess cluster using a vari...</p>
+You can access your Vitess cluster using a variety of clients and
+programming languages. Vitess client libraries help your client
+appl...</p>
 </article>
 
 

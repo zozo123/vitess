@@ -8,7 +8,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>Vitess - TestingOnARamDisk</title>
-<meta name="description" content="A set of servers and tools that facilitate scaling of MySQL databases for the web.">
+<meta name="description" content="Servers and tools that scale MySQL databases for the web in cloud architectures or on dedicated hardware.">
 
 <link rel="canonical" href="http://vitess.io/doc/TestingOnARamDisk/">
 
@@ -25,10 +25,33 @@
 <meta name="msapplication-TileImage" content="/images/touch/ms-touch-icon-144x144-precomposed.png">
 <meta name="msapplication-TileColor" content="#3372DF">
 
-      <link rel="stylesheet" href="/assets/vendor/styles/wsk.css">
-<link rel="stylesheet" href="/css/main.css">
-<link rel="stylesheet" href="/css/extra.css">
-<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,600,900|Roboto+Condensed:300,300italic,400,700">
+          <!-- Webfont -->
+    <link href='http://fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300italic,400italic,500,500italic,700,700italic,900,900italic' rel='stylesheet' type='text/css'>
+    
+    <!--<link rel="shortcut icon" type="image/png" href="/favicon.png">-->
+
+    <!-- Bootstrap -->
+    <link href="/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Less custom stylesheet -->
+    <link rel="stylesheet/less" type="text/css" href="/css/style.less" />
+    <link rel="stylesheet" type="text/css" href="/css/vitess.css">
+    <!-- Font Awesome icons -->
+    <link href="/libs/font-awesome-4.4.0/css/font-awesome.min.css"
+          rel="stylesheet"
+          type="text/css">
+    
+    <!-- Less clientside js script after all less stylesheets. -->
+    <script src="/libs/less/less.min.js" type="text/javascript"></script>
+
+
 
       <link rel="stylesheet" href="/css/components.css">
       <link rel="stylesheet" href="/css/responsee.css">
@@ -150,11 +173,11 @@
   <div class="container">
     <h1 id="testing-on-a-ramdisk">Testing On A Ramdisk</h1>
 
-<p>The <code>integration_test</code> testsuite contains tests that may time-out if run against a slow disk. If your workspace lives on hard disk (as opposed to <a href="http://en.wikipedia.org/wiki/Solid-state_drive">SSD</a>), it is recommended that you run tests using a <a href="http://en.wikipedia.org/wiki/RAM_drive">ramdisk</a>.</p>
+<p>The <code class="prettyprint">integration_test</code> testsuite contains tests that may time-out if run against a slow disk. If your workspace lives on hard disk (as opposed to <a href="http://en.wikipedia.org/wiki/Solid-state_drive">SSD</a>), it is recommended that you run tests using a <a href="http://en.wikipedia.org/wiki/RAM_drive">ramdisk</a>.</p>
 
 <h1 id="setup">Setup</h1>
 
-<p>First, set up a normal vitess development environment by running <code>bootstrap.sh</code> and sourcing <code>dev.env</code> (see <a href="http://vitess.io/doc/GettingStarted">GettingStarted</a>). Then overwrite the testing temporary directories and make a 4GiB (smaller sizes may work, if you&#39;re constrained on RAM) ramdisk at the location of your choice (this example uses <code>/tmp/vt</code>):</p>
+<p>First, set up a normal vitess development environment by running <code class="prettyprint">bootstrap.sh</code> and sourcing <code class="prettyprint">dev.env</code> (see <a href="http://vitess.io/doc/GettingStarted">GettingStarted</a>). Then overwrite the testing temporary directories and make a 4GiB (smaller sizes may work, if you&#39;re constrained on RAM) ramdisk at the location of your choice (this example uses <code class="prettyprint">/tmp/vt</code>):</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nb">export </span><span class="nv">TEST_TMPDIR</span><span class="o">=</span>/tmp/vt
 
 mkdir <span class="k">${</span><span class="nv">TEST_TMPDIR</span><span class="k">}</span>
@@ -163,7 +186,7 @@ sudo mount -t tmpfs -o <span class="nv">size</span><span class="o">=</span>4g tm
 <span class="nb">export </span><span class="nv">VTDATAROOT</span><span class="o">=</span><span class="k">${</span><span class="nv">TEST_TMPDIR</span><span class="k">}</span>
 <span class="nb">export </span><span class="nv">TEST_UNDECLARED_OUTPUTS_DIR</span><span class="o">=</span><span class="k">${</span><span class="nv">TEST_TMPDIR</span><span class="k">}</span>
 </code></pre></div>
-<p>You can now run tests (either individually or as part of <code>make test</code>) normally.</p>
+<p>You can now run tests (either individually or as part of <code class="prettyprint">make test</code>) normally.</p>
 
 <h1 id="teardown">Teardown</h1>
 

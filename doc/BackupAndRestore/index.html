@@ -8,7 +8,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>Vitess - BackupAndRestore</title>
-<meta name="description" content="A set of servers and tools that facilitate scaling of MySQL databases for the web.">
+<meta name="description" content="Servers and tools that scale MySQL databases for the web in cloud architectures or on dedicated hardware.">
 
 <link rel="canonical" href="http://vitess.io/doc/BackupAndRestore/">
 
@@ -25,10 +25,33 @@
 <meta name="msapplication-TileImage" content="/images/touch/ms-touch-icon-144x144-precomposed.png">
 <meta name="msapplication-TileColor" content="#3372DF">
 
-      <link rel="stylesheet" href="/assets/vendor/styles/wsk.css">
-<link rel="stylesheet" href="/css/main.css">
-<link rel="stylesheet" href="/css/extra.css">
-<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,600,900|Roboto+Condensed:300,300italic,400,700">
+          <!-- Webfont -->
+    <link href='http://fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300italic,400italic,500,500italic,700,700italic,900,900italic' rel='stylesheet' type='text/css'>
+    
+    <!--<link rel="shortcut icon" type="image/png" href="/favicon.png">-->
+
+    <!-- Bootstrap -->
+    <link href="/libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Less custom stylesheet -->
+    <link rel="stylesheet/less" type="text/css" href="/css/style.less" />
+    <link rel="stylesheet" type="text/css" href="/css/vitess.css">
+    <!-- Font Awesome icons -->
+    <link href="/libs/font-awesome-4.4.0/css/font-awesome.min.css"
+          rel="stylesheet"
+          type="text/css">
+    
+    <!-- Less clientside js script after all less stylesheets. -->
+    <script src="/libs/less/less.min.js" type="text/javascript"></script>
+
+
 
       <link rel="stylesheet" href="/css/components.css">
       <link rel="stylesheet" href="/css/responsee.css">
@@ -158,14 +181,7 @@ Vitess. Vitess uses backups for two purposes:</p>
 
 <p><strong>Contents:</strong></p>
 
-<ul>
-<li><a href="#prerequisites">Prerequisites</a></li>
-<li><a href="#creating-a-backup">Creating a backup</a></li>
-<li><a href="#restoring-a-backup">Restoring a backup</a></li>
-<li><a href="#managing-backups">Managing backups</a></li>
-<li><a href="#bootstrapping-a-new-tablet">Bootstrapping a new tablet</a></li>
-<li><a href="#concurrency">Concurrency</a></li>
-</ul>
+<div id="toc"></div>
 
 <h2 id="prerequisites">Prerequisites</h2>
 
@@ -183,25 +199,27 @@ access to a local file system where you are storing backups. In practice,
 you should always use these flags when starting a tablet that has access
 to backups on a local file system.</p>
 
-<table><thead>
-<tr>
-<th>Flag</th>
-<th>Description</th>
-</tr>
-</thead><tbody>
-<tr>
-<td><nobr><code>--backup_storage_implementation</code></nobr></td>
-<td>Specifies the implementation of the Backup Storage interface to use.<br><br>If you run Vitess on a machine that has access to an NFS directory where you store backups, set the flag&#39;s value to file. Otherwise, do not set this flag or either of the other remaining flags.</li></ul></td>
-</tr>
-<tr>
-<td><code>--file_backup_storage_root</code></td>
-<td>Identifies the root directory for backups. Set this flag if the backup_storage_implementation flag is set to file.</td>
-</tr>
-<tr>
-<td><code>--restore_from_backup</code></td>
-<td>Indicates that, when started, the tablet should restore the most recent backup from the file_backup_storage_root directory. This flag is only relevant if the other two flags listed above are also set.</td>
-</tr>
-</tbody></table>
+<table class="responsive">
+  <thead>
+    <tr>
+      <th colspan="2">Flags</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><nobr><code>--backup_storage_implementation</code></nobr></td>
+      <td>Specifies the implementation of the Backup Storage interface to use.<br><br>If you run Vitess on a machine that has access to an NFS directory where you store backups, set the flag's value to file. Otherwise, do not set this flag or either of the other remaining flags.</td>
+    </tr>
+    <tr>
+      <td><nobr><code>--file_backup_storage_root</code></nobr></td>
+      <td>Identifies the root directory for backups. Set this flag if the backup_storage_implementation flag is set to file.</td>
+    </tr>
+    <tr>
+      <td><nobr><code>--restore_from_backup</code></nobr></td>
+      <td>Indicates that, when started, the tablet should restore the most recent backup from the file_backup_storage_root directory. This flag is only relevant if the other two flags listed above are also set.</td>
+    </tr>
+  </tbody>
+</table>
 
 <h2 id="creating-a-backup">Creating a backup</h2>
 
@@ -254,12 +272,11 @@ starts the vttablet as a new tablet.</p>
 <ul>
 <li><p><a href="/reference/vtctl.html#listbackups">ListBackups</a> displays the
 existing backups for a keyspace/shard in chronological order.</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="err">&#39;</span>vtctl ListBackups &lt;keyspace/shard&gt;
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">vtctl ListBackups &lt;keyspace/shard&gt;
 </code></pre></div></li>
 <li><p><a href="/reference/vtctl.html#removebackup">RemoveBackup</a> deletes a
 specified backup for a keyspace/shard.</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">RemoveBackup &lt;keyspace/shard&gt; &lt;backup name&gt;
-<span class="sb">``</span>
 </code></pre></div></li>
 </ul>
 
@@ -291,12 +308,12 @@ schema propagates to the slave tablets.</p></li>
 the shard is working and functional.</p></li>
 <li><p>Once the shard is accumulating data, a cron job runs regularly to
 create new backups. Backups are created frequently enough to ensure
-that one is always available if needed.<br><br></p>
+that one is always available if needed.</p>
 
 <p>To determine the proper frequency for creating backups, consider
 the amount of time that you keep replication logs and allow enough
 time to investigate and fix problems in the event that a backup
-operation fails.<br><br></p>
+operation fails.</p>
 
 <p>For example, suppose you typically keep four days of replication logs
 and you create daily backups. In that case, even if a backup fails,
@@ -305,7 +322,7 @@ investigate and fix the problem.</p></li>
 <li><p>When a spare tablet comes up, it restores the latest backup, which
 contains data as well as the backup&#39;s replication position. The
 tablet then resets its master to the current shard master and starts
-replicating.<br><br></p>
+replicating.</p>
 
 <p>This process is the same for new slave tablets and slave tablets that
 are being restarted. For example, to add a new rdonly tablet to your
