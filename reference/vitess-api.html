@@ -315,7 +315,7 @@
 
 <h4 id="messages">Messages</h4>
 
-<h5 id="executeentityidsrequest-entityid">ExecuteEntityIdsRequest.EntityId</h5>
+<h5 id="executeentityidsrequest.entityid">ExecuteEntityIdsRequest.EntityId</h5>
 
 <p><em>Properties</em></p>
 
@@ -353,7 +353,7 @@
 
 <h4 id="enums">Enums</h4>
 
-<h5 id="executeentityidsrequest-entityid-type">ExecuteEntityIdsRequest.EntityId.Type</h5>
+<h5 id="executeentityidsrequest.entityid.type">ExecuteEntityIdsRequest.EntityId.Type</h5>
 
 <table><thead>
 <tr>
@@ -1071,7 +1071,7 @@
 
 <h4 id="messages">Messages</h4>
 
-<h5 id="splitqueryresponse-keyrangepart">SplitQueryResponse.KeyRangePart</h5>
+<h5 id="splitqueryresponse.keyrangepart">SplitQueryResponse.KeyRangePart</h5>
 
 <p><em>Properties</em></p>
 
@@ -1091,7 +1091,7 @@
 </tr>
 </tbody></table>
 
-<h5 id="splitqueryresponse-part">SplitQueryResponse.Part</h5>
+<h5 id="splitqueryresponse.part">SplitQueryResponse.Part</h5>
 
 <p><em>Properties</em></p>
 
@@ -1119,7 +1119,7 @@
 </tr>
 </tbody></table>
 
-<h5 id="splitqueryresponse-shardpart">SplitQueryResponse.ShardPart</h5>
+<h5 id="splitqueryresponse.shardpart">SplitQueryResponse.ShardPart</h5>
 
 <p><em>Properties</em></p>
 
@@ -1329,7 +1329,7 @@
 </tr>
 </tbody></table>
 
-<h3 id="topodata-tablettype">topodata.TabletType</h3>
+<h3 id="topodata.tablettype">topodata.TabletType</h3>
 
 <p>TabletType represents the type of a given tablet.</p>
 
@@ -1407,7 +1407,7 @@
 </tr>
 </tbody></table>
 
-<h3 id="vtrpc-errorcode">vtrpc.ErrorCode</h3>
+<h3 id="vtrpc.errorcode">vtrpc.ErrorCode</h3>
 
 <p>ErrorCode is the enum values for Errors. Internally, errors should be created with one of these codes. These will then be translated over the wire by various RPC frameworks.</p>
 
@@ -1563,7 +1563,7 @@
 
 <h4 id="messages">Messages</h4>
 
-<h5 id="session-shardsession">Session.ShardSession</h5>
+<h5 id="session.shardsession">Session.ShardSession</h5>
 
 <p><em>Properties</em></p>
 
@@ -1583,7 +1583,7 @@
 </tr>
 </tbody></table>
 
-<h3 id="query-bindvariable">query.BindVariable</h3>
+<h3 id="query.bindvariable">query.BindVariable</h3>
 
 <p>BindVariable represents a single bind variable in a Query</p>
 
@@ -1635,7 +1635,7 @@
 
 <h4 id="enums">Enums</h4>
 
-<h5 id="bindvariable-type">BindVariable.Type</h5>
+<h5 id="bindvariable.type">BindVariable.Type</h5>
 
 <table><thead>
 <tr>
@@ -1691,7 +1691,7 @@
 </tr>
 </tbody></table>
 
-<h3 id="query-boundquery">query.BoundQuery</h3>
+<h3 id="query.boundquery">query.BoundQuery</h3>
 
 <p>BoundQuery is a query with its bind variables</p>
 
@@ -1713,7 +1713,7 @@
 </tr>
 </tbody></table>
 
-<h3 id="query-field">query.Field</h3>
+<h3 id="query.field">query.Field</h3>
 
 <p>Field describes a single column returned by a query</p>
 
@@ -1741,7 +1741,7 @@
 
 <h4 id="enums">Enums</h4>
 
-<h5 id="field-flag">Field.Flag</h5>
+<h5 id="field.flag">Field.Flag</h5>
 
 <p>Flag contains the MySQL field flags bitset values e.g. to distinguish between signed and unsigned integer.  These numbers should exactly match values defined in dist/mysql-5.1.52/include/mysql_com.h</p>
 
@@ -1834,7 +1834,7 @@
 </tr>
 </tbody></table>
 
-<h5 id="field-type">Field.Type</h5>
+<h5 id="field.type">Field.Type</h5>
 
 <p>Type follows enum_field_types from mysql.h.</p>
 
@@ -1982,7 +1982,7 @@
 </tr>
 </tbody></table>
 
-<h3 id="query-queryresult">query.QueryResult</h3>
+<h3 id="query.queryresult">query.QueryResult</h3>
 
 <p>QueryResult is returned by Execute and ExecuteStream.  As returned by Execute, len(fields) is always equal to len(row) (for each row in rows).  As returned by StreamExecute, the first QueryResult has the fields set, and subsequent QueryResult have rows set. And as Execute, len(QueryResult[0].fields) is always equal to len(row) (for each row in rows for each QueryResult in QueryResult[1:]).</p>
 
@@ -2012,7 +2012,7 @@
 </tr>
 </tbody></table>
 
-<h3 id="query-row">query.Row</h3>
+<h3 id="query.row">query.Row</h3>
 
 <p>Row is a database row.</p>
 
@@ -2030,7 +2030,7 @@
 </tr>
 </tbody></table>
 
-<h3 id="query-target">query.Target</h3>
+<h3 id="query.target">query.Target</h3>
 
 <p>Target describes what the client expects the tablet is. If the tablet does not match, an error is returned.</p>
 
@@ -2056,7 +2056,7 @@
 </tr>
 </tbody></table>
 
-<h3 id="topodata-keyrange">topodata.KeyRange</h3>
+<h3 id="topodata.keyrange">topodata.KeyRange</h3>
 
 <p>KeyRange describes a range of sharding keys, when range-based sharding is used.</p>
 
@@ -2078,7 +2078,7 @@
 </tr>
 </tbody></table>
 
-<h3 id="topodata-shardreference">topodata.ShardReference</h3>
+<h3 id="topodata.shardreference">topodata.ShardReference</h3>
 
 <p>ShardReference is used as a pointer from a SrvKeyspace to a SrvShard</p>
 
@@ -2100,7 +2100,7 @@
 </tr>
 </tbody></table>
 
-<h3 id="topodata-srvkeyspace">topodata.SrvKeyspace</h3>
+<h3 id="topodata.srvkeyspace">topodata.SrvKeyspace</h3>
 
 <p>SrvKeyspace is a rollup node for the keyspace itself.</p>
 
@@ -2136,7 +2136,7 @@
 
 <h4 id="messages">Messages</h4>
 
-<h5 id="srvkeyspace-keyspacepartition">SrvKeyspace.KeyspacePartition</h5>
+<h5 id="srvkeyspace.keyspacepartition">SrvKeyspace.KeyspacePartition</h5>
 
 <p><em>Properties</em></p>
 
@@ -2156,7 +2156,7 @@
 </tr>
 </tbody></table>
 
-<h5 id="srvkeyspace-servedfrom">SrvKeyspace.ServedFrom</h5>
+<h5 id="srvkeyspace.servedfrom">SrvKeyspace.ServedFrom</h5>
 
 <p>ServedFrom indicates a relationship between a TabletType and the keyspace name that&#39;s serving it.</p>
 
@@ -2178,7 +2178,7 @@
 </tr>
 </tbody></table>
 
-<h3 id="vtrpc-callerid">vtrpc.CallerID</h3>
+<h3 id="vtrpc.callerid">vtrpc.CallerID</h3>
 
 <p>CallerID is passed along RPCs to identify the originating client for a request. It is not meant to be secure, but only informational.  The client can put whatever info they want in these fields, and they will be trusted by the servers. The fields will just be used for logging purposes, and to easily find a client. VtGate propagates it to VtTablet, and VtTablet may use this information for monitoring purposes, to display on dashboards, or for blacklisting purposes.</p>
 
@@ -2204,7 +2204,7 @@
 </tr>
 </tbody></table>
 
-<h3 id="vtrpc-rpcerror">vtrpc.RPCError</h3>
+<h3 id="vtrpc.rpcerror">vtrpc.RPCError</h3>
 
 <p>RPCError is an application-level error structure returned by VtTablet (and passed along by VtGate if appropriate). We use this so the clients don&#39;t have to parse the error messages, but instead can depend on the value of the code.</p>
 
