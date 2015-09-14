@@ -178,21 +178,21 @@
 <h1 id="setup">Setup</h1>
 
 <p>First, set up a normal vitess development environment by running <code class="prettyprint">bootstrap.sh</code> and sourcing <code class="prettyprint">dev.env</code> (see <a href="http://vitess.io/doc/GettingStarted">GettingStarted</a>). Then overwrite the testing temporary directories and make a 4GiB (smaller sizes may work, if you&#39;re constrained on RAM) ramdisk at the location of your choice (this example uses <code class="prettyprint">/tmp/vt</code>):</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nb">export </span><span class="nv">TEST_TMPDIR</span><span class="o">=</span>/tmp/vt
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nb">export </span><span class="nv">VT_TEST_TMPDIR</span><span class="o">=</span>/tmp/vt
 
-mkdir <span class="k">${</span><span class="nv">TEST_TMPDIR</span><span class="k">}</span>
-sudo mount -t tmpfs -o <span class="nv">size</span><span class="o">=</span>4g tmpfs <span class="k">${</span><span class="nv">TEST_TMPDIR</span><span class="k">}</span>
+mkdir <span class="k">${</span><span class="nv">VT_TEST_TMPDIR</span><span class="k">}</span>
+sudo mount -t tmpfs -o <span class="nv">size</span><span class="o">=</span>4g tmpfs <span class="k">${</span><span class="nv">VT_TEST_TMPDIR</span><span class="k">}</span>
 
-<span class="nb">export </span><span class="nv">VTDATAROOT</span><span class="o">=</span><span class="k">${</span><span class="nv">TEST_TMPDIR</span><span class="k">}</span>
-<span class="nb">export </span><span class="nv">TEST_UNDECLARED_OUTPUTS_DIR</span><span class="o">=</span><span class="k">${</span><span class="nv">TEST_TMPDIR</span><span class="k">}</span>
+<span class="nb">export </span><span class="nv">VTDATAROOT</span><span class="o">=</span><span class="k">${</span><span class="nv">VT_TEST_TMPDIR</span><span class="k">}</span>
+<span class="nb">export </span><span class="nv">TEST_UNDECLARED_OUTPUTS_DIR</span><span class="o">=</span><span class="k">${</span><span class="nv">VT_TEST_TMPDIR</span><span class="k">}</span>
 </code></pre></div>
 <p>You can now run tests (either individually or as part of <code class="prettyprint">make test</code>) normally.</p>
 
 <h1 id="teardown">Teardown</h1>
 
 <p>When you are done testing, you can remove the ramdisk by unmounting it and then removing the directory:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh">sudo umount <span class="k">${</span><span class="nv">TEST_TMPDIR</span><span class="k">}</span>
-rmdir <span class="k">${</span><span class="nv">TEST_TMPDIR</span><span class="k">}</span>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">sudo umount <span class="k">${</span><span class="nv">VT_TEST_TMPDIR</span><span class="k">}</span>
+rmdir <span class="k">${</span><span class="nv">VT_TEST_TMPDIR</span><span class="k">}</span>
 </code></pre></div>
   </div>
 
