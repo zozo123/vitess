@@ -50,8 +50,10 @@
     
     <!-- Less clientside js script after all less stylesheets. -->
     <script src="/libs/less/less.min.js" type="text/javascript"></script>
-
-
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="/libs/bootstrap/js/bootstrap.min.js"></script>
 
       <link rel="stylesheet" href="/css/components.css">
       <link rel="stylesheet" href="/css/responsee.css">
@@ -171,9 +173,7 @@
   </header>
 
   <div class="container">
-    <p>Vitess uses the following concepts and terms:</p>
-
-<div id="toc"></div>
+    <p>This document defines common Vitess concepts and terminology.</p>
 
 <h2 id="keyspace">Keyspace</h2>
 
@@ -214,9 +214,9 @@ shard a currently unsharded database.</p>
 (<code>unsigned bigint</code> or <code>varbinary</code> in MySQL tables).
 Other data types are not allowed due to ambiguous equality or inequality rules.</p>
 
-<!--
+<div style="display:none">
 TODO: keyspace ID rules must be solidified once VTGate features are finalized.
--->
+</div>
 
 <h2 id="shard">Shard</h2>
 
@@ -263,9 +263,9 @@ TODO: keyspace ID rules must be solidified once VTGate features are finalized.
 
 <p>Only <code>master</code>, <code>replica</code>, and <code>rdonly</code> tablets are included in the <a href="#serving-graph">serving graph</a>.</p>
 
-<!--
+<div style="display:none">
 TODO: Add pointer to complete list of types and explain how to update type?
--->
+</div>
 
 <h2 id="shard-graph">Shard graph</h2>
 
@@ -319,11 +319,11 @@ Each local instance contains information about information specific to the cell 
 The local topology server must be available for Vitess to serve data.</p></li>
 </ul>
 
-<!--
+<div style="display:none">
   To ensure reliability, the topology service has multiple server processes running on different servers. Those servers elect a master and perform chorum writes. In ZooKeeper, for a write to succeed, more than half of the servers must acknowledge it. Thus, a typical ZooKeeper configuration consists of either three or five servers, where two (out of three) or three (out of five) servers must agree for a write operation to succeed.
 The instance is the set of servers providing topology services. So, in a Vitess implementation using ZooKeeper, the global and local instances likely consist of three or five servers apiece.
   To be reliable, the global instance needs to have server processes spread across all regions and cells. Read-only replicas of the global instance can be maintained in each data center (cell).
--->
+</div>
 
 <h2 id="cell-data-center">Cell (Data Center)</h2>
 

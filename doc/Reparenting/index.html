@@ -50,8 +50,10 @@
     
     <!-- Less clientside js script after all less stylesheets. -->
     <script src="/libs/less/less.min.js" type="text/javascript"></script>
-
-
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="/libs/bootstrap/js/bootstrap.min.js"></script>
 
       <link rel="stylesheet" href="/css/components.css">
       <link rel="stylesheet" href="/css/responsee.css">
@@ -171,13 +173,7 @@
   </header>
 
   <div class="container">
-    <p><strong>Contents:</strong></p>
-
-<div id="toc"></div>
-
-<h2 id="overview">Overview</h2>
-
-<p><strong>Reparenting</strong> is the process of changing a shard&#39;s master tablet
+    <p><strong>Reparenting</strong> is the process of changing a shard&#39;s master tablet
 from one host to another or changing a slave tablet to have a
 different master. Reparenting can be initiated manually
 or it can occur automatically in response to particular database

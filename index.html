@@ -31,8 +31,10 @@
     
     <!-- Less clientside js script after all less stylesheets. -->
     <script src="/libs/less/less.min.js" type="text/javascript"></script>
-
-
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="/libs/bootstrap/js/bootstrap.min.js"></script>
 
 
     <!-- metadata -->
@@ -40,9 +42,12 @@
     <meta name="og:image" content="/images/120x120.gif"/>
     <meta name="og:description" content="Servers and tools that scale MySQL databases for the web in cloud architectures or on dedicated hardware."/>
   </head>
-  <body class="">
+  <body class="" id="top_of_page">
 
-  	<nav id="common-nav" class="navbar navbar-static-top inverse">
+    <span id="toc-depth" data-toc-depth="h2,h3"></span>
+
+
+  	<nav id="common-nav" class="navbar navbar-fixed-top inverse">
   <div class="container">
     <!-- Brand and toggle get grouped for better mobile display -->
     <div class="navbar-header">
@@ -59,12 +64,59 @@
 
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="navbar-collapse-1">
-      <ul class="nav navbar-nav navbar-right">
+      <ul class="nav navbar-nav navbar-right" id="standard-menu-links">
         <li><a href="/overview/">Guides</a></li>
         <li><a href="/reference/vitess-api.html">Reference</a></li>
         <li><a href="https://github.com/youtube/vitess"><i class="fa fa-github"></i> GitHub</a></li>
         <!-- Hide link to blog unless we have actual posts -->
         <!-- <li><a href="/blog/" title="">Blog</a></li> -->
+      </ul>
+      <ul class="nav nav-stacked mobile-left-nav-menu" id="collapsed-left-menu">
+                <li class="submenu">
+          <h4 class="arrow-r no-top-margin">Overview</h4>
+          <ul style="display: none">
+            <li><a href="/overview/">What is Vitess</a></li>
+            <li><a href="/overview/concepts.html">Key Concepts</a></li>
+          </ul>
+        </li>
+        <li class="submenu">
+          <h4 class="arrow-r">Getting Started</h4>
+          <ul style="display: none">
+            <li><a href="/getting-started/">Run Vitess on Kubernetes</a></li>
+            <li><a href="/getting-started/local-instance.html">Run Vitess Locally</a></li>
+          </ul>
+        </li>
+        <li class="submenu">
+          <h4 class="arrow-r">User Guide</h4>
+          <ul style="display: none">
+            <li><a href="/user-guide/introduction.html">Introduction</a>
+            <li><a href="/user-guide/client-libraries.html">Client Libraries</a>
+            <li><a href="/user-guide/backup-and-restore.html">Backing Up Data</a>
+            <li><a href="/user-guide/reparenting.html">Reparenting</a></li>
+            <li><a href="/user-guide/schema-management.html">Schema Management</a></li>
+            <li style="padding-bottom: 0"><a href="/user-guide/sharding.html">Sharding</a>
+              <ul style="list-style-type: none">
+                <li><a href="/user-guide/horizontal-sharding.html">Horizontal Sharding (Codelab)</a></li>
+                <li style="padding-bottom: 0"><a href="/user-guide/sharding-kubernetes.html">Sharding in Kubernetes (Codelab)</a></li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+        <li class="submenu">
+          <h4 class="arrow-r">Reference Guides</h4>
+          <ul style="display: none">
+            <li><a href="/reference/vitess-api.html">Vitess API</a>
+            <li><a href="/reference/vtctl.html">vtctl Commands</a>
+          </ul>
+        </li>
+        <li class="submenu">
+          <h4 class="arrow-r">Other Resources</h4>
+          <ul style="display: none">
+            <li><a href="/resources/presentations.html">Presentations</a>
+          </ul>
+        </li>
+
+        <li><a href="https://github.com/youtube/vitess" style="font-size: 18px; margin-left: 0.25em;"><i class="fa fa-github"></i> GitHub</a></li>
       </ul>
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
@@ -139,9 +191,11 @@ for low-frequency updates like new features and releases.
 
 
         <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<!--    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>   -->
     <!-- Include all compiled plugins (below), or include individual files as needed -->
+<!--
     <script src="/libs/bootstrap/js/bootstrap.min.js"></script>
+-->
     <!-- Include the common site javascript -->
     <script src="/js/common.js" type="text/javascript" charset="utf-8"></script>
 

@@ -50,8 +50,10 @@
     
     <!-- Less clientside js script after all less stylesheets. -->
     <script src="/libs/less/less.min.js" type="text/javascript"></script>
-
-
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="/libs/bootstrap/js/bootstrap.min.js"></script>
 
       <link rel="stylesheet" href="/css/components.css">
       <link rel="stylesheet" href="/css/responsee.css">
@@ -212,14 +214,8 @@ single database....</p>
   </a>
 <!--  <p class="entry-date date published"><time datetime="2015-01-01" itemprop="datePublished">January 01, 2015</time></p> -->
   <h2 class="post-title" itemprop="name"><a href="http://vitess.io/doc/VitessOverview/">VitessOverview</a></h2>
-  <p class="post-excerpt" itemprop="description">Contents:
-
-
-
-Overview
-
-Vitess is a database solution for scaling MySQL. It&#39;s architected to run as
-effectively in a public or private cloud architecture ...</p>
+  <p class="post-excerpt" itemprop="description">Vitess is a database solution for scaling MySQL. It&#39;s architected to run as
+effectively in a public or private cloud architecture as it does on dedicated...</p>
 </article>
 
 
@@ -267,14 +263,11 @@ The goal of the V3 API is to simplify the application’s view of the physical d
   </a>
 <!--  <p class="entry-date date published"><time datetime="2015-01-01" itemprop="datePublished">January 01, 2015</time></p> -->
   <h2 class="post-title" itemprop="name"><a href="http://vitess.io/doc/UserGuideIntroduction/">UserGuideIntroduction</a></h2>
-  <p class="post-excerpt" itemprop="description">Contents:
-
-
-
-Platform support
+  <p class="post-excerpt" itemprop="description">Platform support
 
 Vitess runs on either Ubuntu 14.04 (Trusty) or Debian 7.0 (Wheezy).
-You can run Vitess on local hardware or as the storage eng...</p>
+You can run Vitess on local hardware or as the storage engine in a
+Kube...</p>
 </article>
 
 
@@ -311,12 +304,9 @@ The integration_test testsuite contains tests that may time-out if run against a
   <p class="post-excerpt" itemprop="description">This guide walks you through the process of sharding an existing unsharded
 Vitess keyspace in Kubernetes.
 
-Contents:
-
-
 Prerequisites
 
-We begin by assuming yo...</p>
+We begin by assuming you&#39;ve com...</p>
 </article>
 
 
@@ -350,15 +340,9 @@ Table definitions identi...</p>
   </a>
 <!--  <p class="entry-date date published"><time datetime="2015-01-01" itemprop="datePublished">January 01, 2015</time></p> -->
   <h2 class="post-title" itemprop="name"><a href="http://vitess.io/doc/Reparenting/">Reparenting</a></h2>
-  <p class="post-excerpt" itemprop="description">Contents:
-
-
-
-Overview
-
-Reparenting is the process of changing a shard&#39;s master tablet
+  <p class="post-excerpt" itemprop="description">Reparenting is the process of changing a shard&#39;s master tablet
 from one host to another or changing a slave tablet to have a
-diffe...</p>
+different master. Reparentin...</p>
 </article>
 
 
@@ -451,11 +435,9 @@ manual build process.
 If you run into issues or have questions, please post on our
 forum.
 
-
-
 Docker Build
 
-To ...</p>
+To ru...</p>
 </article>
 
 
@@ -465,14 +447,12 @@ To ...</p>
   </a>
 <!--  <p class="entry-date date published"><time datetime="2015-01-01" itemprop="datePublished">January 01, 2015</time></p> -->
   <h2 class="post-title" itemprop="name"><a href="http://vitess.io/doc/Concepts/">Concepts</a></h2>
-  <p class="post-excerpt" itemprop="description">Vitess uses the following concepts and terms:
-
-
+  <p class="post-excerpt" itemprop="description">This document defines common Vitess concepts and terminology.
 
 Keyspace
 
 A keyspace is a logical database. In its simplest form, it maps directly
-to a MySQL database name,...</p>
+to a MySQL ...</p>
 </article>
 
 
@@ -482,15 +462,9 @@ to a MySQL database name,...</p>
   </a>
 <!--  <p class="entry-date date published"><time datetime="2015-01-01" itemprop="datePublished">January 01, 2015</time></p> -->
   <h2 class="post-title" itemprop="name"><a href="http://vitess.io/doc/ClientLibraries/">ClientLibraries</a></h2>
-  <p class="post-excerpt" itemprop="description">Contents:
-
-
-
-Overview
-
-You can access your Vitess cluster using a variety of clients and
+  <p class="post-excerpt" itemprop="description">You can access your Vitess cluster using a variety of clients and
 programming languages. Vitess client libraries help your client
-appl...</p>
+application to more easily ...</p>
 </article>
 
 

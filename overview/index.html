@@ -31,8 +31,10 @@
     
     <!-- Less clientside js script after all less stylesheets. -->
     <script src="/libs/less/less.min.js" type="text/javascript"></script>
-
-
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="/libs/bootstrap/js/bootstrap.min.js"></script>
 
 
     <!-- metadata -->
@@ -40,9 +42,12 @@
     <meta name="og:image" content="/images/120x120.gif"/>
     <meta name="og:description" content="Servers and tools that scale MySQL databases for the web in cloud architectures or on dedicated hardware."/>
   </head>
-  <body class="docs">
+  <body class="docs" id="top_of_page">
 
-  	<nav id="common-nav" class="navbar navbar-static-top inverse">
+    <span id="toc-depth" data-toc-depth="h2,h3"></span>
+
+
+  	<nav id="common-nav" class="navbar navbar-fixed-top inverse">
   <div class="container">
     <!-- Brand and toggle get grouped for better mobile display -->
     <div class="navbar-header">
@@ -59,12 +64,59 @@
 
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="navbar-collapse-1">
-      <ul class="nav navbar-nav navbar-right">
+      <ul class="nav navbar-nav navbar-right" id="standard-menu-links">
         <li><a href="/overview/">Guides</a></li>
         <li><a href="/reference/vitess-api.html">Reference</a></li>
         <li><a href="https://github.com/youtube/vitess"><i class="fa fa-github"></i> GitHub</a></li>
         <!-- Hide link to blog unless we have actual posts -->
         <!-- <li><a href="/blog/" title="">Blog</a></li> -->
+      </ul>
+      <ul class="nav nav-stacked mobile-left-nav-menu" id="collapsed-left-menu">
+                <li class="submenu">
+          <h4 class="arrow-r no-top-margin">Overview</h4>
+          <ul style="display: none">
+            <li><a href="/overview/">What is Vitess</a></li>
+            <li><a href="/overview/concepts.html">Key Concepts</a></li>
+          </ul>
+        </li>
+        <li class="submenu">
+          <h4 class="arrow-r">Getting Started</h4>
+          <ul style="display: none">
+            <li><a href="/getting-started/">Run Vitess on Kubernetes</a></li>
+            <li><a href="/getting-started/local-instance.html">Run Vitess Locally</a></li>
+          </ul>
+        </li>
+        <li class="submenu">
+          <h4 class="arrow-r">User Guide</h4>
+          <ul style="display: none">
+            <li><a href="/user-guide/introduction.html">Introduction</a>
+            <li><a href="/user-guide/client-libraries.html">Client Libraries</a>
+            <li><a href="/user-guide/backup-and-restore.html">Backing Up Data</a>
+            <li><a href="/user-guide/reparenting.html">Reparenting</a></li>
+            <li><a href="/user-guide/schema-management.html">Schema Management</a></li>
+            <li style="padding-bottom: 0"><a href="/user-guide/sharding.html">Sharding</a>
+              <ul style="list-style-type: none">
+                <li><a href="/user-guide/horizontal-sharding.html">Horizontal Sharding (Codelab)</a></li>
+                <li style="padding-bottom: 0"><a href="/user-guide/sharding-kubernetes.html">Sharding in Kubernetes (Codelab)</a></li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+        <li class="submenu">
+          <h4 class="arrow-r">Reference Guides</h4>
+          <ul style="display: none">
+            <li><a href="/reference/vitess-api.html">Vitess API</a>
+            <li><a href="/reference/vtctl.html">vtctl Commands</a>
+          </ul>
+        </li>
+        <li class="submenu">
+          <h4 class="arrow-r">Other Resources</h4>
+          <ul style="display: none">
+            <li><a href="/resources/presentations.html">Presentations</a>
+          </ul>
+        </li>
+
+        <li><a href="https://github.com/youtube/vitess" style="font-size: 18px; margin-left: 0.25em;"><i class="fa fa-github"></i> GitHub</a></li>
       </ul>
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
@@ -72,66 +124,85 @@
 
 
 
-<div class="page-title-bar">
+<div id="masthead">
   <div class="container">
-    <h1>Understanding Vitess </h1>
+    <div class="row">
+      <div class="col-md-7">
+        <h1>Understanding Vitess </h1>
+      </div>
+    </div>
   </div>
 </div>
 
 
 <div class="container">
-  <div class="row">
-  <div class="col-sm-3">
-    <div id="left-nav">
-    <ul class="list-unstyled docs-side-nav">
-      <li><h4 class="no-top-margin">Overview</h4></li>
-      <li><a href="/overview/">What is Vitess</a></li>
-      <li><a href="/overview/concepts.html">Key Concepts</a></li>
-      <li><h4>Getting Started</h4></li>
-      <li><a href="/getting-started/">Run Vitess on Kubernetes</a></li>
-      <li><a href="/getting-started/local-instance.html">Run Vitess Locally</a></li>
-      <li><h4>User Guide</h4></li>
-      <li><a href="/user-guide/introduction.html">Introduction</a>
-      <li><a href="/user-guide/client-libraries.html">Client Libraries</a>
-      <li><a href="/user-guide/backup-and-restore.html">Backing Up Data</a>
-      <li><a href="/user-guide/reparenting.html">Reparenting</a></li>
-      <li><a href="/user-guide/schema-management.html">Schema Management</a></li>
-      <li><a href="/user-guide/sharding.html">Sharding</a>
-        <ul style="list-style-type: none">
-          <li><a href="/user-guide/horizontal-sharding.html">Horizontal Sharding (Codelab)</a></li>
-          <li><a href="/user-guide/sharding-kubernetes.html">Sharding in Kubernetes (Codelab)</a></li>
-        </ul>
-      </li>
-      <li><h4>Reference Guides</h4></li>
-      <li><a href="/reference/vitess-api.html">Vitess API</a>
-      <li><a href="/reference/vtctl.html">vtctl Commands</a>
-      <li><h4>Other Resources</h4></li>
-      <li><a href="/resources/presentations.html">Presentations</a>
-    </ul>
-  </div>
-  </div>
-  <div class="col-sm-9">
-      <p><strong>Contents:</strong></p>
+    <div class="row scroll-margin" id="toc-content-row">
+    <div class="col-md-3" id="leftCol">
+      <ul class="nav nav-stacked mobile-left-nav-menu" id="sidebar">
+                <li class="submenu">
+          <h4 class="arrow-r no-top-margin">Overview</h4>
+          <ul style="display: none">
+            <li><a href="/overview/">What is Vitess</a></li>
+            <li><a href="/overview/concepts.html">Key Concepts</a></li>
+          </ul>
+        </li>
+        <li class="submenu">
+          <h4 class="arrow-r">Getting Started</h4>
+          <ul style="display: none">
+            <li><a href="/getting-started/">Run Vitess on Kubernetes</a></li>
+            <li><a href="/getting-started/local-instance.html">Run Vitess Locally</a></li>
+          </ul>
+        </li>
+        <li class="submenu">
+          <h4 class="arrow-r">User Guide</h4>
+          <ul style="display: none">
+            <li><a href="/user-guide/introduction.html">Introduction</a>
+            <li><a href="/user-guide/client-libraries.html">Client Libraries</a>
+            <li><a href="/user-guide/backup-and-restore.html">Backing Up Data</a>
+            <li><a href="/user-guide/reparenting.html">Reparenting</a></li>
+            <li><a href="/user-guide/schema-management.html">Schema Management</a></li>
+            <li style="padding-bottom: 0"><a href="/user-guide/sharding.html">Sharding</a>
+              <ul style="list-style-type: none">
+                <li><a href="/user-guide/horizontal-sharding.html">Horizontal Sharding (Codelab)</a></li>
+                <li style="padding-bottom: 0"><a href="/user-guide/sharding-kubernetes.html">Sharding in Kubernetes (Codelab)</a></li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+        <li class="submenu">
+          <h4 class="arrow-r">Reference Guides</h4>
+          <ul style="display: none">
+            <li><a href="/reference/vitess-api.html">Vitess API</a>
+            <li><a href="/reference/vtctl.html">vtctl Commands</a>
+          </ul>
+        </li>
+        <li class="submenu">
+          <h4 class="arrow-r">Other Resources</h4>
+          <ul style="display: none">
+            <li><a href="/resources/presentations.html">Presentations</a>
+          </ul>
+        </li>
 
-<div id="toc"></div>
-
-<h2 id="overview">Overview</h2>
-
-<p>Vitess is a database solution for scaling MySQL. It&#39;s architected to run as
+      </ul>
+    </div>
+    <div class="col-md-2" id="rightCol">
+      <div class="nav nav-stacked" id="tocSidebar">
+        <div id="toc"></div>
+      </div>
+    </div>
+    <div class="col-md-7" id="centerCol">
+      <div id="centerTextCol">
+        <p>Vitess is a database solution for scaling MySQL. It&#39;s architected to run as
 effectively in a public or private cloud architecture as it does on dedicated
 hardware. It combines and extends many important MySQL features with the
 scalability of a NoSQL database. Vitess has been serving all YouTube database
 traffic since 2011.</p>
 
-<h3 id="vitess-on-kubernetes">Vitess on Kubernetes</h3>
+<h2 id="vitess-on-kubernetes">Vitess on Kubernetes</h2>
 
 <p>Kubernetes is an open-source orchestration system for Docker containers, and Vitess is the logical storage engine choice for Kubernetes users.</p>
 
 <p>Kubernetes handles scheduling onto nodes in a compute cluster, actively manages workloads on those nodes, and groups containers comprising an application for easy management and discovery. Using Kubernetes, you can easily create and manage a Vitess cluster, out of the box.</p>
-
-<!--
-### Vitess on Local Hardware
--->
 
 <h2 id="comparisons-to-other-storage-options">Comparisons to other storage options</h2>
 
@@ -255,7 +326,9 @@ traffic since 2011.</p>
 
 <p>The diagram below illustrates Vitess&#39; components:</p>
 
-<p><img src="https://raw.githubusercontent.com/youtube/vitess/master/doc/VitessOverview.png" alt="Diagram showing Vitess implementation"></p>
+<div style="overflow-x: scroll">
+<img src="https://raw.githubusercontent.com/youtube/vitess/master/doc/VitessOverview.png" alt="Diagram showing Vitess implementation" width="509" height="322"/>
+</div>
 
 <h3 id="topology">Topology</h3>
 
@@ -274,10 +347,6 @@ traffic since 2011.</p>
 <p><strong>vttablet</strong> is a proxy server that sits in front of a MySQL database. A Vitess implementation has one vttablet for each MySQL instance.</p>
 
 <p>vttablet performs tasks that attempt to maximize throughput as well as protect MySQL from harmful queries. Its features include connection pooling, query rewriting, and query de-duping. In addition, vttablet executes management tasks that vtctl initiates, and it provides streaming services that are used for <a href="/user-guide/sharding.html#filtered-replication">filtered replication</a> and data exports.</p>
-
-<!--
-It is a newer version of and provides all of the same benefits as vtocc, including connection pooling, query rewriting, and query de-duping. In addition, vttablet executes management tasks that vtctl initiates. It also provides streaming services that are used for [filtered replication](http://vitess.io/user-guide/sharding.html#resharding) and data export.
--->
 
 <p>A lightweight Vitess implementation uses vttablet as a smart connection proxy that serves queries for a single MySQL database. By running vttablet in front of your MySQL database and changing your app to use the Vitess client instead of your MySQL driver, your app benefits from vttablet&#39;s connection pooling, query rewriting, and query de-duping features.</p>
 
@@ -364,18 +433,19 @@ the internal version.</p>
 As such, Vitess is built with extensibility in mind so that you can adjust
 it to the needs of your infrastructure.</p>
 
+      </div>
+    </div>
   </div>
-</div>
 
 </div>
-
-<div class="page-spacer"></div>
 
 
         <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<!--    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>   -->
     <!-- Include all compiled plugins (below), or include individual files as needed -->
+<!--
     <script src="/libs/bootstrap/js/bootstrap.min.js"></script>
+-->
     <!-- Include the common site javascript -->
     <script src="/js/common.js" type="text/javascript" charset="utf-8"></script>
 
