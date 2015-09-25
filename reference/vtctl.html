@@ -881,7 +881,7 @@
 
 <ul>
 <li><a href="#vtgateexecute">VtGateExecute</a></li>
-<li><a href="#vtgateexecuteshard">VtGateExecuteShard</a></li>
+<li><a href="#vtgateexecuteshards">VtGateExecuteShards</a></li>
 <li><a href="#vtgatesplitquery">VtGateSplitQuery</a></li>
 <li><a href="#vttabletbegin">VtTabletBegin</a></li>
 <li><a href="#vttabletcommit">VtTabletCommit</a></li>
@@ -939,13 +939,13 @@
 <li>Execute failed: %v</li>
 </ul>
 
-<h3 id="vtgateexecuteshard">VtGateExecuteShard</h3>
+<h3 id="vtgateexecuteshards">VtGateExecuteShards</h3>
 
 <p>Executes the given SQL query with the provided bound variables against the vtgate server.</p>
 
 <h4 id="example">Example</h4>
 
-<pre class="command-example">VtGateExecuteShard -server &lt;vtgate&gt; -keyspace &lt;keyspace&gt; -shards &lt;shard0&gt;,&lt;shard1&gt;,... [-bind_variables &lt;JSON map&gt;] [-connect_timeout &lt;connect timeout&gt;] [-tablet_type &lt;tablet type&gt;] &lt;sql&gt;</pre>
+<pre class="command-example">VtGateExecuteShards -server &lt;vtgate&gt; -keyspace &lt;keyspace&gt; -shards &lt;shard0&gt;,&lt;shard1&gt;,... [-bind_variables &lt;JSON map&gt;] [-connect_timeout &lt;connect timeout&gt;] [-tablet_type &lt;tablet type&gt;] &lt;sql&gt;</pre>
 
 <h4 id="flags">Flags</h4>
 
@@ -995,7 +995,7 @@
 <h4 id="errors">Errors</h4>
 
 <ul>
-<li>the <code>&lt;sql&gt;</code> argument is required for the <code>&lt;VtGateExecuteShard&gt;</code> command This error occurs if the command is not called with exactly one argument.</li>
+<li>the <code>&lt;sql&gt;</code> argument is required for the <code>&lt;VtGateExecuteShards&gt;</code> command This error occurs if the command is not called with exactly one argument.</li>
 <li>error connecting to vtgate &#39;%v&#39;: %v</li>
 <li>Execute failed: %v</li>
 </ul>
