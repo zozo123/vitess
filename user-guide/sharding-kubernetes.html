@@ -190,7 +190,8 @@
     <div class="col-md-7" id="centerCol">
       <div id="centerTextCol">
         <p>This guide walks you through the process of sharding an existing unsharded
-Vitess <a href="http://vitess.io/overview/concepts.html#keyspace">keyspace</a> in Kubernetes.</p>
+Vitess <a href="http://vitess.io/overview/concepts.html#keyspace">keyspace</a> in
+<a href="http://kubernetes.io/">Kubernetes</a>.</p>
 
 <h2 id="prerequisites">Prerequisites</h2>
 
@@ -254,7 +255,7 @@ since <em>0x80</em> is the midpoint of the
 transition, but actual traffic will be served only by the original shard
 until we tell it to switch over.</p>
 
-<p>Check the <code class="prettyprint">vtctld</code> <strong>Topology</strong> page, or the output of <code class="prettyprint">kvtctl.sh ListAllTablets test</code>,
+<p>Check the <code class="prettyprint">vtctld</code> web UI, or the output of <code class="prettyprint">kvtctl.sh ListAllTablets test</code>,
 to see when the tablets are ready. There should be 5 tablets in each shard.</p>
 
 <p>Once the tablets are ready, initialize replication by electing the first master
@@ -262,7 +263,7 @@ for each of the new shards:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh InitShardMaster -force test_keyspace/-80 <span class="nb">test</span>-0000000200
 vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh InitShardMaster -force test_keyspace/80- <span class="nb">test</span>-0000000300
 </code></pre></div>
-<p>Now there should be a total of 15 tablets, with one master each:</p>
+<p>Now there should be a total of 15 tablets, with one master for each shard:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh ListAllTablets <span class="nb">test</span>
 <span class="c">### example output:</span>
 <span class="c"># test-0000000100 test_keyspace 0 master 10.64.3.4:15002 10.64.3.4:3306 []</span>
@@ -279,9 +280,10 @@ original shard to the two new ones, starting with the schema:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh CopySchemaShard test_keyspace/0 test_keyspace/-80
 vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh CopySchemaShard test_keyspace/0 test_keyspace/80-
 </code></pre></div>
-<p>Since the amount of data to copy can be very large, we use a special
-batch process called <code class="prettyprint">vtworker</code> to stream the data from a single source
-to multiple destinations, routing each row based on its <em>keyspace_id</em>:</p>
+<p>Next we copy the data. Since the amount of data to copy can be very large,
+we use a special batch process called <code class="prettyprint">vtworker</code> to stream the data from a
+single source to multiple destinations, routing each row based on its
+<em>keyspace_id</em>:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./sharded-vtworker.sh SplitClone --strategy<span class="o">=</span>-populate_blp_checkpoint test_keyspace/0
 <span class="c">### example output:</span>
 <span class="c"># Creating vtworker pod in cell test...</span>
@@ -306,7 +308,7 @@ same range.</p>
 to serve as a consistent snapshot of the data. The app can continue without
 downtime, since live traffic is served by <em>replica</em> and <em>master</em> tablets,
 which are unaffected. Other batch jobs will also be unaffected, since they
-will be served by the remaining, un-paused <em>rdonly</em> tablets.</p>
+will be served only by the remaining, un-paused <em>rdonly</em> tablets.</p>
 
 <h2 id="check-filtered-replication">Check filtered replication</h2>
 
@@ -328,6 +330,8 @@ vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh ExecuteFetchAsDb
 <span class="c"># See what&#39;s on shard test_keyspace/80-:</span>
 vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh ExecuteFetchAsDba <span class="nb">test</span>-0000000300 <span class="s2">&quot;SELECT * FROM messages&quot;</span>
 </code></pre></div>
+<p>Add some messages on various pages of the Guestbook to see how they get routed.</p>
+
 <h2 id="check-copied-data-integrity">Check copied data integrity</h2>
 
 <p>The <code class="prettyprint">vtworker</code> batch process has another mode that will compare the source
@@ -346,7 +350,7 @@ If everything is good, you should see something like this:</p>
 The <a href="http://vitess.io/reference/vtctl.html#migrateservedtypes">MigrateServedTypes</a>
 command lets you do this one
 <a href="http://vitess.io/overview/concepts.html#tablet">tablet type</a> at a time,
-and even one <a href="http://vitess.io/overview/concepts.html#cell-(data-center)">cell</a>
+and even one <a href="http://vitess.io/overview/concepts.html#cell-data-center">cell</a>
 at a time. The process can be rolled back at any point <em>until</em> the master is
 switched over.</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh MigrateServedTypes test_keyspace/0 rdonly
