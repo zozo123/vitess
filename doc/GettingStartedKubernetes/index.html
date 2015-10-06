@@ -244,7 +244,7 @@ account with a project in the Google Developers Console.</p>
 
 <ol>
 <li> Click the <strong>Billing</strong> pane if you are not there already.</li>
-<li> Click <strong>New billing account</strong></li>
+<li> Click <strong>New billing account</strong>.</li>
 <li> Assign a name to the billing account -- e.g. &quot;Vitess on
 Kubernetes.&quot; Then click <strong>Continue</strong>. You can sign up
 for the <a href="https://cloud.google.com/free-trial/">free trial</a>
@@ -262,18 +262,13 @@ billing account. (If you have multiple billing accounts,
 confirm that the project is associated with the correct account.)</li>
 <li> After creating your project, click <strong>APIs &amp; auth</strong> in the left menu.</li>
 <li> Click <strong>APIs</strong>.</li>
-<li> Find <strong>Google Compute Engine</strong> and <strong>Google Container Engine API</strong>
-and click the <strong>OFF</strong> button for each to enable those two APIs.</li>
+<li> Find <strong>Google Compute Engine</strong> and <strong>Google Container Engine API</strong>.
+(Both should be listed under &quot;Google Cloud APIs&quot;.)
+For each, click on it, then click the <strong>&quot;Enable API&quot;</strong> button.</li>
 </ol></li>
-<li><p>Follow the <a href="https://cloud.google.com/compute/docs/quickstart#setup">GCE quickstart guide</a> to set up
+<li><p>Follow the <a href="https://cloud.google.com/sdk/#Quick_Start">Google Cloud SDK quickstart instructions</a> to set up
 and test the Google Cloud SDK. You will also set your default project
-ID while completing the quickstart. Start with step 2 in the setup
-process.</p>
-
-<p><strong>Note:</strong> During the quickstart, you&#39;ll generate an SSH key for
-Google Compute Engine, and you will be prompted to enter a
-passphrase. You will be prompted for that passphrase several times
-when bringing up your Kubernetes cluster later in this guide.</p>
+ID while completing the quickstart.</p>
 
 <p><strong>Note:</strong> If you skip the quickstart guide because you&#39;ve previously set up
 the Google Cloud SDK, just make sure to set a default project ID by running
@@ -316,10 +311,7 @@ that your installation will use:</p>
 <span class="c"># Creating cluster example...done.</span>
 <span class="c"># Created [https://container.googleapis.com/v1/projects/vitess/zones/us-central1-b/clusters/example].</span>
 <span class="c"># kubeconfig entry generated for example.</span>
-</code></pre></div>
-<p><strong>Note:</strong> While the cluster is starting, you may be prompted several
-times for the passphrase you created while setting up Google
-Compute Engine.</p></li>
+</code></pre></div></li>
 <li><p>The command&#39;s output includes the IP of the Kubernetes master server:</p>
 <div class="highlight"><pre><code class="language-text" data-lang="text">NAME     ZONE           MASTER_VERSION  MASTER_IP     MACHINE_TYPE   STATUS
 example  us-central1-b  1.0.6           1.2.3.4       n1-standard-4  RUNNING
@@ -521,7 +513,7 @@ reference for more about the available tablet types.</p>
 <a href="http://vitess.io/overview/concepts.html#keyspace">keyspace</a>,
 you have effectively just created a new
 <a href="http://vitess.io/overview/concepts.html#shard">shard</a>.
-To initialize the keyspace for the new
+To complete the initialization of the keyspace for the new
 shard, call the <code class="prettyprint">kvtctl.sh RebuildKeyspaceGraph</code> command:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh RebuildKeyspaceGraph test_keyspace
 </code></pre></div>
@@ -578,14 +570,18 @@ to launch a bash shell inside the mysql container, and connect with the
 <span class="c">### example output:</span>
 <span class="c"># vttablet-100   2/2   Running   0   17m   gke-example-960176fd-node-3mkd</span>
 <span class="nv">$ </span>gcloud compute ssh gke-example-960176fd-node-3mkd
-gke-example-960176fd-node-3mkd:~<span class="nv">$ </span>sudo docker ps <span class="p">|</span> grep vttablet-100
+gke-example-960176fd-node-3mkd:~<span class="nv">$ </span>sudo docker ps <span class="p">|</span> grep vttablet-100 <span class="p">|</span> grep k8s_mysql
 <span class="c">### example output:</span>
 <span class="c"># ef40b4ff08fa   vitess/lite:latest [...]  k8s_mysql.16e2a810_vttablet-100[...]</span>
 k8s-example-3c0115e4-node-x6jc:~<span class="nv">$ </span>sudo docker <span class="nb">exec</span> -ti ef40b4ff08fa bash
 <span class="c"># Now you&#39;re in a shell inside the mysql container.</span>
 <span class="c"># We need to tell the mysql client the username and socket file to use.</span>
 vttablet-100:/# <span class="nv">TERM</span><span class="o">=</span>ansi mysql -u vt_dba -S /vt/vtdataroot/vt_0000000100/mysql.sock
-</code></pre></div></li>
+</code></pre></div>
+<p><strong>Note:</strong> <code class="prettyprint">gcloud compute ssh</code> uses an SSH key to login to the Kubernetes
+node. If you haven&#39;t done yet, <code class="prettyprint">gcloud</code> will create an SSH key for
+you and ask you for a passphrase for the SSH key.
+For subsequent logins via SSH, it may prompt you for the passphrase again.</p></li>
 <li><p><strong>Elect a master vttablet</strong></p>
 
 <p>The tablets all start as slaves by default. In this step, you
