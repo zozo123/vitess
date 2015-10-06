@@ -269,15 +269,32 @@ output into Vitess.</li>
 
 <h3 id="go">Go</h3>
 
-<p>The Go client exposes the entire API. It also provides an adapter
-based on the v3 API for the Go native
-<a href="http://golang.org/pkg/database/sql/">database/sql</a>.</p>
+<p>The Go client interface is in the
+<a href="https://godoc.org/github.com/youtube/vitess/go/vt/vtgate/vtgateconn">&quot;vtgateconn&quot; package</a>.</p>
 
-<p>The Go client does not yet support MapReduce integration.</p>
+<p>There are multiple implementations available. We recommend to use the
+<a href="https://godoc.org/github.com/youtube/vitess/go/vt/vtgate/grpcvtgateconn">&quot;grpc&quot; implementation</a>.
+Load it by importing its package:</p>
+<div class="highlight"><pre><code class="language-go" data-lang="go"><span class="kn">import</span> <span class="s">&quot;github.com/youtube/vitess/go/vt/vtgate/grpcvtgateconn&quot;</span>
+</code></pre></div>
+<p>When you connect to vtgate, use the
+<a href="https://godoc.org/github.com/youtube/vitess/go/vt/vtgate/vtgateconn#DialProtocol"><code class="prettyprint">DialProtocol</code> method</a>
+and specify &quot;grpc&quot; as protocol.
+Alternatively, you can set the
+<a href="https://github.com/youtube/vitess/blob/ff800b2a1801f0bb8b0c29a701d9c0988bf827e2/go/vt/vtgate/vtgateconn/vtgateconn.go#L27">command line flag &quot;vtgate_protocol&quot;</a>
+to &quot;grpc&quot;.</p>
 
-<ul>
-<li><a href="https://godoc.org/github.com/youtube/vitess/go/vt/vtgate/vtgateconn">Go client</a></li>
-</ul>
+<p>The Go client interface has multiple Execute* methods for different use-cases
+and sharding configurations. When you start off with an unsharded database, we
+recommend to use the
+<a href="https://godoc.org/github.com/youtube/vitess/go/vt/vtgate/vtgateconn#VTGateConn.ExecuteShards">ExecuteShards method</a>
+and pass &quot;0&quot; as only shard.</p>
+
+<p>For an example how to use the Go client, see the end-to-end test
+<a href="https://github.com/youtube/vitess/blob/master/go/vt/vttest/local_cluster_test.go">local_cluster_test.go</a>.
+From this test file, you can also reuse the &quot;LaunchVitess&quot; call to
+instantiate a minimal Vitess setup (including a MySQL server). This way you can
+test your application against an actual instance.</p>
 
 <h3 id="java">Java</h3>
 
