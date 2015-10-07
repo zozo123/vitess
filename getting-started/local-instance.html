@@ -198,7 +198,7 @@
 <h2 id="docker-build">Docker Build</h2>
 
 <p>To run Vitess in Docker, use an
-<a href="https://registry.hub.docker.com/repos/vitess/">Automated Build</a>.</p>
+<a href="https://hub.docker.com/u/vitess/">Automated Build</a>.</p>
 
 <ul>
 <li>The <code>vitess/base</code> image contains a full development
@@ -282,7 +282,7 @@ on your path.</li>
 </code></pre></div></li>
 <li><p>If you decided to use ZooKeeper in step 3, you also need to install a
 Java Runtime, such as OpenJDK.</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh">  sudo apt-get install openjdk-7-jre&lt;/pre&gt;
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">sudo apt-get install openjdk-7-jre
 </code></pre></div></li>
 </ol>
 
@@ -312,7 +312,7 @@ MariaDB installation. For example, if MariaDB is installed in
 be found at <strong>/usr/local/mysql/bin/mysql</strong>.</p></li>
 <li><p>Run <code>mysql_config --version</code> and confirm that you
 are running the correct version of MariaDB or MySQL. The value should
-be <code>10</code> or higher for MariaDB and 5.6.x for MySQL.</p></li>
+be 10 or higher for MariaDB and 5.6.x for MySQL.</p></li>
 <li><p>Build Vitess using the commands below. Note that the
 <code>bootstrap.sh</code> script needs to download some dependencies.
 If your machine requires a proxy to access the Internet, you will need
@@ -527,9 +527,9 @@ file.</p>
 </code></pre></div>
 <p>The SQL to create the table is shown below:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">CREATE TABLE test_table <span class="o">(</span>
-id BIGINT AUTO_INCREMENT,
-msg VARCHAR<span class="o">(</span>250<span class="o">)</span>,
-PRIMARY KEY<span class="o">(</span>id<span class="o">)</span>
+  id BIGINT AUTO_INCREMENT,
+  msg VARCHAR<span class="o">(</span>250<span class="o">)</span>,
+  PRIMARY KEY<span class="o">(</span>id<span class="o">)</span>
 <span class="o">)</span> <span class="nv">Engine</span><span class="o">=</span>InnoDB
 </code></pre></div></li>
 <li><p><strong>Start vtgate</strong></p>

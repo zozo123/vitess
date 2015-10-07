@@ -419,7 +419,11 @@ option. This creates an <a href="http://kubernetes.io/v1.0/docs/user-guide/servi
 by exposing a port on each node that forwards to the vtctld service.</p>
 
 <p>The <strong>vtctld address</strong> printed by <code class="prettyprint">vtctld-up.sh</code> is thus the external IP
-of one of the nodes, combined with the <code class="prettyprint">nodePort</code> assigned for vtctld.</p></li>
+of one of the nodes, combined with the <code class="prettyprint">nodePort</code> assigned for vtctld.</p>
+
+<p><strong>Note:</strong> For simplicity, the firewall rule above opens the port on <strong>all</strong>
+GCE instances in your project. In a production system, you would likely
+limit it to a specific instance.</p></li>
 <li><p><strong>Access vtctld</strong></p>
 
 <p>To access the <code class="prettyprint">vtctld</code> service from outside
@@ -701,6 +705,10 @@ using the API for whatever platform your Kubernetes cluster is in.</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="c"># For example, to open port 80 in the GCE firewall:</span>
 <span class="nv">$ </span>gcloud compute firewall-rules create guestbook --allow tcp:80
 </code></pre></div>
+<p><strong>Note:</strong> For simplicity, the firewall rule above opens the port on <strong>all</strong>
+GCE instances in your project. In a production system, you would likely
+limit it to a specific instance.</p>
+
 <p>Then, get the external IP of the load balancer for the GuestBook service:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>kubectl get -o yaml service guestbook
 <span class="c">### example output:</span>
