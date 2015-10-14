@@ -218,18 +218,18 @@ A keyspace is a logical database that maps to one or more MySQL databases.</p></
 running on the source shard. You set the desired tablet type when starting
 <code class="prettyprint">vttablet</code> with the <code class="prettyprint">-target_tablet_type</code> flag. See the
 <a href="https://github.com/youtube/vitess/blob/master/examples/local/vttablet-up.sh">vttablet-up.sh</a>
-script for example.</p></li>
-</ol>
+script for example.</p>
 
 <p>During resharding, one of these tablets will pause its replication to ensure
-   a consistent snapshot of the data. For this reason, you can&#39;t do resharding
-   if there are only <code class="prettyprint">master</code> and <code class="prettyprint">replica</code> tablets, because those are reserved
-   for live traffic and Vitess will never take them out of service for batch
-   processes like resharding.</p>
+a consistent snapshot of the data. For this reason, you can&#39;t do resharding
+if there are only <code class="prettyprint">master</code> and <code class="prettyprint">replica</code> tablets, because those are reserved
+for live traffic and Vitess will never take them out of service for batch
+processes like resharding.</p>
 
 <p>Having at least two <code class="prettyprint">rdonly</code> tablets ensures that data updates that occur on
-   the source shard during the resharding process propagate to the destination
-   shard. Steps 3 and 4 of the resharding process discuss this in more detail.</p>
+the source shard during the resharding process propagate to the destination
+shard. Steps 3 and 4 of the resharding process discuss this in more detail.</p></li>
+</ol>
 
 <p>We recommend that you also review the
 <a href="http://vitess.io/user-guide/sharding.html#range-based-sharding">Range-Based Sharding</a>
