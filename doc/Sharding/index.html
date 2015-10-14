@@ -355,10 +355,12 @@ full partition:</p>
 
 <p>In Vitess, resharding describes the process of updating the sharding
 scheme for a keyspace and dynamically reorganizing data to match the
-new scheme. During resharding, Vitess can split or merge consecutive
-shards very quickly, completing most data transitions with less than
-five seconds of read-only downtime. During that time, existing data
-can be read, but new data cannot be written.</p>
+new scheme. During resharding, Vitess copies, verifies, and keeps
+data up-to-date on new shards while the existing shards continue to
+serve live read and write traffic. When you&#39;re ready to switch over,
+the migration occurs with only a few seconds of read-only downtime.
+During that time, existing data can be read, but new data cannot be
+written.</p>
 
 <p>The table below lists the sharding (or resharding) processes that you
 would typically perform for different types of requirements:</p>
@@ -378,8 +380,8 @@ would typically perform for different types of requirements:</p>
 <td>Split shards</td>
 </tr>
 <tr>
-<td>Reclaim free space</td>
-<td>Merge shards and/or keyspaces</td>
+<td>Reclaim overprovisioned resources</td>
+<td>Merge shards and/or keyspaces (<em>not implemented yet</em>)</td>
 </tr>
 <tr>
 <td>Increase geo-diversity</td>
