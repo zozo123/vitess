@@ -289,9 +289,8 @@ project. You can <a href="https://cloud.google.com/compute/docs/projects#project
 by navigating to the <strong>Overview</strong> page for the project in the Console.</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>gcloud config <span class="nb">set </span>project PROJECT
 </code></pre></div></li>
-<li><p>Enable or update beta features in the <code class="prettyprint">gcloud</code> tool, and install
-the <code class="prettyprint">kubectl</code> tool:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>gcloud components update beta kubectl
+<li><p>Install or update the <code class="prettyprint">kubectl</code> tool:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>gcloud components update kubectl
 </code></pre></div></li>
 </ol>
 
@@ -317,12 +316,15 @@ that your installation will use:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>gcloud config <span class="nb">set </span>compute/zone us-central1-b
 </code></pre></div></li>
 <li><p>Create a Container Engine cluster:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>gcloud beta container clusters create example --machine-type n1-standard-4 --num-nodes 5
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>gcloud container clusters create example --machine-type n1-standard-4 --num-nodes <span class="m">5</span> --scopes storage-rw
 <span class="c">### example output:</span>
 <span class="c"># Creating cluster example...done.</span>
 <span class="c"># Created [https://container.googleapis.com/v1/projects/vitess/zones/us-central1-b/clusters/example].</span>
 <span class="c"># kubeconfig entry generated for example.</span>
-</code></pre></div></li>
+</code></pre></div>
+<p><strong>Note:</strong> The <code class="prettyprint">--scopes storage-rw</code> argument is necessary to allow
+<a href="http://vitess.io/user-guide/backup-and-restore.html">built-in backup/restore</a>
+to access <a href="https://cloud.google.com/storage/">Google Cloud Storage</a>.</p></li>
 <li><p>The command&#39;s output includes the IP of the Kubernetes master server:</p>
 <div class="highlight"><pre><code class="language-text" data-lang="text">NAME     ZONE           MASTER_VERSION  MASTER_IP     MACHINE_TYPE   STATUS
 example  us-central1-b  1.0.6           1.2.3.4       n1-standard-4  RUNNING
@@ -353,6 +355,15 @@ with <code class="prettyprint">kubectl config view</code>:</p>
 <span class="c">#     username: admin</span>
 </code></pre></div></li>
 </ol></li>
+<li><p>Create a Cloud Storage bucket:</p>
+
+<p>To use the Cloud Storage plugin for built-in backups, first create a
+<a href="https://cloud.google.com/storage/docs/concepts-techniques#concepts">bucket</a>
+for Vitess backup data. See the
+<a href="https://cloud.google.com/storage/docs/bucket-naming">bucket naming guidelines</a>
+if you&#39;re new to Cloud Storage.</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>gsutil mb gs://my-backup-bucket
+</code></pre></div></li>
 </ol>
 
 <h2 id="start-a-vitess-cluster">Start a Vitess cluster</h2>
@@ -362,8 +373,35 @@ with <code class="prettyprint">kubectl config view</code>:</p>
 
 <p>This directory would have been created when you installed
 <code class="prettyprint">vtctlclient</code>:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span><span class="nb">cd</span> <span class="nv">$GOPATH</span>/src/github.com/youtube/vitess
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span><span class="nb">cd</span> <span class="nv">$GOPATH</span>/src/github.com/youtube/vitess/examples/kubernetes
 </code></pre></div></li>
+<li><p><strong>Configure site-local settings</strong></p>
+
+<p>Run the <code class="prettyprint">configure.sh</code> script to generate a <code class="prettyprint">config.sh</code> file, which will be
+used to customize your cluster settings.</p>
+
+<p>Currently, we have out-of-the-box support for storing
+<a href="http://vitess.io/user-guide/backup-and-restore.html">backups</a> in
+<a href="https://cloud.google.com/storage/">Google Cloud Storage</a>. If you&#39;re using
+GCS, fill in the fields requested by the configure script, including the
+name of the bucket you created above.</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./configure.sh
+<span class="c">### example output:</span>
+<span class="c"># Backup Storage (file, gcs) [gcs]:</span>
+<span class="c"># Google Developers Console Project [my-project]:</span>
+<span class="c"># Google Cloud Storage bucket for Vitess backups: my-backup-bucket</span>
+<span class="c"># Saving config.sh...</span>
+</code></pre></div>
+<p>For other platforms, you&#39;ll need to choose the <code class="prettyprint">file</code> backup storage plugin,
+and mount a read-write network volume into the <code class="prettyprint">vttablet</code> and <code class="prettyprint">vtctld</code> pods.
+For example, you can mount any storage service accessible through NFS into a
+<a href="http://kubernetes.io/v1.0/docs/user-guide/volumes.html#nfs">Kubernetes volume</a>.
+Then provide the mount path to the configure script here.</p>
+
+<p>Direct support for other cloud blob stores like Amazon S3 can be added by
+implementing the Vitess <a href="https://github.com/youtube/vitess/blob/master/go/vt/mysqlctl/backupstorage/interface.go">BackupStorage plugin interface</a>.
+Let us know on the <a href="https://groups.google.com/forum/#!forum/vitess">discussion forum</a>
+if you have any specific plugin requests.</p></li>
 <li><p><strong>Start an etcd cluster</strong></p>
 
 <p>The Vitess <a href="http://vitess.io/overview/concepts.html#topology-service">topology service</a>
@@ -372,8 +410,7 @@ It can store this data in one of several consistent storage systems.
 In this example, we&#39;ll use <a href="https://github.com/coreos/etcd">etcd</a>.
 Note that we need our own etcd clusters, separate from the one used by
 Kubernetes itself.</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess<span class="nv">$ </span><span class="nb">cd </span>examples/kubernetes
-vitess/examples/kubernetes<span class="nv">$ </span>./etcd-up.sh
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./etcd-up.sh
 <span class="c">### example output:</span>
 <span class="c"># Generating discovery token for global cell...</span>
 <span class="c"># Creating etcd service for global cell...</span>
@@ -449,7 +486,7 @@ and install and run <code class="prettyprint">vtctlclient</code> there.)</p>
 <p>You can then access the vtctld web interface at the address printed
 by <code class="prettyprint">vtctld-up.sh</code> above. In this example, the web UI would be at
 <code class="prettyprint">http://2.3.4.5:30000</code>.</p></li>
-<li><p><strong>Use <code class="prettyprint">vtctlclient</code> to call <code class="prettyprint">vtctld</code></strong></p>
+<li><p><strong>Use vtctlclient to call vtctld</strong></p>
 
 <p>You can now run <code class="prettyprint">vtctlclient</code> locally to issue commands
 to the <code class="prettyprint">vtctld</code> service on your Kubernetes cluster.</p>
@@ -501,134 +538,50 @@ mysqld:</p>
 <span class="c"># Creating pod for tablet test-0000000104...</span>
 <span class="c"># pods/vttablet-104</span>
 </code></pre></div>
-<p>In the vtctld web UI, you should soon see a keyspace named <code class="prettyprint">test_keyspace</code>
-with a single shard named <code class="prettyprint">0</code>. Click on the shard name to see the list of
-tablets. When all 5 tablets show up on the shard status page, you&#39;re ready
-to continue.</p>
+<p>In the vtctld web UI, you should soon see a
+<a href="http://vitess.io/overview/concepts.html#keyspace">keyspace</a> named <code class="prettyprint">test_keyspace</code>
+with a single <a href="http://vitess.io/overview/concepts.html#shard">shard</a> named <code class="prettyprint">0</code>.
+Click on the shard name to see the list of tablets. When all 5 tablets
+show up on the shard status page, you&#39;re ready to continue. Note that it&#39;s
+normal for the tablets to be unhealthy at this point, since you haven&#39;t
+initialized the databases on them yet.</p>
 
 <p>It can take some time for the tablets to come up for the first time if a pod
 was scheduled on a node that hasn&#39;t downloaded the <a href="https://hub.docker.com/u/vitess/">Vitess Docker image</a> yet. You can also check the status of the
 tablets from the command line using <code class="prettyprint">kvtctl.sh</code>:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh ListAllTablets <span class="nb">test</span>
 <span class="c">### example output:</span>
-<span class="c"># test-0000000100 test_keyspace 0 replica 10.64.1.6:15002 10.64.1.6:3306 []</span>
-<span class="c"># test-0000000101 test_keyspace 0 replica 10.64.2.5:15002 10.64.2.5:3306 []</span>
-<span class="c"># test-0000000102 test_keyspace 0 replica 10.64.0.7:15002 10.64.0.7:3306 []</span>
-<span class="c"># test-0000000103 test_keyspace 0 rdonly 10.64.1.7:15002 10.64.1.7:3306 []</span>
-<span class="c"># test-0000000104 test_keyspace 0 rdonly 10.64.2.6:15002 10.64.2.6:3306 []</span>
-</code></pre></div>
-<p>Note that of the 5 tablets, the first 3 were assigned to be
-<strong>replica</strong> type (for serving live web traffic), while the last 2
-were assigned to be <strong>rdonly</strong> type (for offline processing).
-These allocations can be configured in the <code class="prettyprint">vttablet-up.sh</code> script.
-See the <a href="http://vitess.io/overview/concepts.html#tablet">tablet</a>
-reference for more about the available tablet types.</p>
+<span class="c"># test-0000000100 test_keyspace 0 spare 10.64.1.6:15002 10.64.1.6:3306 []</span>
+<span class="c"># test-0000000101 test_keyspace 0 spare 10.64.2.5:15002 10.64.2.5:3306 []</span>
+<span class="c"># test-0000000102 test_keyspace 0 spare 10.64.0.7:15002 10.64.0.7:3306 []</span>
+<span class="c"># test-0000000103 test_keyspace 0 spare 10.64.1.7:15002 10.64.1.7:3306 []</span>
+<span class="c"># test-0000000104 test_keyspace 0 spare 10.64.2.6:15002 10.64.2.6:3306 []</span>
+</code></pre></div></li>
+<li><p><strong>Initialize MySQL databases</strong></p>
 
-<p>By bringing up tablets in a previously empty
-<a href="http://vitess.io/overview/concepts.html#keyspace">keyspace</a>,
-you have effectively just created a new
-<a href="http://vitess.io/overview/concepts.html#shard">shard</a>.
-To complete the initialization of the keyspace for the new
-shard, call the <code class="prettyprint">kvtctl.sh RebuildKeyspaceGraph</code> command:</p>
+<p>Once all the tablets show up, you&#39;re ready to initialize the underlying
+MySQL databases. First, rebuild the keyspace to propagate the new shard:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh RebuildKeyspaceGraph test_keyspace
 </code></pre></div>
 <p><strong>Note:</strong> Many <code class="prettyprint">vtctlclient</code> commands produce no output on success.</p>
 
-<p><strong><em>Status pages for vttablets</em></strong></p>
-
-<p>Each <code class="prettyprint">vttablet</code> serves a set of HTML status pages on its primary port.
-The <code class="prettyprint">vtctld</code> interface provides a <strong>STATUS</strong> link for each tablet, but the
-links are actually to internal, per-pod IPs that can only be accessed from
-within Kubernetes.</p>
-
-<p>As a workaround, you can access tablet status pages through the
-<a href="http://kubernetes.io/v1.0/docs/user-guide/accessing-the-cluster.html#accessing-services-running-on-the-cluster">apiserver proxy</a>,
-provided by the Kubernetes master. For example, to see the status
-page for the tablet with ID 100 (recall that our Kubernetes master is
-on public IP 1.2.3.4), you could navigate to:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">https://1.2.3.4/api/v1/proxy/namespaces/default/pods/vttablet-100:15002/debug/status
-</code></pre></div>
-<p>In the future, we plan to have vtctld directly link through this proxy from
-the <strong>STATUS</strong> link.</p>
-
-<p><strong><em>Direct connection to mysqld</em></strong></p>
-
-<p>Since the <code class="prettyprint">mysqld</code> within the <code class="prettyprint">vttablet</code> pod is only meant to be accessed
-via vttablet, our default bootstrap settings only allow connections from
-localhost.</p>
-
-<p>If you want to check or manipulate the underlying mysqld, you can issue
-simple queries or commands through <code class="prettyprint">vtctlclient</code> like this:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="c"># Send a query to tablet 100 in cell &#39;test&#39;.</span>
-vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh ExecuteFetchAsDba <span class="nb">test</span>-0000000100 <span class="s2">&quot;SELECT VERSION()&quot;</span>
-<span class="c">### example output:</span>
-<span class="c"># {</span>
-<span class="c">#   &quot;Fields&quot;: null,</span>
-<span class="c">#   &quot;RowsAffected&quot;: 1,</span>
-<span class="c">#   &quot;InsertId&quot;: 0,</span>
-<span class="c">#   &quot;Rows&quot;: [</span>
-<span class="c">#     [</span>
-<span class="c">#       &quot;10.0.20-MariaDB-1~wheezy-log&quot;</span>
-<span class="c">#     ]</span>
-<span class="c">#   ],</span>
-<span class="c">#   &quot;Err&quot;: null</span>
-<span class="c"># }</span>
-</code></pre></div>
-<p>If you need a truly direct connection to mysqld for bulk operations,
-you can SSH to the Kubernetes node on which the pod is running.
-Then use
-<a href="https://docs.docker.com/reference/commandline/exec/">docker exec</a>
-to launch a bash shell inside the mysql container, and connect with the
-<code class="prettyprint">mysql</code> command-line client:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="c"># For example, to connect to the mysql container within the vttablet-100 pod:</span>
-<span class="nv">$ </span>kubectl get pods -o wide <span class="p">|</span> grep vttablet-100
-<span class="c">### example output:</span>
-<span class="c"># vttablet-100   2/2   Running   0   17m   gke-example-960176fd-node-3mkd</span>
-<span class="nv">$ </span>gcloud compute ssh gke-example-960176fd-node-3mkd
-gke-example-960176fd-node-3mkd:~<span class="nv">$ </span>sudo docker ps <span class="p">|</span> grep vttablet-100 <span class="p">|</span> grep k8s_mysql
-<span class="c">### example output:</span>
-<span class="c"># ef40b4ff08fa   vitess/lite:latest [...]  k8s_mysql.16e2a810_vttablet-100[...]</span>
-k8s-example-3c0115e4-node-x6jc:~<span class="nv">$ </span>sudo docker <span class="nb">exec</span> -ti ef40b4ff08fa bash
-<span class="c"># Now you&#39;re in a shell inside the mysql container.</span>
-<span class="c"># We need to tell the mysql client the username and socket file to use.</span>
-vttablet-100:/# <span class="nv">TERM</span><span class="o">=</span>ansi mysql -u vt_dba -S /vt/vtdataroot/vt_0000000100/mysql.sock
-</code></pre></div>
-<p><strong>Note:</strong> <code class="prettyprint">gcloud compute ssh</code> uses an SSH key to login to the Kubernetes
-node. If you haven&#39;t done yet, <code class="prettyprint">gcloud</code> will create an SSH key for
-you and ask you for a passphrase for the SSH key.
-For subsequent logins via SSH, it may prompt you for the passphrase again.</p></li>
-<li><p><strong>Elect a master vttablet</strong></p>
-
-<p>The tablets all start as slaves by default. In this step, you
-designate one of the tablets to be the master. Vitess
-automatically connects the other slaves&#39; mysqld instances
-so that they start replicating from the master&#39;s mysqld.</p>
-
-<p>Since this is the first time the shard has been started,
-the tablets are not already doing any replication, and the
-tablet types are all replica or rdonly. As a
-result, the following command uses the <code class="prettyprint">-force</code>
-flag when calling the <code class="prettyprint">InitShardMaster</code> command
-to be able to promote one instance to master.</p>
+<p>Next, designate one of the tablets to be the initial master. Vitess will
+automatically connect the other slaves&#39; mysqld instances so that they start
+replicating from the master&#39;s mysqld. This is also when the default database
+is created. Since our keyspace is named <code class="prettyprint">test_keyspace</code>, the MySQL database
+will be named <code class="prettyprint">vt_test_keyspace</code>.</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh InitShardMaster -force test_keyspace/0 <span class="nb">test</span>-0000000100
 <span class="c">### example output:</span>
 <span class="c"># master-elect tablet test-0000000100 is not the shard master, proceeding anyway as -force was used</span>
 <span class="c"># master-elect tablet test-0000000100 is not a master in the shard, proceeding anyway as -force was used</span>
 </code></pre></div>
-<p><strong>Note:</strong> If you do not include the <code class="prettyprint">-force</code> flag
-here, the command will first check to ensure the provided
-tablet is the only tablet of type master in the shard.
-However, since none of the slaves are masters, and we&#39;re not
-replicating at all, that check would fail and the command
-would fail as well.</p>
+<p><strong>Note:</strong> Since this is the first time the shard has been started, the
+tablets are not already doing any replication, and there is no existing
+master. The <code class="prettyprint">InitShardMaster</code> command above uses the <code class="prettyprint">-force</code> flag to bypass
+the usual sanity checks that would apply if this wasn&#39;t a brand new shard.</p>
 
-<p>After running this command, go back to the <strong>Shard Status</strong> page
-in the <code class="prettyprint">vtctld</code> web interface. When you refresh the
-page, you should see that one tablet is the master
-and the others are replica or rdonly.</p>
-
-<p>You can also run this command on the command line to see the
-same data:</p>
+<p>After the tablets finish updating, you should see one <strong>master</strong>, and
+several <strong>replica</strong> and <strong>rdonly</strong> tablets:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh ListAllTablets <span class="nb">test</span>
 <span class="c">### example output:</span>
 <span class="c"># test-0000000100 test_keyspace 0 master 10.64.1.6:15002 10.64.1.6:3306 []</span>
@@ -636,7 +589,11 @@ same data:</p>
 <span class="c"># test-0000000102 test_keyspace 0 replica 10.64.0.7:15002 10.64.0.7:3306 []</span>
 <span class="c"># test-0000000103 test_keyspace 0 rdonly 10.64.1.7:15002 10.64.1.7:3306 []</span>
 <span class="c"># test-0000000104 test_keyspace 0 rdonly 10.64.2.6:15002 10.64.2.6:3306 []</span>
-</code></pre></div></li>
+</code></pre></div>
+<p>The <strong>replica</strong> tablets are used for serving live web traffic, while the
+<strong>rdonly</strong> tablets are used for offline processing, such as batch jobs and backups.
+The amount of each <a href="http://vitess.io/overview/concepts.html#tablet">tablet type</a>
+that you launch can be configured in the <code class="prettyprint">vttablet-up.sh</code> script.</p></li>
 <li><p><strong>Create a table</strong></p>
 
 <p>The <code class="prettyprint">vtctlclient</code> tool can be used to apply the database schema
@@ -673,7 +630,26 @@ is a tablet alias as shown by the <code class="prettyprint">ListAllTablets</code
 <span class="c">#       ],</span>
 <span class="c"># ...</span>
 </code></pre></div></li>
-<li><p><strong>Start <code class="prettyprint">vtgate</code></strong></p>
+<li><p><strong>Take a backup</strong></p>
+
+<p>Now that the initial schema is applied, it&#39;s a good time to take the first
+<a href="http://vitess.io/user-guide/backup-and-restore.html">backup</a>. This backup
+will be used to automatically restore any additional replicas that you run,
+before they connect themselves to the master and catch up on replication.
+If an existing tablet goes down and comes back up without its data, it will
+also automatically restore from the latest backup and then resume replication.</p>
+
+<p>Select one of the <strong>rdonly</strong> tablets and tell it to take a backup. We use a
+<strong>rdonly</strong> tablet instead of a <strong>replica</strong> because the tablet will pause
+replication and stop serving during data copy to create a consistent snapshot.</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh Backup <span class="nb">test</span>-0000000104
+</code></pre></div>
+<p>After the backup completes, you can list available backups for the shard:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh ListBackups test_keyspace/0
+<span class="c">### example output:</span>
+<span class="c"># 2015-10-21.042940.test-0000000104</span>
+</code></pre></div></li>
+<li><p><strong>Start vtgate</strong></p>
 
 <p>Vitess uses <a href="http://vitess.io/overview/#vtgate">vtgate</a> to route each client
 query to the correct <code class="prettyprint">vttablet</code>. In Kubernetes, a <code class="prettyprint">vtgate</code> service
@@ -801,7 +777,7 @@ vitess/examples/kubernetes<span class="nv">$ </span>./etcd-down.sh
 </code></pre></div>
 <p>Then tear down the Container Engine cluster itself, which will stop the virtual
 machines running on Compute Engine:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>gcloud beta container clusters delete example
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>gcloud container clusters delete example
 </code></pre></div>
 <p>It&#39;s also a good idea to remove the firewall rules you created, unless you plan
 to use them again soon:</p>
@@ -809,7 +785,7 @@ to use them again soon:</p>
 </code></pre></div>
 <h2 id="troubleshooting">Troubleshooting</h2>
 
-<h3 id="server-logs">Server Logs</h3>
+<h3 id="server-logs">Server logs</h3>
 
 <p>If a pod enters the <code class="prettyprint">Running</code> state, but the server
 doesn&#39;t respond as expected, use the <code class="prettyprint">kubectl logs</code>
@@ -824,7 +800,7 @@ command to check the pod output:</p>
 mailing list</a>
 to get more help.</p>
 
-<h3 id="root-certificates">Root Certificates</h3>
+<h3 id="root-certificates">Root certificates</h3>
 
 <p>If you see in the logs a message like this:</p>
 <div class="highlight"><pre><code class="language-text" data-lang="text">x509: failed to load system roots and no roots provided
@@ -833,7 +809,73 @@ to get more help.</p>
 that puts root certificates in a different place than our configuration
 expects by default (for example, Fedora). See the comments in the
 <a href="https://github.com/youtube/vitess/blob/master/examples/kubernetes/etcd-controller-template.yaml">etcd controller template</a>
-for examples of how to set the right location for your host OS.</p>
+for examples of how to set the right location for your host OS.
+You&#39;ll also need to adjust the same certificate path settings in the
+<code class="prettyprint">vtctld</code> and <code class="prettyprint">vttablet</code> templates.</p>
+
+<h3 id="status-pages-for-vttablets">Status pages for vttablets</h3>
+
+<p>Each <code class="prettyprint">vttablet</code> serves a set of HTML status pages on its primary port.
+The <code class="prettyprint">vtctld</code> interface provides a <strong>STATUS</strong> link for each tablet, but the
+links are actually to internal, per-pod IPs that can only be accessed from
+within Kubernetes.</p>
+
+<p>As a workaround, you can access tablet status pages through the
+<a href="http://kubernetes.io/v1.0/docs/user-guide/accessing-the-cluster.html#accessing-services-running-on-the-cluster">apiserver proxy</a>,
+provided by the Kubernetes master. For example, to see the status
+page for the tablet with ID 100 (recall that our Kubernetes master is
+on public IP 1.2.3.4), you could navigate to:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">https://1.2.3.4/api/v1/proxy/namespaces/default/pods/vttablet-100:15002/debug/status
+</code></pre></div>
+<p>In the future, we plan to have vtctld directly link through this proxy from
+the <strong>STATUS</strong> link.</p>
+
+<h3 id="direct-connection-to-mysqld">Direct connection to mysqld</h3>
+
+<p>Since the <code class="prettyprint">mysqld</code> within the <code class="prettyprint">vttablet</code> pod is only meant to be accessed
+via vttablet, our default bootstrap settings only allow connections from
+localhost.</p>
+
+<p>If you want to check or manipulate the underlying mysqld, you can issue
+simple queries or commands through <code class="prettyprint">vtctlclient</code> like this:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="c"># Send a query to tablet 100 in cell &#39;test&#39;.</span>
+vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh ExecuteFetchAsDba <span class="nb">test</span>-0000000100 <span class="s2">&quot;SELECT VERSION()&quot;</span>
+<span class="c">### example output:</span>
+<span class="c"># {</span>
+<span class="c">#   &quot;Fields&quot;: null,</span>
+<span class="c">#   &quot;RowsAffected&quot;: 1,</span>
+<span class="c">#   &quot;InsertId&quot;: 0,</span>
+<span class="c">#   &quot;Rows&quot;: [</span>
+<span class="c">#     [</span>
+<span class="c">#       &quot;10.0.20-MariaDB-1~wheezy-log&quot;</span>
+<span class="c">#     ]</span>
+<span class="c">#   ],</span>
+<span class="c">#   &quot;Err&quot;: null</span>
+<span class="c"># }</span>
+</code></pre></div>
+<p>If you need a truly direct connection to mysqld for bulk operations,
+you can SSH to the Kubernetes node on which the pod is running.
+Then use
+<a href="https://docs.docker.com/reference/commandline/exec/">docker exec</a>
+to launch a bash shell inside the mysql container, and connect with the
+<code class="prettyprint">mysql</code> command-line client:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="c"># For example, to connect to the mysql container within the vttablet-100 pod:</span>
+<span class="nv">$ </span>kubectl get pods -o wide <span class="p">|</span> grep vttablet-100
+<span class="c">### example output:</span>
+<span class="c"># vttablet-100   2/2   Running   0   17m   gke-example-960176fd-node-3mkd</span>
+<span class="nv">$ </span>gcloud compute ssh gke-example-960176fd-node-3mkd
+gke-example-960176fd-node-3mkd:~<span class="nv">$ </span>sudo docker ps <span class="p">|</span> grep vttablet-100 <span class="p">|</span> grep k8s_mysql
+<span class="c">### example output:</span>
+<span class="c"># ef40b4ff08fa   vitess/lite:latest [...]  k8s_mysql.16e2a810_vttablet-100[...]</span>
+k8s-example-3c0115e4-node-x6jc:~<span class="nv">$ </span>sudo docker <span class="nb">exec</span> -ti ef40b4ff08fa bash
+<span class="c"># Now you&#39;re in a shell inside the mysql container.</span>
+<span class="c"># We need to tell the mysql client the username and socket file to use.</span>
+vttablet-100:/# <span class="nv">TERM</span><span class="o">=</span>ansi mysql -u vt_dba -S /vt/vtdataroot/vt_0000000100/mysql.sock
+</code></pre></div>
+<p><strong>Note:</strong> <code class="prettyprint">gcloud compute ssh</code> uses an SSH key to login to the Kubernetes
+node. If you haven&#39;t done yet, <code class="prettyprint">gcloud</code> will create an SSH key for
+you and ask you for a passphrase for the SSH key.
+For subsequent logins via SSH, it may prompt you for the passphrase again.</p>
 
       </div>
     </div>
