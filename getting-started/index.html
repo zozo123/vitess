@@ -459,7 +459,7 @@ the cluster.</p>
 <span class="c"># Creating vtctld pod...</span>
 <span class="c"># pods/vtctld</span>
 <span class="c">#</span>
-<span class="c"># vtctld address: http://2.3.4.5:30000</span>
+<span class="c"># vtctld web address: http://2.3.4.5:30000</span>
 </code></pre></div>
 <p>To let you access vtctld from outside Kubernetes, the
 <code class="prettyprint">vtctld</code> service is created with the <code class="prettyprint">type: NodePort</code>
@@ -475,13 +475,13 @@ limit it to a specific instance.</p></li>
 <li><p><strong>Access vtctld</strong></p>
 
 <p>To access the <code class="prettyprint">vtctld</code> service from outside
-Kubernetes, you need to open port <code class="prettyprint">30000</code> in your platform&#39;s firewall.
+Kubernetes, you need to open ports <code class="prettyprint">30000-30001</code> in your platform&#39;s firewall.
 (If you don&#39;t complete this step, the only way to issue commands
 to <code class="prettyprint">vtctld</code> would be to SSH into a Kubernetes node
 and install and run <code class="prettyprint">vtctlclient</code> there.)</p>
 
 <p>On Compute Engine, you can open the port like this:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>gcloud compute firewall-rules create vtctld --allow tcp:30000
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>gcloud compute firewall-rules create vtctld --allow tcp:30000-30001
 </code></pre></div>
 <p>You can then access the vtctld web interface at the address printed
 by <code class="prettyprint">vtctld-up.sh</code> above. In this example, the web UI would be at
@@ -493,7 +493,10 @@ to the <code class="prettyprint">vtctld</code> service on your Kubernetes cluste
 
 <p>When you call <code class="prettyprint">vtctlclient</code>, the command requires
 the IP address and port for your <code class="prettyprint">vtctld</code> service.
-To avoid having to enter that for each command, you can use the
+Note that the RPC service is on a different port than the web UI.
+In this example, we&#39;ve set the RPC port to <code class="prettyprint">30001</code>.</p>
+
+<p>To avoid having to enter that for each command, you can use the
 provided <code class="prettyprint">kvtctl.sh</code> script, which uses <code class="prettyprint">kubectl</code> to discover the
 proper address.</p>
 

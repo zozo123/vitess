@@ -503,9 +503,8 @@ shard, which should no longer be in use.</p>
 
 <h3 id="step-6-1-remove-source-shard-tablets">Step 6.1: Remove source shard tablets</h3>
 
-<p>Run the following commands for each tablet in the source shard:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh">vtctlclient -server &lt;vtctld host:port&gt; ScrapTablet &lt;<span class="nb">source </span>tablet <span class="nb">alias</span>&gt;
-vtctlclient -server &lt;vtctld host:port&gt; DeleteTablet &lt;<span class="nb">source </span>tablet <span class="nb">alias</span>&gt;
+<p>Run the following command for each tablet in the source shard:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">vtctlclient -server &lt;vtctld host:port&gt; DeleteTablet -allow_master &lt;<span class="nb">source </span>tablet <span class="nb">alias</span>&gt;
 </code></pre></div>
 <h3 id="step-6-2-delete-source-shard">Step 6.2: Delete source shard</h3>
 

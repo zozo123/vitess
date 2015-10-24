@@ -282,7 +282,7 @@ There is one local instance per cell, that contains cell-specific information, a
 <ul>
 <li>The vttablet process itself owns the record while it is running, and can change it.</li>
 <li>At init time, before the tablet starts</li>
-<li>After shutdown, when the tablet gets scrapped or deleted.</li>
+<li>After shutdown, when the tablet gets deleted.</li>
 <li>If a tablet becomes unresponsive, it may be forced to spare to remove it from the serving graph (such as when reparenting away from a dead master, by the <code class="prettyprint">vtctl ReparentShard</code> action).</li>
 </ul>
 

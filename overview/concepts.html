@@ -262,20 +262,13 @@ TODO: keyspace ID rules must be solidified once VTGate features are finalized.
 <ul>
 <li>a MySQL instance</li>
 <li>a <code>vttablet</code> instance</li>
-<li>a local row cache instance</li>
+<li>(optionally) a local row cache instance</li>
 <li>any other database-specific process necessary for operational purposes</li>
 </ul>
 
-<p>A tablet has a status as well as a type. Common statuses and types are listed below:</p>
+<p>A tablet has a type. Common types are listed below:</p>
 
 <ul>
-<li><strong>status</strong>
-
-<ul>
-<li>idle - not assigned to a keyspace</li>
-<li>assigned - designated to a particular shard within a keyspace</li>
-<li>scrap - unhealthy</li>
-</ul></li>
 <li><strong>type</strong>
 
 <ul>
@@ -286,7 +279,7 @@ TODO: keyspace ID rules must be solidified once VTGate features are finalized.
 </ul></li>
 </ul>
 
-<p>There are several other tablet types that each serve a specific purpose, including <code>experimental</code>, <code>schema</code>, <code>lag</code>, <code>backup</code>, <code>restore</code>, <code>worker</code>.</p>
+<p>There are several other tablet types that each serve a specific purpose, including <code>experimental</code>, <code>schema</code>, <code>backup</code>, <code>restore</code>, <code>worker</code>.</p>
 
 <p>Only <code>master</code>, <code>replica</code>, and <code>rdonly</code> tablets are included in the <a href="#serving-graph">serving graph</a>.</p>
 
