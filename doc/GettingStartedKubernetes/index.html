@@ -606,13 +606,13 @@ the table defined in the <code class="prettyprint">create_test_table.sql</code> 
 vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh ApplySchema -sql <span class="s2">&quot;$(cat create_test_table.sql)&quot;</span> test_keyspace
 </code></pre></div>
 <p>The SQL to create the table is shown below:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">CREATE TABLE messages (
-  page BIGINT(20) UNSIGNED,
-  time_created_ns BIGINT(20) UNSIGNED,
-  keyspace_id BIGINT(20) UNSIGNED,
-  message VARCHAR(10000),
-  PRIMARY KEY (page, time_created_ns)
-) ENGINE=InnoDB
+<div class="highlight"><pre><code class="language-sql" data-lang="sql"><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">messages</span> <span class="p">(</span>
+  <span class="n">page</span> <span class="nb">BIGINT</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span> <span class="n">UNSIGNED</span><span class="p">,</span>
+  <span class="n">time_created_ns</span> <span class="nb">BIGINT</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span> <span class="n">UNSIGNED</span><span class="p">,</span>
+  <span class="n">keyspace_id</span> <span class="nb">BIGINT</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span> <span class="n">UNSIGNED</span><span class="p">,</span>
+  <span class="n">message</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">10000</span><span class="p">),</span>
+  <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span><span class="n">page</span><span class="p">,</span> <span class="n">time_created_ns</span><span class="p">)</span>
+<span class="p">)</span> <span class="n">ENGINE</span><span class="o">=</span><span class="n">InnoDB</span>
 </code></pre></div>
 <p>You can run this command to confirm that the schema was created
 properly on a given tablet, where <code class="prettyprint">test-0000000100</code>

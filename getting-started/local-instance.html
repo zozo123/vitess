@@ -208,56 +208,75 @@
 
 <h2 id="docker-build">Docker Build</h2>
 
-<p>To run Vitess in Docker, use an
-<a href="https://hub.docker.com/u/vitess/">Automated Build</a>.</p>
+<p>To run Vitess in Docker, you can either use our pre-built images on <a href="https://hub.docker.com/u/vitess/">Docker Hub</a>, or build them yourself.</p>
+
+<h3 id="docker-hub-images">Docker Hub Images</h3>
 
 <ul>
-<li>The <code>vitess/base</code> image contains a full development
-environment, capable of building Vitess and running integration tests.</li>
-<li>The <code>vitess/lite</code> image contains only the compiled Vitess
-binaries, excluding ZooKeeper. it can run Vitess, but lacks the
-environment needed to build Vitess or run tests.</li>
+<li><p>The <a href="https://hub.docker.com/r/vitess/base/">vitess/base</a> image contains a full
+development environment, capable of building Vitess and running integration tests.</p></li>
+<li><p>The <a href="https://hub.docker.com/r/vitess/lite/">vitess/lite</a> image contains only
+the compiled Vitess binaries, excluding ZooKeeper. It can run Vitess, but
+lacks the environment needed to build Vitess or run tests. It&#39;s primarily used
+for the <a href="http://vitess.io/getting-started/">Vitess on Kubernetes</a> guide.</p></li>
 </ul>
+
+<p>For example, you can directly run <code class="prettyprint">vitess/base</code>, and Docker will download the
+image for you:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>sudo docker run -ti vitess/base bash
+vitess@32f187ef9351:/vt/src/github.com/youtube/vitess<span class="nv">$ </span>make build
+</code></pre></div>
+<p>Now you can proceed to <a href="#start-a-vitess-cluster">start a Vitess cluster</a> inside
+the Docker container you just started. Note that if you want to access the
+servers from outside the container, you&#39;ll need to expose the ports as described
+in the <a href="https://docs.docker.com/userguide/">Docker user guide</a>.</p>
+
+<p>For local testing, you can also access the servers on the local IP address
+created for the container by Docker:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>docker inspect 32f187ef9351 <span class="p">|</span> grep IPAddress
+<span class="c">### example output:</span>
+<span class="c">#    &quot;IPAddress&quot;: &quot;172.17.3.1&quot;,</span>
+</code></pre></div>
+<h3 id="custom-docker-image">Custom Docker Image</h3>
 
 <p>You can also build Vitess Docker images yourself to include your
 own patches or configuration data. The
 <a href="https://github.com/youtube/vitess/blob/master/Dockerfile">Dockerfile</a>
-in the root of the Vitess tree builds the <code>vitess/base</code> image.
+in the root of the Vitess tree builds the <code class="prettyprint">vitess/base</code> image.
 The <a href="https://github.com/youtube/vitess/tree/master/docker">docker</a>
-subdirectory contains scripts for building other images.</p>
+subdirectory contains scripts for building other images, such as <code class="prettyprint">vitess/lite</code>.</p>
 
+<p>Our <code class="prettyprint">Makefile</code> also contains rules to build the images. For example:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="c"># Create vitess/bootstrap, which prepares everything up to ./bootstrap.sh</span>
+vitess<span class="nv">$ </span>make docker_bootstrap
+<span class="c"># Create vitess/base from vitess/bootstrap by copying in your local working directory.</span>
+vitess<span class="nv">$ </span>make docker_base
+</code></pre></div>
 <h2 id="manual-build">Manual Build</h2>
 
 <p>The following sections explain the process for manually building
-Vitess on a local server:</p>
-
-<ul>
-<li>   <a href="#install-dependencies">Install Dependencies</a></li>
-<li>   <a href="#build-vitess">Build Vitess</a></li>
-<li>   <a href="#test-your-vitess-cluster">Test Your Vitess Cluster</a></li>
-<li>   <a href="#start-a-vitess-cluster">Start a Vitess Cluster</a></li>
-<li>   <a href="#run-a-client-application">Run a Client Application</a></li>
-<li>   <a href="#tear-down-the-cluster">Tear Down the Cluster</a></li>
-</ul>
+Vitess without Docker.</p>
 
 <h3 id="install-dependencies">Install Dependencies</h3>
 
-<p>Vitess runs on either Ubuntu 14.04 (Trusty) or Debian 7.0 (Wheezy). It requires the software and libraries listed below.</p>
+<p>We currently test Vitess regularly on Ubuntu 14.04 (Trusty) and Debian 8 (Jessie).</p>
+
+<p>In addition, Vitess requires the software and libraries listed below.</p>
 
 <ol>
-<li><p><a href="http://golang.org/doc/install">Install Go 1.3+</a>.</p></li>
+<li><p><a href="http://golang.org/doc/install">Install Go 1.4+</a>.</p></li>
 <li><p>Install <a href="https://downloads.mariadb.org/">MariaDB 10.0</a> or
 <a href="http://dev.mysql.com/downloads/mysql">MySQL 5.6</a>. You can use any
 installation method (src/bin/rpm/deb), but be sure to include the client
-development headers (<strong>libmariadbclient-dev</strong> or <strong>libmysqlclient-dev</strong>).</p>
+development headers (<code class="prettyprint">libmariadbclient-dev</code> or <code class="prettyprint">libmysqlclient-dev</code>).</p>
 
-<p>The Vitess development team currently tests against MariaDB 10.0.17
-and MySQL 5.6.24.</p>
+<p>The Vitess development team currently tests against MariaDB 10.0.21
+and MySQL 5.6.27.</p>
 
 <p>If you are installing MariaDB, note that you must install version 10.0 or
-higher. If you are using <code>apt-get</code>, confirm that your repository
+higher. If you are using <code class="prettyprint">apt-get</code>, confirm that your repository
 offers an option to install that version. You can also download the source
-directly from <a href="https://downloads.mariadb.org/mariadb/10.0.16/">mariadb.org</a>.</p></li>
+directly from <a href="https://downloads.mariadb.org/mariadb/">mariadb.org</a>.</p></li>
 <li><p>Select a lock service from the options listed below. It is technically
 possible to use another lock server, but plugins currently exist only
 for ZooKeeper and etcd.</p>
@@ -265,7 +284,7 @@ for ZooKeeper and etcd.</p>
 <ul>
 <li>ZooKeeper 3.3.5 is included by default.</li>
 <li><a href="https://github.com/coreos/etcd/releases">Install etcd v2.0+</a>.
-If you use etcd, remember to include the <code>etcd</code> command
+If you use etcd, remember to include the <code class="prettyprint">etcd</code> command
 on your path.</li>
 </ul></li>
 <li><p>Install the following other tools needed to build and run Vitess:</p>
@@ -289,11 +308,11 @@ on your path.</li>
 </ul>
 
 <p>These can be installed with the following apt-get command:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh">sudo apt-get install make automake libtool memcached python-dev python-virtualenv python-mysqldb libssl-dev g++ mercurial git pkg-config bison curl unzip
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>sudo apt-get install make automake libtool memcached python-dev python-virtualenv python-mysqldb libssl-dev g++ mercurial git pkg-config bison curl unzip
 </code></pre></div></li>
 <li><p>If you decided to use ZooKeeper in step 3, you also need to install a
 Java Runtime, such as OpenJDK.</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh">sudo apt-get install openjdk-7-jre
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>sudo apt-get install openjdk-7-jre
 </code></pre></div></li>
 </ol>
 
@@ -302,35 +321,35 @@ Java Runtime, such as OpenJDK.</p>
 <ol>
 <li><p>Navigate to the directory where you want to download the Vitess
 source code and clone the Vitess Github repo. After doing so,
-navigate to the <strong>src/github.com/youtube/vitess</strong> directory.</p>
+navigate to the <code class="prettyprint">src/github.com/youtube/vitess</code> directory.</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nb">cd</span> <span class="nv">$WORKSPACE</span>
 git clone https://github.com/youtube/vitess.git src/github.com/youtube/vitess
 <span class="nb">cd </span>src/github.com/youtube/vitess
 </code></pre></div></li>
-<li><p>Set the <strong>MYSQL_FLAVOR</strong> environment variable. Choose the appropriate
+<li><p>Set the <code class="prettyprint">MYSQL_FLAVOR</code> environment variable. Choose the appropriate
 value for your database. This value is case-sensitive.</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nb">export </span><span class="nv">MYSQL_FLAVOR</span><span class="o">=</span>MariaDB
 or
 <span class="nb">export </span><span class="nv">MYSQL_FLAVOR</span><span class="o">=</span>MySQL56
 </code></pre></div></li>
-<li><p>If your selected database installed in a location other than <strong>/usr/bin</strong>,
-set the <strong>VT&#95;MYSQL&#95;ROOT</strong> variable to the root directory of your
+<li><p>If your selected database installed in a location other than <code class="prettyprint">/usr/bin</code>,
+set the <code class="prettyprint">VT_MYSQL_ROOT</code> variable to the root directory of your
 MariaDB installation. For example, if MariaDB is installed in
-<strong>/usr/local/mysql</strong>, run the following command.</p>
+<code class="prettyprint">/usr/local/mysql</code>, run the following command.</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nb">export </span><span class="nv">VT_MYSQL_ROOT</span><span class="o">=</span>/usr/local/mysql
 </code></pre></div>
-<p>Note that the command indicates that the <strong>mysql</strong> executable should
-be found at <strong>/usr/local/mysql/bin/mysql</strong>.</p></li>
-<li><p>Run <code>mysql_config --version</code> and confirm that you
+<p>Note that the command indicates that the <code class="prettyprint">mysql</code> executable should
+be found at <code class="prettyprint">/usr/local/mysql/bin/mysql</code>.</p></li>
+<li><p>Run <code class="prettyprint">mysql_config --version</code> and confirm that you
 are running the correct version of MariaDB or MySQL. The value should
 be 10 or higher for MariaDB and 5.6.x for MySQL.</p></li>
 <li><p>Build Vitess using the commands below. Note that the
-<code>bootstrap.sh</code> script needs to download some dependencies.
+<code class="prettyprint">bootstrap.sh</code> script needs to download some dependencies.
 If your machine requires a proxy to access the Internet, you will need
-to set the usual environment variables (e.g. <code>http_proxy</code>,
-<code>https_proxy</code>, <code>no_proxy</code>).</p>
+to set the usual environment variables (e.g. <code class="prettyprint">http_proxy</code>,
+<code class="prettyprint">https_proxy</code>, <code class="prettyprint">no_proxy</code>).</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">./bootstrap.sh
-<span class="c"># Output of bootstrap.sh is shown below</span>
+<span class="c">### example output:</span>
 <span class="c"># skipping zookeeper build</span>
 <span class="c"># go install golang.org/x/tools/cmd/cover ...</span>
 <span class="c"># Found MariaDB installation in ...</span>
@@ -338,24 +357,19 @@ to set the usual environment variables (e.g. <code>http_proxy</code>,
 <span class="c"># creating git pre-commit hooks</span>
 <span class="c">#</span>
 <span class="c"># source dev.env in your shell before building</span>
-<span class="c"># Remaining commands to build Vitess</span>
+</code></pre></div><div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="c"># Remaining commands to build Vitess</span>
 . ./dev.env
 make build
-</code></pre></div>
-<p>If you build Vitess successfully, you can proceed to
-<a href="#start-a-vitess-cluster">start a Vitess cluster</a>.
-If your build attempt fails, see the following section,
-<a href="#test-your-vitess-cluster">Test your Vitess Cluster</a>, for help
-troubleshooting the errors.</p></li>
+</code></pre></div></li>
 </ol>
 
-<h3 id="test-your-vitess-cluster">Test your Vitess Cluster</h3>
+<h3 id="run-tests">Run Tests</h3>
 
 <p><strong>Note:</strong> If you are using etcd, set the following environment variable:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nb">export </span><span class="nv">VT_TEST_FLAGS</span><span class="o">=</span><span class="s1">&#39;--topo-server-flavor=etcd&#39;</span>
 </code></pre></div>
-<p>The default <em>make</em> and <em>make test</em> targets contain a full set of tests
-intended to help Vitess developers to verify code changes. Those tests
+<p>The default targets when running <code class="prettyprint">make</code> or <code class="prettyprint">make test</code> contain a full set of
+tests intended to help Vitess developers to verify code changes. Those tests
 simulate a small Vitess cluster by launching many servers on the local
 machine. To do so, they require a lot of resources; a minimum of 8GB RAM
 and SSD is recommended to run the tests.</p>
@@ -366,9 +380,9 @@ you can run a lighter set of tests:</p>
 </code></pre></div>
 <h4 id="common-test-issues">Common Test Issues</h4>
 
-<p>Attempts to run the full developer test suite (<em>make</em> or <em>make test</em>)
+<p>Attempts to run the full developer test suite (<code class="prettyprint">make</code> or <code class="prettyprint">make test</code>)
 on an underpowered machine often results in failure. If you still see
-the same failures when running the lighter set of tests (<em>make site_test</em>),
+the same failures when running the lighter set of tests (<code class="prettyprint">make site_test</code>),
 please let the development team know in the
 <a href="https://groups.google.com/forum/#!forum/vitess">vitess@googlegroups.com</a>
 discussion forum.</p>
@@ -402,7 +416,7 @@ installed, which is a requirement if you are using ZooKeeper as the lock server.
 
 <p>Some of the larger tests use up to 4GB of temporary space on disk.</p>
 
-<h3 id="start-a-vitess-cluster">Start a Vitess cluster</h3>
+<h2 id="start-a-vitess-cluster">Start a Vitess cluster</h2>
 
 <p>After completing the instructions above to <a href="#build-vitess">build Vitess</a>,
 you can use the example scripts in the Github repo to bring up a Vitess
@@ -426,21 +440,26 @@ The exact <a href="http://www.cyberciti.biz/faq/linux-increase-the-maximum-numbe
 you used to run the build commands, you can skip to the next
 step since the environment variables will already be set.</p>
 
-<p>Navigate to the directory where you built Vitess
-(<strong>$WORKSPACE/src/<wbr>github.com/<wbr>youtube/vitess</strong>) and run the
-following command:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh">. ./dev.env
+<p>If you&#39;re adapting this example to your own deployment, the only environment
+variables required before running the scripts are <code class="prettyprint">VTROOT</code> and <code class="prettyprint">VTDATAROOT</code>.</p>
+
+<p>Set <code class="prettyprint">VTROOT</code> to the parent of the Vitess source tree. For example, if you
+ran <code class="prettyprint">make build</code> while in <code class="prettyprint">$HOME/vt/src/github.com/youtube/vitess</code>,
+then you should set:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nb">export </span><span class="nv">VTROOT</span><span class="o">=</span><span class="nv">$HOME</span>/vt
 </code></pre></div>
-<p>From that directory, navigate to the directory that contains
-the example scripts:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nb">cd </span>examples/local
+<p>Set <code class="prettyprint">VTDATAROOT</code> to the directory where you want data files and logs to
+be stored. For example:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nb">export </span><span class="nv">VTDATAROOT</span><span class="o">=</span><span class="nv">$HOME</span>/vtdataroot
 </code></pre></div></li>
 <li><p><strong>Start ZooKeeper</strong></p>
 
 <p>Servers in a Vitess cluster find each other by looking for
 dynamic configuration data stored in a distributed lock
 service. The following script creates a small ZooKeeper cluster:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh">./zk-up.sh
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span><span class="nb">cd</span> <span class="nv">$VTROOT</span>/src/github.com/youtube/vitess/examples/local
+vitess/examples/local<span class="nv">$ </span>./zk-up.sh
+<span class="c">### example output:</span>
 <span class="c"># Starting zk servers...</span>
 <span class="c"># Waiting for zk servers to be ready...</span>
 </code></pre></div>
@@ -448,35 +467,37 @@ service. The following script creates a small ZooKeeper cluster:</p>
 Vitess process how to connect to ZooKeeper. Then, each process can
 find all of the other Vitess processes by coordinating via ZooKeeper.</p>
 
-<p>To instruct Vitess processes on how to connect to ZooKeeper, set
-the <code>ZK_CLIENT_CONFIG</code> environment variable to the path
-to the <code>zk-client-conf.json</code> file, which contains the
+<p>Each of our scripts automatically sets the <code class="prettyprint">ZK_CLIENT_CONFIG</code> environment
+variable to point to the <code class="prettyprint">zk-client-conf.json</code> file, which contains the
 ZooKeeper server addresses for each cell.</p></li>
 <li><p><strong>Start vtctld</strong></p>
 
-<p>The <code>vtctld</code> server provides a web interface that
+<p>The <code class="prettyprint">vtctld</code> server provides a web interface that
 displays all of the coordination information stored in ZooKeeper.</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh">./vtctld-up.sh
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/local<span class="nv">$ </span>./vtctld-up.sh
 <span class="c"># Starting vtctld</span>
-<span class="c"># Access vtctld at http://localhost:15000</span>
+<span class="c"># Access vtctld web UI at http://localhost:15000</span>
+<span class="c"># Send commands with: vtctlclient -server localhost:15999 ...</span>
 </code></pre></div>
-<p>Open <code><a href="http://localhost:15000">http://localhost:15000</a></code> to verify that
-<code>vtctld</code> is running. There won&#39;t be any information
+<p>Open <code class="prettyprint">http://localhost:15000</code> to verify that
+<code class="prettyprint">vtctld</code> is running. There won&#39;t be any information
 there yet, but the menu should come up, which indicates that
-<code>vtctld</code> is running.</p>
+<code class="prettyprint">vtctld</code> is running.</p>
 
-<p><strong>Note:</strong> The <code>vtctld</code> server accepts commands from
-the <code>vtctlclient</code> tool, which administers the Vitess
-cluster. The following command lists the commands that
-<code>vtctlclient</code> supports:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$VTROOT</span>/bin/vtctlclient -server localhost:15000
+<p>The <code class="prettyprint">vtctld</code> server also accepts commands from the <code class="prettyprint">vtctlclient</code> tool,
+which is used to administer the cluster. Note that the port for RPCs
+(in this case <code class="prettyprint">15999</code>) is different from the web UI port (<code class="prettyprint">15000</code>).
+These ports can be configured with command-line flags, as demonstrated
+in <code class="prettyprint">vtctld-up.sh</code>.</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="c"># List available commands</span>
+<span class="nv">$ $VTROOT</span>/bin/vtctlclient -server localhost:15999 Help
 </code></pre></div></li>
 <li><p><strong>Start vttablets</strong></p>
 
-<p>The following command brings up three vttablets. Bringing up
-tablets in a previously empty keyspace effectively creates
-a new shard.</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh">./vttablet-up.sh
+<p>The <code class="prettyprint">vttablet-up.sh</code> script brings up three vttablets, and assigns them to
+a <a href="http://vitess.io/overview/concepts.html#keyspace">keyspace</a> and <a href="http://vitess.io/overview/concepts.html#shard">shard</a> according to the variables
+set at the top of the script file.</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/local<span class="nv">$ </span>./vttablet-up.sh
 <span class="c"># Output from vttablet-up.sh is below</span>
 <span class="c"># Starting MySQL for tablet test-0000000100...</span>
 <span class="c"># Starting vttablet for test-0000000100...</span>
@@ -488,86 +509,117 @@ a new shard.</p>
 <span class="c"># Starting vttablet for test-0000000102...</span>
 <span class="c"># Access tablet test-0000000102 at http://localhost:15102/debug/status</span>
 </code></pre></div>
-<p>After this command completes, go back to the <code>vtctld</code>
-web page from the previous step and click the <strong>Topology</strong> link.
-You should see the three tablets listed. If you click the address
-of a tablet, you will see the coordination data stored in ZooKeeper.
-From there, if you click the <strong>status</strong> link at the top of the page,
-you will see the debug page generated by the tablet itself.</p></li>
-<li><p><strong>Initialize a keyspace for the shard</strong></p>
+<p>After this command completes, refresh the <code class="prettyprint">vtctld</code> web UI, and you should
+see a keyspace named <code class="prettyprint">test_keyspace</code> with a single shard named <code class="prettyprint">0</code>.
+This is what an unsharded keyspace looks like.</p>
 
-<p>Perform a keyspace rebuild to initialize the keyspace for the
-new shard:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$VTROOT</span>/bin/vtctlclient -server localhost:15000 RebuildKeyspaceGraph test_keyspace
+<p>If you click on the shard box, you&#39;ll see a list of <a href="http://vitess.io/overview/concepts.html#tablet">tablets</a> in that shard.
+Note that it&#39;s normal for the tablets to be unhealthy at this point, since
+you haven&#39;t initialized them yet.</p>
+
+<p>You can also click the <strong>STATUS</strong> link on each tablet to be taken to its
+status page, showing more details on its operation. Every Vitess server has
+a status page served at <code class="prettyprint">/debug/status</code> on its web port.</p></li>
+<li><p><strong>Initialize the new keyspace</strong></p>
+
+<p>By launching tablets assigned to a nonexistent keyspace, we&#39;ve essentially
+created a new keyspace. To complete the initialization of the
+<a href="http://vitess.io/doc/TopologyService/#local-data">local topology data</a>,
+perform a keyspace rebuild:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ $VTROOT</span>/bin/vtctlclient -server localhost:15999 RebuildKeyspaceGraph test_keyspace
 </code></pre></div>
-<p><strong>Note:</strong> Most <code>vtctlclient</code> commands yield no output if
+<p><strong>Note:</strong> Many <code class="prettyprint">vtctlclient</code> commands yield no output if
 they run successfully.</p></li>
-<li><p><strong>Elect a master vttablet</strong></p>
+<li><p><strong>Initialize MySQL databases</strong></p>
 
-<p>The <code>vttablet</code> servers are all started as replicas.
-In this step, you designate one of the vttablets to be the master.
-Vitess automatically connects the other replicas&#39; <code>mysqld</code>
-instances so that they start replicating from the master
-<code>mysqld</code> instance.</p>
-
-<p>Since this is the first time the shard has been started, the
-vttablets are not already doing any replication. As a result,
-the following command uses the <code>-force</code> flag when
-calling the <code>InitShardMaster</code> command so that it
-accepts the change of a replica to be the master.</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$VTROOT</span>/bin/vtctlclient -server localhost:15000 InitShardMaster -force test_keyspace/0 <span class="nb">test</span>-0000000100
+<p>Next, designate one of the tablets to be the initial master.
+Vitess will automatically connect the other slaves&#39; mysqld instances so
+that they start replicating from the master&#39;s mysqld.
+This is also when the default database is created. Since our keyspace is
+named <code class="prettyprint">test_keyspace</code>, the MySQL database will be named <code class="prettyprint">vt_test_keyspace</code>.</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ $VTROOT</span>/bin/vtctlclient -server localhost:15999 InitShardMaster -force test_keyspace/0 <span class="nb">test</span>-0000000100
+<span class="c">### example output:</span>
+<span class="c"># master-elect tablet test-0000000100 is not the shard master, proceeding anyway as -force was used</span>
+<span class="c"># master-elect tablet test-0000000100 is not a master in the shard, proceeding anyway as -force was used</span>
 </code></pre></div>
-<p>After running this command, go back to the <strong>Topology</strong> page
-in the <code>vtctld</code> web interface. When you refresh the
-page, you should see that one <code>vttablet</code> is the master
+<p><strong>Note:</strong> Since this is the first time the shard has been started,
+the tablets are not already doing any replication, and there is no
+existing master. The <code class="prettyprint">InitShardMaster</code> command above uses the <code class="prettyprint">-force</code> flag
+to bypass the usual sanity checks that would apply if this wasn&#39;t a
+brand new shard.</p>
+
+<p>After running this command, go back to the <strong>Shard Status</strong> page
+in the <code class="prettyprint">vtctld</code> web interface. When you refresh the
+page, you should see that one <code class="prettyprint">vttablet</code> is the master
 and the other two are replicas.</p>
 
-<p>You can also run this command on the command line to see the
-same data:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$VTROOT</span>/bin/vtctlclient -server localhost:15000 ListAllTablets <span class="nb">test</span>
-<span class="c"># The command&#39;s output is shown below:</span>
+<p>You can also see this on the command line:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ $VTROOT</span>/bin/vtctlclient -server localhost:15999 ListAllTablets <span class="nb">test</span>
+<span class="c">### example output:</span>
 <span class="c"># test-0000000100 test_keyspace 0 master localhost:15100 localhost:33100 []</span>
 <span class="c"># test-0000000101 test_keyspace 0 replica localhost:15101 localhost:33101 []</span>
 <span class="c"># test-0000000102 test_keyspace 0 replica localhost:15102 localhost:33102 []</span>
 </code></pre></div></li>
 <li><p><strong>Create a table</strong></p>
 
-<p>Create the database table defined in the <i>createtesttable.sql</i>
-file.</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$VTROOT</span>/bin/vtctlclient -server localhost:15000 ApplySchema -sql <span class="s2">&quot;$(cat create_test_table.sql)&quot;</span> test_keyspace
+<p>The <code class="prettyprint">vtctlclient</code> tool can be used to apply the database schema across all
+tablets in a keyspace. The following command creates the table defined in
+the <code class="prettyprint">create_test_table.sql</code> file:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="c"># Make sure to run this from the examples/local dir, so it finds the file.</span>
+vitess/examples/local<span class="nv">$ $VTROOT</span>/bin/vtctlclient -server localhost:15999 ApplySchema -sql <span class="s2">&quot;$(cat create_test_table.sql)&quot;</span> test_keyspace
 </code></pre></div>
 <p>The SQL to create the table is shown below:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh">CREATE TABLE test_table <span class="o">(</span>
-  id BIGINT AUTO_INCREMENT,
-  msg VARCHAR<span class="o">(</span>250<span class="o">)</span>,
-  PRIMARY KEY<span class="o">(</span>id<span class="o">)</span>
-<span class="o">)</span> <span class="nv">Engine</span><span class="o">=</span>InnoDB
+<div class="highlight"><pre><code class="language-sql" data-lang="sql"><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">test_table</span> <span class="p">(</span>
+  <span class="n">id</span> <span class="nb">BIGINT</span> <span class="n">AUTO_INCREMENT</span><span class="p">,</span>
+  <span class="n">msg</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">250</span><span class="p">),</span>
+  <span class="k">PRIMARY</span> <span class="k">KEY</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="p">)</span> <span class="n">Engine</span><span class="o">=</span><span class="n">InnoDB</span>
 </code></pre></div></li>
+<li><p><strong>Take a backup</strong></p>
+
+<p>Now that the initial schema is applied, it&#39;s a good time to take the first
+<a href="http://vitess.io/user-guide/backup-and-restore.html">backup</a>. This backup
+will be used to automatically restore any additional replicas that you run,
+before they connect themselves to the master and catch up on replication.
+If an existing tablet goes down and comes back up without its data, it will
+also automatically restore from the latest backup and then resume replication.</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ $VTROOT</span>/bin/vtctlclient -server localhost:15999 Backup <span class="nb">test</span>-0000000101
+</code></pre></div>
+<p>After the backup completes, you can list available backups for the shard:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ $VTROOT</span>/bin/vtctlclient -server localhost:15999 ListBackups test_keyspace/0
+<span class="c">### example output:</span>
+<span class="c"># 2015-10-21.042940.test-0000000104</span>
+</code></pre></div>
+<p><strong>Note:</strong> In this single-server example setup, backups are stored at
+<code class="prettyprint">$VTDATAROOT/backups</code>. In a multi-server deployment, you would usually mount
+an NFS directory there. You can also change the location by setting the
+<code class="prettyprint">-file_backup_storage_root</code> flag on <code class="prettyprint">vtctld</code> and <code class="prettyprint">vttablet</code>, as demonstrated
+in <code class="prettyprint">vtctld-up.sh</code> and <code class="prettyprint">vttablet-up.sh</code>.</p></li>
 <li><p><strong>Start vtgate</strong></p>
 
-<p>Vitess uses <code>vtgate</code> to route each client query to
-the correct <code>vttablet</code>. This local example runs a
-single <code>vtgate</code> instance, though a real deployment
-would likely run multiple <code>vtgate</code> instances to share
+<p>Vitess uses <code class="prettyprint">vtgate</code> to route each client query to
+the correct <code class="prettyprint">vttablet</code>. This local example runs a
+single <code class="prettyprint">vtgate</code> instance, though a real deployment
+would likely run multiple <code class="prettyprint">vtgate</code> instances to share
 the load.</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh">./vtgate-up.sh
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/local<span class="nv">$ </span>./vtgate-up.sh
 </code></pre></div></li>
 </ol>
 
 <h3 id="run-a-client-application">Run a Client Application</h3>
 
-<p>The <code>client.py</code> file is a simple sample application
-that connects to <code>vtgate</code> and executes some queries.
+<p>The <code class="prettyprint">client.py</code> file is a simple sample application
+that connects to <code class="prettyprint">vtgate</code> and executes some queries.
 To run it, you need to either:</p>
 
 <ul>
-<li>Add the Vitess Python packages to your <code>PYTHONPATH</code>
-<br class="bigbreak">
-or</li>
-<li><p>Use the <code>client.sh</code> wrapper script, which temporarily
-sets up the environment and then runs <code>client.py</code></p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh">./client.sh --server<span class="o">=</span>localhost:15001
-<span class="c"># Output from client.sh is shown below</span>
+<li><p>Add the Vitess Python packages to your <code class="prettyprint">PYTHONPATH</code>.</p>
+
+<p>or</p></li>
+<li><p>Use the <code class="prettyprint">client.sh</code> wrapper script, which temporarily
+sets up the environment and then runs <code class="prettyprint">client.py</code>.</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/local<span class="nv">$ </span>./client.sh
+<span class="c">### example output:</span>
 <span class="c"># Inserting into master...</span>
 <span class="c"># Reading from master...</span>
 <span class="c"># (1L, &#39;V is for speed&#39;)</span>
@@ -578,23 +630,29 @@ sets up the environment and then runs <code>client.py</code></p>
 
 <h3 id="tear-down-the-cluster">Tear down the cluster</h3>
 
-<p>As long as your <code>VTDATAROOT</code> directory is only used
-for this test, you can kill the processes created during this
-test with the following commands:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="c"># Look for processes started during the test</span>
-<span class="nv">$ </span>pgrep -u <span class="nv">$USER</span> -f -l <span class="nv">$VTDATAROOT</span>
-
-<span class="c"># If the list looks correct, kill the processes</span>
-<span class="nv">$ </span>pkill -u <span class="nv">$USER</span> -f <span class="nv">$VTDATAROOT</span>
+<p>Each <code class="prettyprint">-up.sh</code> script has a corresponding <code class="prettyprint">-down.sh</code> script to stop the servers.</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/local<span class="nv">$ </span>./vtgate-down.sh
+vitess/examples/local<span class="nv">$ </span>./vttablet-down.sh
+vitess/examples/local<span class="nv">$ </span>./vtctld-down.sh
+vitess/examples/local<span class="nv">$ </span>./zk-down.sh
 </code></pre></div>
-<p>Repeat the <code>pgrep</code> command to make sure all processes
-have been killed and manually kill any remaining processes.</p>
-
-<p>Also clear out the contents of <code>VTDATAROOT</code> before
-starting again:</p>
+<p>Note that the <code class="prettyprint">-down.sh</code> scripts will leave behind any data files created.
+If you&#39;re done with this example data, you can clear out the contents of <code class="prettyprint">VTDATAROOT</code>:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span><span class="nb">cd</span> <span class="nv">$VTDATAROOT</span>
-<span class="nv">$ </span>/path/to/vtdataroot<span class="nv">$ </span>rm -rf *
+/path/to/vtdataroot<span class="nv">$ </span>rm -rf *
 </code></pre></div>
+<h2 id="troubleshooting">Troubleshooting</h2>
+
+<p>If anything goes wrong, check the logs in your <code class="prettyprint">$VTDATAROOT/tmp</code> directory
+for error messages. There are also some tablet-specific logs, as well as
+MySQL logs in the various <code class="prettyprint">$VTDATAROOT/vt_*</code> directories.</p>
+
+<p>If you need help diagnosing a problem, send a message to our
+<a href="https://groups.google.com/forum/#!forum/vitess">mailing list</a>.
+In addition to any errors you see at the command-line, it would also help to
+upload an archive of your <code class="prettyprint">VTDATAROOT</code> directory to a file sharing service
+and provide a link to it.</p>
+
       </div>
     </div>
   </div>
