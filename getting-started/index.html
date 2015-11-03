@@ -337,36 +337,6 @@ that your installation will use:</p>
 <p><strong>Note:</strong> The <code class="prettyprint">--scopes storage-rw</code> argument is necessary to allow
 <a href="http://vitess.io/user-guide/backup-and-restore.html">built-in backup/restore</a>
 to access <a href="https://cloud.google.com/storage/">Google Cloud Storage</a>.</p></li>
-<li><p>The command&#39;s output includes the IP of the Kubernetes master server:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">NAME     ZONE           MASTER_VERSION  MASTER_IP     MACHINE_TYPE   STATUS
-example  us-central1-b  1.0.6           1.2.3.4       n1-standard-4  RUNNING
-</code></pre></div>
-<ol>
-<li><p>Open /ui on the MASTER_IP in a browser over <em>HTTPS</em>
-(e.g. <code class="prettyprint">https://1.2.3.4/ui</code>) to see the Kubernetes
-dashboard, where you can monitor nodes, services, pods, etc.</p>
-
-<p><strong>Note:</strong> Your browser will likely complain that the HTTPS certificate
-is invalid. This is normal, since the Kubernetes master uses a test
-certificate by default. Follow your browser&#39;s instructions to enter
-advanced settings and allow you to proceed to the site.</p></li>
-<li><p>You should be prompted to enter a username and password to
-access the requested page. You can find the randomly-generated password
-with <code class="prettyprint">kubectl config view</code>:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>kubectl config view
-<span class="c">### example output:</span>
-<span class="c"># apiVersion: v1</span>
-<span class="c"># clusters:</span>
-<span class="c"># - cluster:</span>
-<span class="c">#     server: https://1.2.3.4</span>
-<span class="c"># ...</span>
-<span class="c"># users:</span>
-<span class="c"># - name: gke_project_us-central1-b_example</span>
-<span class="c">#   user:</span>
-<span class="c">#     password: gr8j0Rb11</span>
-<span class="c">#     username: admin</span>
-</code></pre></div></li>
-</ol></li>
 <li><p>Create a Cloud Storage bucket:</p>
 
 <p>To use the Cloud Storage plugin for built-in backups, first create a
@@ -470,47 +440,39 @@ the cluster.</p>
 <span class="c"># services/vtctld</span>
 <span class="c"># Creating vtctld pod...</span>
 <span class="c"># pods/vtctld</span>
-<span class="c">#</span>
-<span class="c"># vtctld web address: http://2.3.4.5:30000</span>
+</code></pre></div></li>
+<li><p><strong>Access vtctld web UI</strong></p>
+
+<p>To access vtctld from outside Kubernetes, use <a href="http://kubernetes.io/v1.0/docs/user-guide/kubectl/kubectl_proxy.html">kubectl proxy</a>
+to create an authenticated tunnel on your workstation:</p>
+
+<p><strong>Note:</strong> The proxy command runs in the foreground,
+so you may want to run it in a separate terminal.</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>kubectl proxy --port<span class="o">=</span>8001
+<span class="c">### example output:</span>
+<span class="c"># Starting to serve on localhost:8001</span>
 </code></pre></div>
-<p>To let you access vtctld from outside Kubernetes, the
-<code class="prettyprint">vtctld</code> service is created with the <code class="prettyprint">type: NodePort</code>
-option. This creates an <a href="http://kubernetes.io/v1.0/docs/user-guide/services.html#external-services">external service</a>
-by exposing a port on each node that forwards to the vtctld service.</p>
+<p>You can then load the vtctld web UI on <code class="prettyprint">localhost</code>:</p>
 
-<p>The <strong>vtctld address</strong> printed by <code class="prettyprint">vtctld-up.sh</code> is thus the external IP
-of one of the nodes, combined with the <code class="prettyprint">nodePort</code> assigned for vtctld.</p>
+<p><a href="http://localhost:8001/api/v1/proxy/namespaces/default/services/vtctld:web/">http://localhost:8001/api/v1/proxy/namespaces/default/services/vtctld:web/</a></p>
 
-<p><strong>Note:</strong> For simplicity, the firewall rule above opens the port on <strong>all</strong>
-GCE instances in your project. In a production system, you would likely
-limit it to a specific instance.</p></li>
-<li><p><strong>Access vtctld</strong></p>
+<p>You can also use this proxy to access the <a href="http://kubernetes.io/v1.0/docs/user-guide/ui.html">Kubernetes Dashboard</a>,
+where you can monitor nodes, pods, and services:</p>
 
-<p>To access the <code class="prettyprint">vtctld</code> service from outside
-Kubernetes, you need to open ports <code class="prettyprint">30000-30001</code> in your platform&#39;s firewall.
-(If you don&#39;t complete this step, the only way to issue commands
-to <code class="prettyprint">vtctld</code> would be to SSH into a Kubernetes node
-and install and run <code class="prettyprint">vtctlclient</code> there.)</p>
-
-<p>On Compute Engine, you can open the port like this:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>gcloud compute firewall-rules create vtctld --allow tcp:30000-30001
-</code></pre></div>
-<p>You can then access the vtctld web interface at the address printed
-by <code class="prettyprint">vtctld-up.sh</code> above. In this example, the web UI would be at
-<code class="prettyprint">http://2.3.4.5:30000</code>.</p></li>
-<li><p><strong>Use vtctlclient to call vtctld</strong></p>
+<p><a href="http://localhost:8001/api/v1/proxy/namespaces/kube-system/services/kube-ui/">http://localhost:8001/api/v1/proxy/namespaces/kube-system/services/kube-ui/</a></p></li>
+<li><p><strong>Use vtctlclient to send commands to vtctld</strong></p>
 
 <p>You can now run <code class="prettyprint">vtctlclient</code> locally to issue commands
 to the <code class="prettyprint">vtctld</code> service on your Kubernetes cluster.</p>
 
-<p>When you call <code class="prettyprint">vtctlclient</code>, the command requires
-the IP address and port for your <code class="prettyprint">vtctld</code> service.
-Note that the RPC service is on a different port than the web UI.
-In this example, we&#39;ve set the RPC port to <code class="prettyprint">30001</code>.</p>
+<p>To enable RPC access into the Kubernetes cluster, we&#39;ll again use
+<code class="prettyprint">kubectl</code> to set up an authenticated tunnel. Unlike the HTTP proxy
+we used for the web UI, this time we need raw <a href="http://kubernetes.io/v1.0/docs/user-guide/kubectl/kubectl_port-forward.html">port forwarding</a>
+for vtctld&#39;s <a href="http://grpc.io">gRPC</a> port.</p>
 
-<p>To avoid having to enter that for each command, you can use the
-provided <code class="prettyprint">kvtctl.sh</code> script, which uses <code class="prettyprint">kubectl</code> to discover the
-proper address.</p>
+<p>Since the tunnel needs to target a particular vtctld pod name,
+we&#39;ve provided the <code class="prettyprint">kvtctl.sh</code> script, which uses <code class="prettyprint">kubectl</code> to
+discover the pod name and set up the tunnel before running <code class="prettyprint">vtctlclient</code>.</p>
 
 <p>Now, running <code class="prettyprint">kvtctl.sh help</code> will test your connection to
 <code class="prettyprint">vtctld</code> and also list the <code class="prettyprint">vtctlclient</code>
@@ -524,7 +486,7 @@ commands that you can use to administer the Vitess cluster.</p>
 <span class="c"># ...</span>
 </code></pre></div>
 <p>You can also use the <code class="prettyprint">help</code> command to get more details about each command:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh <span class="nb">help </span>InitTablet
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh <span class="nb">help </span>ListAllTablets
 </code></pre></div>
 <p>See the <a href="http://vitess.io/reference/vtctl.html">vtctl reference</a> for a
 web-formatted version of the <code class="prettyprint">vtctl help</code> output.</p></li>
@@ -694,22 +656,20 @@ a later guide.</p>
 <span class="c"># Creating guestbook replicationcontroller...</span>
 <span class="c"># replicationcontrollers/guestbook</span>
 </code></pre></div>
-<p>As with the <code class="prettyprint">vtctld</code> service, to access the GuestBook
-app from outside Kubernetes, we need to set the <code class="prettyprint">type</code> field in the
-service definition to something that generates an external service.</p>
-
-<p>In this case, since this is a user-facing frontend, we use
-<code class="prettyprint">type: LoadBalancer</code>, which tells Kubernetes to create a public
+<p>As with the <code class="prettyprint">vtctld</code> service, by default the GuestBook app is not accessible
+from outside Kubernetes. In this case, since this is a user-facing frontend,
+we set <code class="prettyprint">type: LoadBalancer</code> in the GuestBook service definition,
+which tells Kubernetes to create a public
 <a href="http://kubernetes.io/v1.0/docs/user-guide/services.html#type-loadbalancer">load balancer</a>
 using the API for whatever platform your Kubernetes cluster is in.</p>
 
-<p>As before, you also need to allow access through your platform&#39;s firewall:</p>
+<p>You also need to <a href="http://kubernetes.io/v1.0/docs/user-guide/services-firewalls.html">allow access through your platform&#39;s firewall</a>.</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="c"># For example, to open port 80 in the GCE firewall:</span>
 <span class="nv">$ </span>gcloud compute firewall-rules create guestbook --allow tcp:80
 </code></pre></div>
 <p><strong>Note:</strong> For simplicity, the firewall rule above opens the port on <strong>all</strong>
 GCE instances in your project. In a production system, you would likely
-limit it to a specific instance.</p>
+limit it to specific instances.</p>
 
 <p>Then, get the external IP of the load balancer for the GuestBook service:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>kubectl get -o yaml service guestbook
@@ -794,9 +754,9 @@ vitess/examples/kubernetes<span class="nv">$ </span>./etcd-down.sh
 machines running on Compute Engine:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>gcloud container clusters delete example
 </code></pre></div>
-<p>It&#39;s also a good idea to remove the firewall rules you created, unless you plan
+<p>It&#39;s also a good idea to remove any firewall rules you created, unless you plan
 to use them again soon:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>gcloud compute firewall-rules delete vtctld guestbook
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>gcloud compute firewall-rules delete guestbook
 </code></pre></div>
 <h2 id="troubleshooting">Troubleshooting</h2>
 
@@ -815,6 +775,20 @@ command to check the pod output:</p>
 mailing list</a>
 to get more help.</p>
 
+<h3 id="shell-access">Shell access</h3>
+
+<p>If you want to poke around inside a container, you can use <code class="prettyprint">kubectl exec</code> to run
+a shell.</p>
+
+<p>For example, to launch a shell inside the <code class="prettyprint">vttablet</code> container of the
+<code class="prettyprint">vttablet-100</code> pod:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>kubectl <span class="nb">exec </span>vttablet-100 -c vttablet -t -i -- bash -il
+root@vttablet-100:/# ls /vt/vtdataroot/vt_0000000100
+<span class="c">### example output:</span>
+<span class="c"># bin-logs   innodb                  my.cnf      relay-logs</span>
+<span class="c"># data       memcache.sock764383635  mysql.pid   slow-query.log</span>
+<span class="c"># error.log  multi-master.info       mysql.sock  tmp</span>
+</code></pre></div>
 <h3 id="root-certificates">Root certificates</h3>
 
 <p>If you see in the logs a message like this:</p>
@@ -831,19 +805,16 @@ You&#39;ll also need to adjust the same certificate path settings in the
 <h3 id="status-pages-for-vttablets">Status pages for vttablets</h3>
 
 <p>Each <code class="prettyprint">vttablet</code> serves a set of HTML status pages on its primary port.
-The <code class="prettyprint">vtctld</code> interface provides a <strong>STATUS</strong> link for each tablet, but the
-links are actually to internal, per-pod IPs that can only be accessed from
-within Kubernetes.</p>
+The <code class="prettyprint">vtctld</code> interface provides a <strong>STATUS</strong> link for each tablet.</p>
 
-<p>As a workaround, you can access tablet status pages through the
-<a href="http://kubernetes.io/v1.0/docs/user-guide/accessing-the-cluster.html#accessing-services-running-on-the-cluster">apiserver proxy</a>,
-provided by the Kubernetes master. For example, to see the status
-page for the tablet with ID 100 (recall that our Kubernetes master is
-on public IP 1.2.3.4), you could navigate to:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">https://1.2.3.4/api/v1/proxy/namespaces/default/pods/vttablet-100:15002/debug/status
-</code></pre></div>
-<p>In the future, we plan to have vtctld directly link through this proxy from
-the <strong>STATUS</strong> link.</p>
+<p>If you access the vtctld web UI through the kubectl proxy as described above,
+it will automatically link to the vttablets through that same proxy,
+giving you access from outside the cluster.</p>
+
+<p>You can also use the proxy to go directly to a tablet. For example,
+to see the status page for the tablet with ID <code class="prettyprint">100</code>, you could navigate to:</p>
+
+<p><a href="http://localhost:8001/api/v1/proxy/namespaces/default/pods/vttablet-100:15002/debug/status">http://localhost:8001/api/v1/proxy/namespaces/default/pods/vttablet-100:15002/debug/status</a></p>
 
 <h3 id="direct-connection-to-mysqld">Direct connection to mysqld</h3>
 
@@ -868,30 +839,12 @@ vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh ExecuteFetchAsDb
 <span class="c">#   &quot;Err&quot;: null</span>
 <span class="c"># }</span>
 </code></pre></div>
-<p>If you need a truly direct connection to mysqld for bulk operations,
-you can SSH to the Kubernetes node on which the pod is running.
-Then use
-<a href="https://docs.docker.com/reference/commandline/exec/">docker exec</a>
-to launch a bash shell inside the mysql container, and connect with the
-<code class="prettyprint">mysql</code> command-line client:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="c"># For example, to connect to the mysql container within the vttablet-100 pod:</span>
-<span class="nv">$ </span>kubectl get pods -o wide <span class="p">|</span> grep vttablet-100
-<span class="c">### example output:</span>
-<span class="c"># vttablet-100   2/2   Running   0   17m   gke-example-960176fd-node-3mkd</span>
-<span class="nv">$ </span>gcloud compute ssh gke-example-960176fd-node-3mkd
-gke-example-960176fd-node-3mkd:~<span class="nv">$ </span>sudo docker ps <span class="p">|</span> grep vttablet-100 <span class="p">|</span> grep k8s_mysql
-<span class="c">### example output:</span>
-<span class="c"># ef40b4ff08fa   vitess/lite:latest [...]  k8s_mysql.16e2a810_vttablet-100[...]</span>
-k8s-example-3c0115e4-node-x6jc:~<span class="nv">$ </span>sudo docker <span class="nb">exec</span> -ti ef40b4ff08fa bash
-<span class="c"># Now you&#39;re in a shell inside the mysql container.</span>
-<span class="c"># We need to tell the mysql client the username and socket file to use.</span>
-vttablet-100:/# <span class="nv">TERM</span><span class="o">=</span>ansi mysql -u vt_dba -S /vt/vtdataroot/vt_0000000100/mysql.sock
+<p>If you need a truly direct connection to mysqld, you can <a href="#shell-access">launch a shell</a> inside the mysql container, and then connect with the <code class="prettyprint">mysql</code>
+command-line client:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>kubectl <span class="nb">exec </span>vttablet-100 -c mysql -t -i -- bash -il
+root@vttablet-100:/# <span class="nb">export </span><span class="nv">TERM</span><span class="o">=</span>ansi
+root@vttablet-100:/# mysql -S /vt/vtdataroot/vt_0000000100/mysql.sock -u vt_dba
 </code></pre></div>
-<p><strong>Note:</strong> <code class="prettyprint">gcloud compute ssh</code> uses an SSH key to login to the Kubernetes
-node. If you haven&#39;t done yet, <code class="prettyprint">gcloud</code> will create an SSH key for
-you and ask you for a passphrase for the SSH key.
-For subsequent logins via SSH, it may prompt you for the passphrase again.</p>
-
       </div>
     </div>
   </div>
