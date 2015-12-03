@@ -2772,7 +2772,7 @@
 
 <h4 id="example">Example</h4>
 
-<pre class="command-example">ExecuteFetchAsDba [--max_rows=10000] [--want_fields] [--disable_binlogs] &lt;tablet alias&gt; &lt;sql command&gt;</pre>
+<pre class="command-example">ExecuteFetchAsDba [--max_rows=10000] [--disable_binlogs] &lt;tablet alias&gt; &lt;sql command&gt;</pre>
 
 <h4 id="flags">Flags</h4>
 
@@ -2797,11 +2797,6 @@
 <td style="text-align: left">reload_schema</td>
 <td style="text-align: left">Boolean</td>
 <td style="text-align: left">Indicates whether the tablet schema will be reloaded after executing the SQL command. The default value is <code>false</code>, which indicates that the tablet schema will not be reloaded.</td>
-</tr>
-<tr>
-<td style="text-align: left">want_fields</td>
-<td style="text-align: left">Boolean</td>
-<td style="text-align: left">Indicates whether the request should also get field names</td>
 </tr>
 </tbody></table>
 
