@@ -271,7 +271,10 @@ Vitess without Docker.</p>
 
 <h3 id="install-dependencies">Install Dependencies</h3>
 
-<p>We currently test Vitess regularly on Ubuntu 14.04 (Trusty) and Debian 8 (Jessie).</p>
+<p>We currently test Vitess regularly on Ubuntu 14.04 (Trusty) and Debian 8 (Jessie).
+OS X 10.11 (El Capitan) should work as well, the installation instructions are below.</p>
+
+<h4 id="ubuntu-and-debian">Ubuntu and Debian</h4>
 
 <p>In addition, Vitess requires the software and libraries listed below.</p>
 
@@ -328,6 +331,58 @@ Java Runtime, such as OpenJDK.</p>
 </code></pre></div></li>
 </ol>
 
+<h4 id="os-x">OS X</h4>
+
+<ol>
+<li><p><a href="http://brew.sh/">Install Homebrew</a>. If your /usr/local directory is not empty and you never used Homebrew before,
+it will be
+<a href="https://github.com/Homebrew/homebrew/blob/master/share/doc/homebrew/El_Capitan_and_Homebrew.md">mandatory</a>
+to run the following command:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">sudo chown -R <span class="k">$(</span>whoami<span class="k">)</span>:admin /usr/local
+</code></pre></div></li>
+<li><p>On OS X, MySQL 5.6 has to be used, MariaDB doesn&#39;t work for some reason yet. It should be installed from Homebrew
+(install steps are below).</p></li>
+<li><p>If Xcode is installed (with Console tools, which should be bundled automatically since the 7.1 version), all
+the dev dependencies should be satisfied in this step. If no Xcode is present, it is necessery to install pkg-config.</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">brew install pkg-config
+</code></pre></div></li>
+<li><p>ZooKeeper is used as lock service.</p></li>
+<li><p>Run the following commands:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">brew install go automake libtool memcached python mercurial git bison curl wget homebrew/versions/mysql56
+pip install --upgrade pip setuptools
+pip install virtualenv
+pip install MySQL-python
+</code></pre></div></li>
+<li><p>Install Java runtime from this URL: <a href="https://support.apple.com/kb/dl1572?locale=en_US">https://support.apple.com/kb/dl1572?locale=en_US</a>
+Apple only supports Java 6. If you need to install a newer version, this link might be helpful:
+<a href="http://osxdaily.com/2015/10/17/how-to-install-java-in-os-x-el-capitan/">http://osxdaily.com/2015/10/17/how-to-install-java-in-os-x-el-capitan/</a></p></li>
+<li><p>The Vitess bootstrap script makes some checks for the go runtime, so it is recommended to have the following
+commands in your ~/.profile or ~/.bashrc or ~/.zshrc:</p>
+<div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nb">export </span><span class="nv">PATH</span><span class="o">=</span>/usr/local/opt/go/libexec/bin:<span class="nv">$PATH</span>
+<span class="nb">export </span><span class="nv">GOROOT</span><span class="o">=</span>/usr/local/opt/go/libexec
+</code></pre></div></li>
+<li><p>There is a problem with installing the enum34 Python package using pip, so the following file has to be edited:
+<code class="prettyprint">
+/usr/local/opt/python/Frameworks/Python.framework/Versions/2.7/lib/python2.7/distutils/distutils.cfg
+</code></p>
+
+<p>and this line:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">prefix=/usr/local
+</code></pre></div>
+<p>has to be commented out:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text"># prefix=/usr/local
+</code></pre></div>
+<p>After running the ./bootstrap.sh script from the next step, you can revert the change.</p></li>
+<li><p>For the Vitess hostname resolving functions to work correctly, a new entry has to be added into the /etc/hosts file
+with the current LAN IP address of the computer (preferably IPv4) and the current hostname, which you get by
+typing the &#39;hostname&#39; command in the terminal.</p>
+
+<p>It is also a good idea to put the following line to <a href="https://golang.org/doc/go1.5#net">force the Go DNS resolver</a>
+in your ~/.profile or ~/.bashrc or ~/.zshrc:</p>
+<div class="highlight"><pre><code class="language-text" data-lang="text">export GODEBUG=netdns=go
+</code></pre></div></li>
+</ol>
+
 <h3 id="build-vitess">Build Vitess</h3>
 
 <ol>
@@ -341,14 +396,17 @@ git clone https://github.com/youtube/vitess.git src/github.com/youtube/vitess
 <li><p>Set the <code class="prettyprint">MYSQL_FLAVOR</code> environment variable. Choose the appropriate
 value for your database. This value is case-sensitive.</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nb">export </span><span class="nv">MYSQL_FLAVOR</span><span class="o">=</span>MariaDB
-or
-<span class="nb">export </span><span class="nv">MYSQL_FLAVOR</span><span class="o">=</span>MySQL56
+<span class="c"># or (mandatory for OS X)</span>
+<span class="c"># export MYSQL_FLAVOR=MySQL56</span>
 </code></pre></div></li>
 <li><p>If your selected database installed in a location other than <code class="prettyprint">/usr/bin</code>,
 set the <code class="prettyprint">VT_MYSQL_ROOT</code> variable to the root directory of your
 MariaDB installation. For example, if MariaDB is installed in
 <code class="prettyprint">/usr/local/mysql</code>, run the following command.</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nb">export </span><span class="nv">VT_MYSQL_ROOT</span><span class="o">=</span>/usr/local/mysql
+
+<span class="c"># on OS X, this is the correct value:</span>
+<span class="c"># export VT_MYSQL_ROOT=/usr/local/opt/mysql56</span>
 </code></pre></div>
 <p>Note that the command indicates that the <code class="prettyprint">mysql</code> executable should
 be found at <code class="prettyprint">/usr/local/mysql/bin/mysql</code>.</p></li>

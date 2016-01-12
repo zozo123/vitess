@@ -21,7 +21,11 @@
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
   </url>
   <url>
-    <loc>http://vitess.io/doc/VTGateV3Design/</loc>
+    <loc>http://vitess.io/doc/V3VindexDesign/</loc>
+    <lastmod>2015-01-01T00:00:00-08:00</lastmod>
+  </url>
+  <url>
+    <loc>http://vitess.io/doc/V3HighLevelDesign/</loc>
     <lastmod>2015-01-01T00:00:00-08:00</lastmod>
   </url>
   <url>
