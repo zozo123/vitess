@@ -391,12 +391,11 @@ based on the row&#39;s sharding key.</p></li>
 
 <p>The following command starts the <code class="prettyprint">vtworker</code>:</p>
 <div class="highlight"><pre><code class="language-text" data-lang="text">vtworker -min_healthy_rdonly_endpoints 1 -cell=&lt;cell name&gt; \
-    SplitClone -strategy=-populate_blp_checkpoint \
-    &lt;keyspace name&gt;/&lt;source shard name&gt;
+    SplitClone &lt;keyspace name&gt;/&lt;source shard name&gt;
 </code></pre></div>
 <p>For this example, run this command:</p>
 <div class="highlight"><pre><code class="language-text" data-lang="text">vtworker -min_healthy_rdonly_endpoints 1 -cell=&lt;cell name&gt; \
-    SplitClone -strategy=-populate_blp_checkpoint user_keyspace/0
+    SplitClone user_keyspace/0
 </code></pre></div>
 <p>The amount of time that the worker takes to complete will depend
 on the size of your dataset. When the process completes, the destination

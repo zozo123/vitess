@@ -394,11 +394,11 @@ Note that we need our own etcd clusters, separate from the one used by
 Kubernetes itself.</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./etcd-up.sh
 <span class="c">### example output:</span>
-<span class="c"># Generating discovery token for global cell...</span>
 <span class="c"># Creating etcd service for global cell...</span>
-<span class="c"># services/etcd-global</span>
+<span class="c"># service &quot;etcd-global&quot; created</span>
+<span class="c"># service &quot;etcd-global-srv&quot; created</span>
 <span class="c"># Creating etcd replicationcontroller for global cell...</span>
-<span class="c"># replicationcontrollers/etcd-global</span>
+<span class="c"># replicationcontroller &quot;etcd-global&quot; created</span>
 <span class="c"># ...</span>
 </code></pre></div>
 <p>This command creates two clusters. One is for the
@@ -436,10 +436,10 @@ Vitess cluster. It also accepts RPC commands from <code class="prettyprint">vtct
 the cluster.</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./vtctld-up.sh
 <span class="c">### example output:</span>
-<span class="c"># Creating vtctld service...</span>
-<span class="c"># services/vtctld</span>
-<span class="c"># Creating vtctld pod...</span>
-<span class="c"># pods/vtctld</span>
+<span class="c"># Creating vtctld ClusterIP service...</span>
+<span class="c"># service &quot;vtctld&quot; created</span>
+<span class="c"># Creating vtctld replicationcontroller...</span>
+<span class="c"># replicationcontroller &quot;vtctld&quot; create createdd</span>
 </code></pre></div></li>
 <li><p><strong>Access vtctld web UI</strong></p>
 
@@ -505,15 +505,15 @@ mysqld:</p>
 <span class="c">### example output:</span>
 <span class="c"># Creating test_keyspace.shard-0 pods in cell test...</span>
 <span class="c"># Creating pod for tablet test-0000000100...</span>
-<span class="c"># pods/vttablet-100</span>
+<span class="c"># pod &quot;vttablet-100&quot; created</span>
 <span class="c"># Creating pod for tablet test-0000000101...</span>
-<span class="c"># pods/vttablet-101</span>
+<span class="c"># pod &quot;vttablet-101&quot; created</span>
 <span class="c"># Creating pod for tablet test-0000000102...</span>
-<span class="c"># pods/vttablet-102</span>
+<span class="c"># pod &quot;vttablet-102&quot; created</span>
 <span class="c"># Creating pod for tablet test-0000000103...</span>
-<span class="c"># pods/vttablet-103</span>
+<span class="c"># pod &quot;vttablet-103&quot; created</span>
 <span class="c"># Creating pod for tablet test-0000000104...</span>
-<span class="c"># pods/vttablet-104</span>
+<span class="c"># pod &quot;vttablet-104&quot; created</span>
 </code></pre></div>
 <p>In the vtctld web UI, you should soon see a
 <a href="http://vitess.io/overview/concepts.html#keyspace">keyspace</a> named <code class="prettyprint">test_keyspace</code>
@@ -634,10 +634,10 @@ distributes connections to a pool of <code class="prettyprint">vtgate</code> pod
 a <a href="http://kubernetes.io/v1.0/docs/user-guide/replication-controller.html">replication controller</a>.</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./vtgate-up.sh
 <span class="c">### example output:</span>
-<span class="c"># Creating vtgate service...</span>
-<span class="c"># services/vtgate</span>
-<span class="c"># Creating vtgate replicationcontroller...</span>
-<span class="c"># replicationcontrollers/vtgate</span>
+<span class="c"># Creating vtgate service in cell test...</span>
+<span class="c"># service &quot;vtgate-test&quot; created</span>
+<span class="c"># Creating vtgate replicationcontroller in cell test...</span>
+<span class="c"># replicationcontroller &quot;vtgate-test&quot; created</span>
 </code></pre></div></li>
 </ol>
 
@@ -652,9 +652,9 @@ a later guide.</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./guestbook-up.sh
 <span class="c">### example output:</span>
 <span class="c"># Creating guestbook service...</span>
-<span class="c"># services/guestbook</span>
+<span class="c"># services &quot;guestbook&quot; created</span>
 <span class="c"># Creating guestbook replicationcontroller...</span>
-<span class="c"># replicationcontrollers/guestbook</span>
+<span class="c"># replicationcontroller &quot;guestbook&quot; created</span>
 </code></pre></div>
 <p>As with the <code class="prettyprint">vtctld</code> service, by default the GuestBook app is not accessible
 from outside Kubernetes. In this case, since this is a user-facing frontend,

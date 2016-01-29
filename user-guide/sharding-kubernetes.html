@@ -307,7 +307,7 @@ vitess/examples/kubernetes<span class="nv">$ </span>./kvtctl.sh CopySchemaShard 
 we use a special batch process called <code class="prettyprint">vtworker</code> to stream the data from a
 single source to multiple destinations, routing each row based on its
 <em>keyspace_id</em>:</p>
-<div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./sharded-vtworker.sh SplitClone --strategy<span class="o">=</span>-populate_blp_checkpoint test_keyspace/0
+<div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./sharded-vtworker.sh SplitClone test_keyspace/0
 <span class="c">### example output:</span>
 <span class="c"># Creating vtworker pod in cell test...</span>
 <span class="c"># pods/vtworker</span>
