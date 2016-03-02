@@ -75,6 +75,7 @@
       <ul class="nav navbar-nav navbar-right" id="standard-menu-links">
         <li><a href="/overview/">Guides</a></li>
         <li><a href="/reference/vitess-api.html">Reference</a></li>
+        <li><a href="http://blog.vitess.io/">Blog</a></li>
         <li><a href="https://github.com/youtube/vitess"><i class="fa fa-github"></i> GitHub</a></li>
         <!-- Hide link to blog unless we have actual posts -->
         <!-- <li><a href="/blog/" title="">Blog</a></li> -->
@@ -121,6 +122,7 @@
           <h4 class="arrow-r">Other Resources</h4>
           <ul style="display: none">
             <li><a href="/resources/presentations.html">Presentations</a>
+            <li><a href="http://blog.vitess.io/">Blog</a>
           </ul>
         </li>
 
@@ -194,6 +196,7 @@
           <h4 class="arrow-r">Other Resources</h4>
           <ul style="display: none">
             <li><a href="/resources/presentations.html">Presentations</a>
+            <li><a href="http://blog.vitess.io/">Blog</a>
           </ul>
         </li>
 
@@ -352,6 +355,7 @@ the dev dependencies should be satisfied in this step. If no Xcode is present, i
 pip install --upgrade pip setuptools
 pip install virtualenv
 pip install MySQL-python
+pip install tox
 </code></pre></div></li>
 <li><p>Install Java runtime from this URL: <a href="https://support.apple.com/kb/dl1572?locale=en_US">https://support.apple.com/kb/dl1572?locale=en_US</a>
 Apple only supports Java 6. If you need to install a newer version, this link might be helpful:
@@ -418,6 +422,8 @@ be 10 or higher for MariaDB and 5.6.x for MySQL.</p></li>
 If your machine requires a proxy to access the Internet, you will need
 to set the usual environment variables (e.g. <code class="prettyprint">http_proxy</code>,
 <code class="prettyprint">https_proxy</code>, <code class="prettyprint">no_proxy</code>).</p>
+
+<p>Run the boostrap.sh script:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">./bootstrap.sh
 <span class="c">### example output:</span>
 <span class="c"># skipping zookeeper build</span>
