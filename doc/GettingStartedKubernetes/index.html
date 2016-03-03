@@ -280,14 +280,13 @@ to avoid any charges.</li>
 your billing account:</p>
 
 <ol>
-<li> In the Google Developers Console, click the <strong>Projects</strong> pane.</li>
-<li> Click the Create Project button.</li>
+<li> At the top of the Google Developers Console, click the <strong>Projects</strong> dropdown.</li>
+<li> Click the Create a Project... link.</li>
 <li> Assign a name to your project. Then click the <strong>Create</strong> button.
 Your project should be created and associated with your
 billing account. (If you have multiple billing accounts,
 confirm that the project is associated with the correct account.)</li>
-<li> After creating your project, click <strong>APIs &amp; auth</strong> in the left menu.</li>
-<li> Click <strong>APIs</strong>.</li>
+<li> After creating your project, click <strong>API Manager</strong> in the left menu.</li>
 <li> Find <strong>Google Compute Engine</strong> and <strong>Google Container Engine API</strong>.
 (Both should be listed under &quot;Google Cloud APIs&quot;.)
 For each, click on it, then click the <strong>&quot;Enable API&quot;</strong> button.</li>
@@ -380,7 +379,7 @@ name of the bucket you created above.</p>
 <p>For other platforms, you&#39;ll need to choose the <code class="prettyprint">file</code> backup storage plugin,
 and mount a read-write network volume into the <code class="prettyprint">vttablet</code> and <code class="prettyprint">vtctld</code> pods.
 For example, you can mount any storage service accessible through NFS into a
-<a href="http://kubernetes.io/v1.0/docs/user-guide/volumes.html#nfs">Kubernetes volume</a>.
+<a href="http://kubernetes.io/v1.1/docs/user-guide/volumes.html#nfs">Kubernetes volume</a>.
 Then provide the mount path to the configure script here.</p>
 
 <p>Direct support for other cloud blob stores like Amazon S3 can be added by
@@ -409,7 +408,7 @@ Kubernetes itself.</p>
 and the other is for a
 <a href="http://vitess.io/overview/concepts.html#cell-data-center">local cell</a>
 called <em>test</em>. You can check the status of the
-<a href="http://kubernetes.io/v1.0/docs/user-guide/pods.html">pods</a>
+<a href="http://kubernetes.io/v1.1/docs/user-guide/pods.html">pods</a>
 in the cluster by running:</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="nv">$ </span>kubectl get pods
 <span class="c">### example output:</span>
@@ -446,7 +445,7 @@ the cluster.</p>
 </code></pre></div></li>
 <li><p><strong>Access vtctld web UI</strong></p>
 
-<p>To access vtctld from outside Kubernetes, use <a href="http://kubernetes.io/v1.0/docs/user-guide/kubectl/kubectl_proxy.html">kubectl proxy</a>
+<p>To access vtctld from outside Kubernetes, use <a href="http://kubernetes.io/v1.1/docs/user-guide/kubectl/kubectl_proxy.html">kubectl proxy</a>
 to create an authenticated tunnel on your workstation:</p>
 
 <p><strong>Note:</strong> The proxy command runs in the foreground,
@@ -459,7 +458,7 @@ so you may want to run it in a separate terminal.</p>
 
 <p><a href="http://localhost:8001/api/v1/proxy/namespaces/default/services/vtctld:web/">http://localhost:8001/api/v1/proxy/namespaces/default/services/vtctld:web/</a></p>
 
-<p>You can also use this proxy to access the <a href="http://kubernetes.io/v1.0/docs/user-guide/ui.html">Kubernetes Dashboard</a>,
+<p>You can also use this proxy to access the <a href="http://kubernetes.io/v1.1/docs/user-guide/ui.html">Kubernetes Dashboard</a>,
 where you can monitor nodes, pods, and services:</p>
 
 <p><a href="http://localhost:8001/api/v1/proxy/namespaces/kube-system/services/kube-ui/">http://localhost:8001/api/v1/proxy/namespaces/kube-system/services/kube-ui/</a></p></li>
@@ -470,7 +469,7 @@ to the <code class="prettyprint">vtctld</code> service on your Kubernetes cluste
 
 <p>To enable RPC access into the Kubernetes cluster, we&#39;ll again use
 <code class="prettyprint">kubectl</code> to set up an authenticated tunnel. Unlike the HTTP proxy
-we used for the web UI, this time we need raw <a href="http://kubernetes.io/v1.0/docs/user-guide/kubectl/kubectl_port-forward.html">port forwarding</a>
+we used for the web UI, this time we need raw <a href="http://kubernetes.io/v1.1/docs/user-guide/kubectl/kubectl_port-forward.html">port forwarding</a>
 for vtctld&#39;s <a href="http://grpc.io">gRPC</a> port.</p>
 
 <p>Since the tunnel needs to target a particular vtctld pod name,
@@ -500,7 +499,7 @@ unit of scaling for the database. A tablet consists of the
 <code class="prettyprint">vttablet</code> and <code class="prettyprint">mysqld</code> processes, running on the same
 host. We enforce this coupling in Kubernetes by putting the respective
 containers for vttablet and mysqld inside a single
-<a href="http://kubernetes.io/v1.0/docs/user-guide/pods.html">pod</a>.</p>
+<a href="http://kubernetes.io/v1.1/docs/user-guide/pods.html">pod</a>.</p>
 
 <p>Run the following script to launch the vttablet pods, which also include
 mysqld:</p>
@@ -634,7 +633,7 @@ replication and stop serving during data copy to create a consistent snapshot.</
 <p>Vitess uses <a href="http://vitess.io/overview/#vtgate">vtgate</a> to route each client
 query to the correct <code class="prettyprint">vttablet</code>. In Kubernetes, a <code class="prettyprint">vtgate</code> service
 distributes connections to a pool of <code class="prettyprint">vtgate</code> pods. The pods are curated by
-a <a href="http://kubernetes.io/v1.0/docs/user-guide/replication-controller.html">replication controller</a>.</p>
+a <a href="http://kubernetes.io/v1.1/docs/user-guide/replication-controller.html">replication controller</a>.</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh">vitess/examples/kubernetes<span class="nv">$ </span>./vtgate-up.sh
 <span class="c">### example output:</span>
 <span class="c"># Creating vtgate service in cell test...</span>
@@ -663,10 +662,10 @@ a later guide.</p>
 from outside Kubernetes. In this case, since this is a user-facing frontend,
 we set <code class="prettyprint">type: LoadBalancer</code> in the GuestBook service definition,
 which tells Kubernetes to create a public
-<a href="http://kubernetes.io/v1.0/docs/user-guide/services.html#type-loadbalancer">load balancer</a>
+<a href="http://kubernetes.io/v1.1/docs/user-guide/services.html#type-loadbalancer">load balancer</a>
 using the API for whatever platform your Kubernetes cluster is in.</p>
 
-<p>You also need to <a href="http://kubernetes.io/v1.0/docs/user-guide/services-firewalls.html">allow access through your platform&#39;s firewall</a>.</p>
+<p>You also need to <a href="http://kubernetes.io/v1.1/docs/user-guide/services-firewalls.html">allow access through your platform&#39;s firewall</a>.</p>
 <div class="highlight"><pre><code class="language-sh" data-lang="sh"><span class="c"># For example, to open port 80 in the GCE firewall:</span>
 <span class="nv">$ </span>gcloud compute firewall-rules create guestbook --allow tcp:80
 </code></pre></div>

@@ -302,8 +302,8 @@ that was specified when the tablet was started.</p></li>
 <li><p>Restarts replication. By default, the tablet changes its status to
 <code>spare</code> until it catches up on replication and proceeds
 to the next step.
-If you override the default, recommended behavior by setting the
-____ flag to ____ when starting the tablet,
+If you override the default recommended behavior by setting the
+<code>-target_tablet_type</code> flag to <code>&quot;&quot;</code> when starting the tablet,
 the tablet will restart replication and then proceed to the following
 step even if it has not caught up on the replication process.</p></li>
 <li><p>Updates the serving graph to rejoin the cluster as a healthy, serving tablet.</p></li>
