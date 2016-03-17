@@ -225,13 +225,6 @@
 <li><a href="#toposerver">TopoServer</a></li>
 <li><a href="#streaming-query">Streaming Query</a></li>
 <li><a href="#scatter-query">Scatter Query</a></li>
-<li><a href="#misc">Misc</a>
-
-<ul>
-<li><a href="#rpc-server-code-path-vtgate">Rpc Server Code Path (VtGate)</a></li>
-<li><a href="#vtgate-to-vttablet-code-path">VtGate to VtTablet Code Path</a></li>
-<li><a href="#vttablet-to-mysql-code-path">VtTablet to MySQL Code Path</a></li>
-</ul></li>
 </ul>
 
 <p>A query means a request for information from database and it involves four components in the case of Vitess, including the client application, VtGate, VtTablet and MySQL instance. This doc explains the interaction which happens between and within components.</p>
@@ -242,11 +235,11 @@
 
 <h2 id="from-client-to-vtgate">From Client to VtGate</h2>
 
-<p>A client application first sends a bson rpc with an embedded sql query to VtGate. VtGate&#39;s rpc server unmarshals this rpc request, calls the appropriate VtGate method and return its result back to client. VtGate has an rpc server that listens to localhost:port/_bson_rpc_ for http requests and localhost:port/_bson_rpc_/auth for https requests.</p>
+<p>A client application first sends an rpc with an embedded sql query to VtGate. VtGate&#39;s rpc server unmarshals this rpc request, calls the appropriate VtGate method and return its result back to client.</p>
 
 <p><img src="https://raw.githubusercontent.com/youtube/vitess/master/doc/life_of_a_query_client_to_vtgate.png" alt=""></p>
 
-<p>VtGate keeps an in-memory table that stores all available rpc methods for each service, e.g. VtGate uses &quot;VTGate&quot; as its service name and most of its methods defined in <a href="../go/vt/vtgate/vtgate.go">go/vt/vtgate/vtgate.go</a> are used to serve rpc request <a href="../go/rpcplus/server.go">go/rpcplus/server.go</a>.</p>
+<p>VtGate keeps an in-memory table that stores all available rpc methods for each service, e.g. VtGate uses &quot;VTGate&quot; as its service name and most of its methods defined in <a href="../go/vt/vtgate/vtgate.go">go/vt/vtgate/vtgate.go</a> are used to serve rpc request.</p>
 
 <h2 id="from-vtgate-to-vttablet">From VtGate to VtTablet</h2>
 
@@ -280,64 +273,6 @@
 
 <p>A scatter query, as its name indicates, will hit multiple shards. In Vitess, a scatter query is recognized once VtGate determines a query needs to hit multiple VtTablets. VtGate then sends the query to these VtTablets, assembles the result after receiving all responses and returns the combined result to the client.</p>
 
-<h2 id="misc">Misc</h2>
-
-<h3 id="rpc-server-code-path-vtgate">Rpc Server Code Path (VtGate)</h3>
-
-<p>Init an rpc server</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">go/cmd/vtgate/vtgate.go: main()  -&gt;
-  go/vt/servenv/servenv.go: RunDefault() -&gt; // use the port specified in command line &quot;--port&quot;
-    go/vt/servenv/run.go: Run(port int)  -&gt;
-      go/vt/servenv/rpc.go: ServeRPC()  -&gt; // set up rpc server
-        go/rpcwrap/bsonrpc/codec.go: ServeRPC()  -&gt; // set up bson rpc server
-          go/rpcwrap/rpcwrap.go: ServeRPC(&quot;bson&quot;, NewServerCodec)  -&gt; // common code to register rpc server
-</code></pre></div>
-<p>ServeRPC(&quot;bson&quot;, NewServerCodec) registers an rpcHandler instance whose ServeHTTP(http.ResponseWriter, *http.Request) will be called for every http request</p>
-
-<p>The rpc server handles the http request:</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">go/rpcwrap/rpcwrap.go rpcHandler.ServeHTTP -&gt;
-go/rpcwrap/rpcwrap.go rpcHandler.server.ServeCodecWithContext -&gt;
-go/rpcplus/server.go Server.ServeCodecWithContext(context.Context, ServerCodec) (note: rpcHandler uses a global DefaultServer instance defined in the server.go) -&gt;
-go/rpcplus/server.go Server.readRequest(ServeCodec) will use a given codec to extract (service, methodType, request, request arguments, reply value, keep reading)
-</code></pre></div>
-<p>Finally we do &quot;service.call(..)&quot; with parameters provided in the request. In the current setup, service.call will always call some method in VtGate (go/vt/vtgate/vtgate.go).</p>
-
-<h3 id="vtgate-to-vttablet-code-path">VtGate to VtTablet Code Path</h3>
-
-<p>Here is the code path for a query with keyspace id.</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">go/vt/vtgate/vtgate.go VTGate.ExecuteKeyspaceIds(context.Context, *proto.KeyspaceIdQuery, *proto.QueryResult) -&gt;
-  go/vt/vtgate/resolver.go resolver.ExecuteKeyspaceIds(context.Context, *proto.KeyspaceIdQuery) -&gt;
-    go/vt/vtgate/resolver.go resolver.Execute -&gt;
-      go/vt/vtgate/scatter_conn.go ScatterConn.Execute -&gt;
-        go/vt/vtgate/scatter_conn.go ScatterConn.multiGo -&gt;
-          go/vt/vtgate/scatter_conn.go ScatterConn.getConnection -&gt;
-          go/vt/vtgate/shard_conn.go ShardConn.Execute -&gt;
-            go/vt/vtgate/shard_conn.go ShardConn.withRetry -&gt;
-              go/vt/vtgate/shard_conn.go ShardConn.getConn -&gt;
-              go/vt/tabletserver/tabletconn/tablet_conn.go tabletconn.GetDialer -&gt;
-              go/vt/tabletserver/tabletconn/tablet_conn.go tabletconn.TabletConn.Execute -&gt;
-              go/vt/tabletserver/gorpctabletconn/conn.go TabletBson.Execute -&gt;
-                go/vt/tabletserver/gorpctabletconn/conn.go TabletBson.rpcClient.Call -&gt;
-                go/rpcplus/client.go rpcplus.Client.Call -&gt;
-                  go/rpcplus/client.go rpcplus.Client.Go -&gt;
-                    go/rpcplus/client.go rpcplus.Client.send
-</code></pre></div>
-<h3 id="vttablet-to-mysql-code-path">VtTablet to MySQL Code Path</h3>
-
-<p>Here is the code path for a select query.</p>
-<div class="highlight"><pre><code class="language-text" data-lang="text">go/vt/tabletserver/sqlquery.go SqlQuery.Execute -&gt;
-go/vt/tabletserver/query_executor.go QueryExecutor.Execute -&gt;
-go/vt/tabletserver/query_executor.go QueryExecutor.execSelect -&gt;
-go/vt/tabletserver/request_context.go RequestContext.getConn -&gt; // QueryExecutor composes a RequestContext
-go/vt/tabletserver/request_context.go RequestContext.fullFetch -&gt;
-go/vt/tabletserver/request_context.go RequestContext.execSQL -&gt;
-go/vt/tabletserver/request_context.go RequestContext.execSQLNoPanic -&gt;
-go/vt/tabletserver/request_context.go RequestContext.execSQLOnce -&gt;
-go/vt/dbconnpool/connection_pool.go PoolConnection.ExecuteFetch (current implementation is in DBConnection) -&gt;
-go/vt/dbconnpool/connection.go PooledConnection.DBConnection.ExecuteFetch -&gt;
-go/mysql/mysql.go mysql.Connection.ExecuteFetch -&gt;
-go/mysql/mysql.go mysql.Connection.fetchAll
-</code></pre></div>
       </div>
     </div>
   </div>

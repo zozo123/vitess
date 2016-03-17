@@ -271,15 +271,16 @@ coverage.</li>
 <li>Each client library should support language-specific, idiomatic
 constructs to simplify application development in that language.</li>
 <li>Client libraries should integrate with the following language-specific
-database drivers, though this support is not yet provided:
+database drivers, though this support is not yet provided in some cases:
 
 <ul>
-<li>Go: <a href="http://golang.org/pkg/database/sql/">database/sql package</a></li>
+<li>Go: <a href="http://golang.org/pkg/database/sql/">database/sql package</a> (done)</li>
 <li>Java: <a href="https://docs.oracle.com/javase/tutorial/jdbc/index.html">JDBC</a>
-compliance</li>
+compliance (in progress)</li>
 <li>PHP: <a href="http://php.net/manual/en/intro.pdo.php">PHP Data Objects (PDO)</a>
-compliance</li>
-<li>Python: <a href="https://www.python.org/dev/peps/pep-0249/">DB API</a> compliance</li>
+compliance (in progress)</li>
+<li>Python: <a href="https://www.python.org/dev/peps/pep-0249/">DB API</a> compliance
+(done)</li>
 </ul></li>
 <li>Libraries provide a thin wrapper around the proto3 service definitions.
 Those wrappers could be extended with adapters to higher level libraries
@@ -337,7 +338,7 @@ test your application against an actual instance.</p>
 <h3 id="python">Python</h3>
 
 <ul>
-<li><a href="https://github.com/youtube/vitess/blob/master/py/vtdb/vtgatev2.py">Python client</a></li>
+<li><a href="https://github.com/youtube/vitess/blob/master/py/vtdb/vtgate_client.py">Python client</a></li>
 </ul>
 
       </div>

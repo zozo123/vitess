@@ -928,7 +928,7 @@
 
 <h4 id="example">Example</h4>
 
-<pre class="command-example">VtGateExecute -server &lt;vtgate&gt; [-bind_variables &lt;JSON map&gt;] [-connect_timeout &lt;connect timeout&gt;] [-tablet_type &lt;tablet type&gt;] &lt;sql&gt;</pre>
+<pre class="command-example">VtGateExecute -server &lt;vtgate&gt; [-bind_variables &lt;JSON map&gt;] [-connect_timeout &lt;connect timeout&gt;] [-tablet_type &lt;tablet type&gt;] [-json] &lt;sql&gt;</pre>
 
 <h4 id="flags">Flags</h4>
 
@@ -943,6 +943,11 @@
 <td style="text-align: left">connect_timeout</td>
 <td style="text-align: left">Duration</td>
 <td style="text-align: left">Connection timeout for vtgate client</td>
+</tr>
+<tr>
+<td style="text-align: left">json</td>
+<td style="text-align: left">Boolean</td>
+<td style="text-align: left">Output JSON instead of human-readable table</td>
 </tr>
 <tr>
 <td style="text-align: left">server</td>
@@ -977,7 +982,7 @@
 
 <h4 id="example">Example</h4>
 
-<pre class="command-example">VtGateExecuteKeyspaceIds -server &lt;vtgate&gt; -keyspace &lt;keyspace&gt; -keyspace_ids &lt;ks1 in hex&gt;,&lt;k2 in hex&gt;,... [-bind_variables &lt;JSON map&gt;] [-connect_timeout &lt;connect timeout&gt;] [-tablet_type &lt;tablet type&gt;] &lt;sql&gt;</pre>
+<pre class="command-example">VtGateExecuteKeyspaceIds -server &lt;vtgate&gt; -keyspace &lt;keyspace&gt; -keyspace_ids &lt;ks1 in hex&gt;,&lt;k2 in hex&gt;,... [-bind_variables &lt;JSON map&gt;] [-connect_timeout &lt;connect timeout&gt;] [-tablet_type &lt;tablet type&gt;] [-json] &lt;sql&gt;</pre>
 
 <h4 id="flags">Flags</h4>
 
@@ -992,6 +997,11 @@
 <td style="text-align: left">connect_timeout</td>
 <td style="text-align: left">Duration</td>
 <td style="text-align: left">Connection timeout for vtgate client</td>
+</tr>
+<tr>
+<td style="text-align: left">json</td>
+<td style="text-align: left">Boolean</td>
+<td style="text-align: left">Output JSON instead of human-readable table</td>
 </tr>
 <tr>
 <td style="text-align: left">keyspace</td>
@@ -1039,7 +1049,7 @@
 
 <h4 id="example">Example</h4>
 
-<pre class="command-example">VtGateExecuteShards -server &lt;vtgate&gt; -keyspace &lt;keyspace&gt; -shards &lt;shard0&gt;,&lt;shard1&gt;,... [-bind_variables &lt;JSON map&gt;] [-connect_timeout &lt;connect timeout&gt;] [-tablet_type &lt;tablet type&gt;] &lt;sql&gt;</pre>
+<pre class="command-example">VtGateExecuteShards -server &lt;vtgate&gt; -keyspace &lt;keyspace&gt; -shards &lt;shard0&gt;,&lt;shard1&gt;,... [-bind_variables &lt;JSON map&gt;] [-connect_timeout &lt;connect timeout&gt;] [-tablet_type &lt;tablet type&gt;] [-json] &lt;sql&gt;</pre>
 
 <h4 id="flags">Flags</h4>
 
@@ -1054,6 +1064,11 @@
 <td style="text-align: left">connect_timeout</td>
 <td style="text-align: left">Duration</td>
 <td style="text-align: left">Connection timeout for vtgate client</td>
+</tr>
+<tr>
+<td style="text-align: left">json</td>
+<td style="text-align: left">Boolean</td>
+<td style="text-align: left">Output JSON instead of human-readable table</td>
 </tr>
 <tr>
 <td style="text-align: left">keyspace</td>
@@ -1275,7 +1290,7 @@
 
 <h4 id="example">Example</h4>
 
-<pre class="command-example">VtTabletExecute [-bind_variables &lt;JSON map&gt;] [-connect_timeout &lt;connect timeout&gt;] [-transaction_id &lt;transaction_id&gt;] [-tablet_type &lt;tablet_type&gt;] -keyspace &lt;keyspace&gt; -shard &lt;shard&gt; &lt;tablet alias&gt; &lt;sql&gt;</pre>
+<pre class="command-example">VtTabletExecute [-bind_variables &lt;JSON map&gt;] [-connect_timeout &lt;connect timeout&gt;] [-transaction_id &lt;transaction_id&gt;] [-tablet_type &lt;tablet_type&gt;] [-json] -keyspace &lt;keyspace&gt; -shard &lt;shard&gt; &lt;tablet alias&gt; &lt;sql&gt;</pre>
 
 <h4 id="flags">Flags</h4>
 
@@ -1290,6 +1305,11 @@
 <td style="text-align: left">connect_timeout</td>
 <td style="text-align: left">Duration</td>
 <td style="text-align: left">Connection timeout for vttablet client</td>
+</tr>
+<tr>
+<td style="text-align: left">json</td>
+<td style="text-align: left">Boolean</td>
+<td style="text-align: left">Output JSON instead of human-readable table</td>
 </tr>
 <tr>
 <td style="text-align: left">keyspace</td>
@@ -2678,6 +2698,7 @@
 <li><a href="#executefetchasdba">ExecuteFetchAsDba</a></li>
 <li><a href="#executehook">ExecuteHook</a></li>
 <li><a href="#gettablet">GetTablet</a></li>
+<li><a href="#ignorehealtherror">IgnoreHealthError</a></li>
 <li><a href="#inittablet">InitTablet</a></li>
 <li><a href="#ping">Ping</a></li>
 <li><a href="#refreshstate">RefreshState</a></li>
@@ -2842,7 +2863,7 @@
 
 <h4 id="example">Example</h4>
 
-<pre class="command-example">ExecuteFetchAsDba [--max_rows=10000] [--disable_binlogs] &lt;tablet alias&gt; &lt;sql command&gt;</pre>
+<pre class="command-example">ExecuteFetchAsDba [-max_rows=10000] [-disable_binlogs] [-json] &lt;tablet alias&gt; &lt;sql command&gt;</pre>
 
 <h4 id="flags">Flags</h4>
 
@@ -2857,6 +2878,11 @@
 <td style="text-align: left">disable_binlogs</td>
 <td style="text-align: left">Boolean</td>
 <td style="text-align: left">Disables writing to binlogs during the query</td>
+</tr>
+<tr>
+<td style="text-align: left">json</td>
+<td style="text-align: left">Boolean</td>
+<td style="text-align: left">Output JSON instead of human-readable table</td>
 </tr>
 <tr>
 <td style="text-align: left">max_rows</td>
@@ -2923,6 +2949,27 @@
 
 <ul>
 <li>The <code>&lt;tablet alias&gt;</code> argument is required for the <code>&lt;GetTablet&gt;</code> command. This error occurs if the command is not called with exactly one argument.</li>
+</ul>
+
+<h3 id="ignorehealtherror">IgnoreHealthError</h3>
+
+<p>Sets the regexp for health check errors to ignore on the specified tablet. The pattern has implicit ^$ anchors. Set to empty string or restart vttablet to stop ignoring anything.</p>
+
+<h4 id="example">Example</h4>
+
+<pre class="command-example">IgnoreHealthError &lt;tablet alias&gt; &lt;ignore regexp&gt;</pre>
+
+<h4 id="arguments">Arguments</h4>
+
+<ul>
+<li><code>&lt;tablet alias&gt;</code> &ndash; Required. A Tablet Alias uniquely identifies a vttablet. The argument value is in the format <code>&lt;cell name&gt;-&lt;uid&gt;</code>.</li>
+<li><code>&lt;ignore regexp&gt;</code> &ndash; Required.</li>
+</ul>
+
+<h4 id="errors">Errors</h4>
+
+<ul>
+<li>The <code>&lt;tablet alias&gt;</code> and <code>&lt;ignore regexp&gt;</code> arguments are required for the <code>&lt;IgnoreHealthError&gt;</code> command. This error occurs if the command is not called with exactly 2 arguments.</li>
 </ul>
 
 <h3 id="inittablet">InitTablet</h3>
